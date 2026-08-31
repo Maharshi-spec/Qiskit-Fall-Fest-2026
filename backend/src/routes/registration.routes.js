@@ -1,8 +1,9 @@
 const express = require('express')
+const { createRegistration } = require('../controllers/registration.controller')
+const { upload } = require('../middleware/upload.middleware')
+
 const router = express.Router()
 
-router.post('/', (req, res) => {
-  res.json({ message: 'Registration endpoint ready' })
-})
+router.post('/registrations', upload.single('idCard'), createRegistration)
 
 module.exports = router

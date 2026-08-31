@@ -1,3 +1,10 @@
+const { db, databaseUrl } = require('./env')
+
 module.exports = {
-  databaseUrl: process.env.DATABASE_URL || 'postgresql://user:password@localhost:5432/qiskit_fall_fest',
+  host: db.host,
+  port: db.port,
+  name: db.name,
+  user: db.user,
+  password: db.password,
+  databaseUrl,
 }
