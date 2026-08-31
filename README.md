@@ -1,127 +1,211 @@
-# Qiskit Fall Fest 2026 — CUTM Vizianagaram
+# Qiskit Fall Fest 2026
 
-Official website for **Qiskit Fall Fest 2026** at
+A comprehensive event management platform for the Qiskit Fall Fest 2026, featuring registration, workshops, hackathon management, and certificate generation.
 
-**Centurion University of Technology and Management (CUTM), Vizianagaram**
+## Features
 
-📅 **September 5–7, 2026**  
-📍 **CUTM-AP Campus + Virtual**
+- 🎫 **Event Registration** - Easy registration for attendees
+- 🎓 **Workshop Management** - Schedule and manage workshop sessions
+- 🚀 **Hackathon Platform** - Team creation and hackathon management
+- 🏆 **Certificate Generation** - Automated certificate creation and verification
+- 📊 **Health Monitoring** - API health check endpoints
+- 🔒 **Error Handling** - Comprehensive error handling and validation
+- ⚡ **Rate Limiting** - API rate limiting for protection
 
----
+## Tech Stack
 
-## 📌 About the Project
+### Frontend
+- React 18.2
+- Vite
+- JavaScript/JSX
+- CSS
 
-This repository contains the source code for the official **Qiskit Fall Fest 2026 — CUTM Vizianagaram** website.
+### Backend
+- Node.js
+- Express.js
+- MongoDB
+- Mongoose
 
-The website is designed to provide participants with:
+## Quick Start
 
-- Information about the event
-- Three-day event schedule
-- Speaker information
-- Hackathon information
-- Workshop information
-- Organizer information
-- Venue information
-- Event registration
-- Certificate collection/generation
+### Prerequisites
+- Node.js 16 or higher
+- MongoDB (local or cloud)
+- npm or yarn
 
-The website is designed using the official **Qiskit Fall Fest 2026** visual resources and takes the **QTC × USTHB Algiers Qiskit Fall Fest website** as the primary design reference.
+### Installation
 
-> This project is an official college event website and is not a competition project.
+1. **Clone the repository**
+```bash
+git clone <repository-url>
+cd qiskit-fall-fest-2026
+```
 
----
+2. **Backend Setup**
+```bash
+cd backend
+cp .env.example .env
+npm install
+npm run dev
+```
 
-## 🎯 Event Information
+The backend will run on `http://localhost:3000`
 
-| Information | Details |
-|---|---|
-| Event | Qiskit Fall Fest 2026 |
-| Institution | Centurion University of Technology and Management |
-| Location | Vizianagaram, Andhra Pradesh |
-| Dates | September 5–7, 2026 |
-| Venue | CUTM-AP Campus + Virtual |
-| Expected Registrations | ~10,000 |
-| CUTM Student Fee | Free |
-| External Participant Fee | ₹150 |
-| Registration Deadline | September 6, 2026 — 23:59 |
-| Registration | Airtable |
-| Activities | Workshops, Hackathon, Talks, Certificates |
+3. **Frontend Setup**
+```bash
+cd frontend
+cp .env.example .env
+npm install
+npm run dev
+```
 
----
+The frontend will run on `http://localhost:5173`
 
-# 🎨 Design Reference
+## Project Structure
 
-### Primary Reference
-
-Qiskit Fall Fest 2026 — QTC × USTHB Algiers:
-
-https://qff-26.kodotiq.com/
-
-The reference website is used for:
-
-- Visual direction
-- Layout inspiration
-- Typography
-- Hero composition
-- Program/schedule presentation
-- Section hierarchy
-- Animation ideas
-- CTA placement
-- Responsive design inspiration
-
-The website is **not being copied**.
-
-The implementation is original and uses the official Qiskit Fall Fest 2026 assets together with CUTM-specific content.
-
-### Secondary Reference
-
-Qiskit Fall Fest 2026 — DBATU Lonere:
-
-https://dbatuqiskitfallfest.github.io/
-
-This website is used only as an additional reference for event information and structural ideas.
-
----
-
-# 🖼️ Official Resources
-
-Official Qiskit Fall Fest 2026 resources:
-
-https://github.com/Qiskit-Fall-Fest-2026/materials-resources
-
-The resources include:
-
-- Hero illustrations
-- SVG/PNG graphics
-- Stickers
-- Badges
-- Qiskit Fall Fest branding
-- Other visual assets
-- Qiskit Fall Fest 2026 presentation template
-
-Whenever possible, SVG assets should be preferred over raster images for scalable graphics.
-
----
-
-# 🧩 Website Structure
-
-The current website consists of the following main pages:
-
-```text
-/
-├── Home
+```
+qiskit-fall-fest-2026/
+├── frontend/                 # React frontend
+│   ├── src/
+│   │   ├── components/      # Reusable components
+│   │   ├── pages/           # Page components
+│   │   ├── services/        # API services
+│   │   ├── data/            # Static data
+│   │   ├── App.jsx
+│   │   └── main.jsx
+│   ├── package.json
+│   └── vite.config.js
 │
-├── /day-1
-│   └── September 5, 2026
+├── backend/                 # Express backend
+│   ├── src/
+│   │   ├── routes/          # API routes
+│   │   ├── controllers/     # Route handlers
+│   │   ├── services/        # Business logic
+│   │   ├── middleware/      # Middleware
+│   │   ├── config/          # Configuration
+│   │   ├── app.js
+│   │   └── server.js
+│   ├── package.json
+│   └── .env.example
 │
-├── /day-2
-│   └── September 6, 2026
+├── database/                # Database files
+│   ├── migrations/
+│   ├── seeds/
+│   └── schema/
 │
-├── /day-3
-│   └── September 7, 2026
+├── docs/                    # Documentation
+│   ├── architecture.md
+│   ├── api.md
+│   ├── database.md
+│   └── deployment.md
 │
-├── /hackathon
-│   └── Hackathon information / registration
-│
-└── /certificates
-    └── Certificate collection / generation
+├── .gitignore
+└── README.md
+```
+
+## API Endpoints
+
+### Health Check
+- `GET /api/health` - Check server status
+
+### Registration
+- `POST /api/registration/register` - Register for event
+- `GET /api/registration` - Get all registrations
+- `GET /api/registration/:id` - Get specific registration
+- `PUT /api/registration/:id` - Update registration
+- `DELETE /api/registration/:id` - Delete registration
+
+### Workshops
+- `GET /api/workshop` - Get all workshops
+- `GET /api/workshop/:id` - Get specific workshop
+- `POST /api/workshop/:workshopId/register` - Register for workshop
+- `GET /api/workshop/:workshopId/attendees` - Get workshop attendees
+
+### Hackathon
+- `GET /api/hackathon` - Get hackathon info
+- `POST /api/hackathon/team/create` - Create team
+- `GET /api/hackathon/teams` - Get all teams
+- `POST /api/hackathon/team/:teamId/join` - Join team
+- `POST /api/hackathon/team/:teamId/leave` - Leave team
+
+### Certificates
+- `GET /api/certificate/:registrationId` - Generate certificate
+- `GET /api/certificate/verify/:certId` - Verify certificate
+
+See [API Documentation](./docs/api.md) for detailed endpoints.
+
+## Environment Variables
+
+### Backend (.env)
+```
+PORT=3000
+NODE_ENV=development
+MONGODB_URI=mongodb://localhost:27017/qiskit-fall-fest
+JWT_SECRET=your_secret_key
+FRONTEND_URL=http://localhost:5173
+```
+
+### Frontend (.env)
+```
+VITE_API_URL=http://localhost:3000/api
+```
+
+## Documentation
+
+- [Architecture Overview](./docs/architecture.md)
+- [API Documentation](./docs/api.md)
+- [Database Schema](./docs/database.md)
+- [Deployment Guide](./docs/deployment.md)
+
+## Development
+
+### Running in Development Mode
+
+**Terminal 1 - Backend**
+```bash
+cd backend
+npm run dev
+```
+
+**Terminal 2 - Frontend**
+```bash
+cd frontend
+npm run dev
+```
+
+### Building for Production
+
+**Backend**
+```bash
+cd backend
+npm run build
+npm start
+```
+
+**Frontend**
+```bash
+cd frontend
+npm run build
+# Serves from dist/ directory
+```
+
+## Contributing
+
+1. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+2. Commit your changes (`git commit -m 'Add AmazingFeature'`)
+3. Push to the branch (`git push origin feature/AmazingFeature`)
+4. Open a Pull Request
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## Support
+
+For support, email support@qiskit-fall-fest.com or create an issue in the repository.
+
+## Acknowledgments
+
+- Qiskit Community
+- Event Organizers
+- Contributors and Volunteers

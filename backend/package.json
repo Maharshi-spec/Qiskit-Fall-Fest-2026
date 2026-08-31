@@ -1,0 +1,25 @@
+{
+  "name": "qiskit-fall-fest-backend",
+  "version": "1.0.0",
+  "description": "Backend API for Qiskit Fall Fest 2026",
+  "main": "src/server.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "test": "node --test tests/**/*.test.js"
+  },
+  "keywords": ["qiskit", "quantum", "event"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "mongodb": "^5.3.0",
+    "mongoose": "^7.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  }
+}
