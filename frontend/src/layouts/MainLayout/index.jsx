@@ -3,11 +3,11 @@ import Footer from '../../components/Footer'
 
 const MainLayout = ({ children }) => {
   return (
-    <>
+    <div className="app-shell">
       <Navbar />
-      <main>{children}</main>
+      <main className="site-main">{children}</main>
       <Footer />
-    </>
+    </div>
   )
 }
 
