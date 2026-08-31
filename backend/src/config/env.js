@@ -1,7 +1,10 @@
 require('dotenv').config()
 
+const databaseUrl = process.env.DATABASE_URL ||
+  `postgresql://${process.env.DB_USER || 'postgres'}:${process.env.DB_PASSWORD || 'admin123'}@${process.env.DB_HOST || 'localhost'}:${process.env.DB_PORT || 5432}/${process.env.DB_NAME || 'qff2026_dev'}`
+
 module.exports = {
-  port: process.env.PORT || 5000,
+  port: Number(process.env.PORT || 5000),
   nodeEnv: process.env.NODE_ENV || 'development',
   db: {
     host: process.env.DB_HOST || 'localhost',
@@ -10,9 +13,7 @@ module.exports = {
     user: process.env.DB_USER || 'postgres',
     password: process.env.DB_PASSWORD || 'admin123',
   },
-  databaseUrl:
-    process.env.DATABASE_URL ||
-    `postgresql://${process.env.DB_USER || 'postgres'}:${process.env.DB_PASSWORD || 'admin123'}@${process.env.DB_HOST || 'localhost'}:${process.env.DB_PORT || 5432}/${process.env.DB_NAME || 'qff2026_dev'}`,
+  databaseUrl,
   jwtSecret: process.env.JWT_SECRET || 'dev-secret',
   frontendUrl: process.env.FRONTEND_URL || 'http://localhost:5173',
   mailFrom: process.env.MAIL_FROM || 'noreply@qiskitfallfest.com',
