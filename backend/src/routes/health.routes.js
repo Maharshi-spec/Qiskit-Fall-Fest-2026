@@ -1,8 +1,12 @@
 const express = require('express')
 const router = express.Router()
 
-router.get('/', (req, res) => {
-  res.json({ status: 'ok' })
+router.get('/health', (req, res) => {
+  res.json({
+    success: true,
+    status: 'healthy',
+    service: 'qiskit-fall-fest-backend',
+  })
 })
 
 module.exports = router
