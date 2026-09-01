@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import heroArtwork from '../../assets/qiskit/hero-1-without-title.png.png'
@@ -11,6 +12,21 @@ const Hero = () => {
   const artworkRef = useRef(null)
   const badgeRef = useRef(null)
   const storyRefs = useRef([])
+  const navigate = useNavigate()
+
+  const handleRegister = () => {
+    navigate('/register')
+  }
+
+  const handleExploreEvent = () => {
+    const eventSection = document.getElementById('home-event')
+    if (eventSection) {
+      eventSection.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      return
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   useEffect(() => {
     if (!sectionRef.current) return
@@ -34,6 +50,29 @@ const Hero = () => {
             anticipatePin: 1,
           },
         })
+
+        gsap.fromTo(
+          '.hero__content > *',
+          { opacity: 0 },
+          {
+            opacity: 1,
+            duration: 0.5,
+            stagger: 0.08,
+            ease: 'power2.out',
+          },
+        )
+
+        gsap.fromTo(
+          '.hero__actions .button',
+          { opacity: 0, scale: 0.9 },
+          {
+            opacity: 1,
+            scale: 1,
+            duration: 0.35,
+            stagger: 0.08,
+            ease: 'back.out(1.7)',
+          },
+        )
 
         timeline
           .to(artworkRef.current, {
@@ -133,8 +172,8 @@ const Hero = () => {
             Explore quantum computing, learn with Qiskit, build hands-on skills, and connect through workshops, collaboration, and innovation.
           </p>
           <div className="hero__actions" aria-label="Hero actions">
-            <button type="button" className="button button--primary">Register</button>
-            <button type="button" className="button button--secondary">Explore Event</button>
+            <button type="button" className="button button--primary" onClick={handleRegister}>Register</button>
+            <button type="button" className="button button--secondary" onClick={handleExploreEvent}>Explore Event</button>
           </div>
         </div>
       </div>
