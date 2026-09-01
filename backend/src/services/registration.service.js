@@ -1124,36 +1124,71 @@ const registerAuthUser = async (payload = {}) => {
   }
 }
 
-const loginUser = async (payload = {}) => {
+const loginOrganizer = async (payload = {}) => {
   const { email, password } = payload
 
   if (!email || !password) {
-    throw new AppError(400, 'VALIDATION_ERROR', 'email and password are required.')
+    throw new AppError(400, 'VALIDATION_ERROR', 'Email and password are required.')
   }
 
-  const user = userRepository.findByEmail(email)
-  if (!user) {
-    throw new AppError(401, 'INVALID_CREDENTIALS', 'Invalid email or password.')
+  const normalizedEmail = normalizeEmail(email)
+  let organizer = null
+
+  try {
+    const { data, error } = await supabase
+      .from('organizers')
+      .select('organizer_id, email, password')
+      .eq('email', normalizedEmail)
+      .limit(1)
+
+    if (!error && data && data.length > 0) {
+      organizer = data[0]
+    }
+  } catch (err) {
+    console.warn('[SUPABASE DB WARN] loginOrganizer error, falling back:', err.message)
   }
 
-  const isValidPassword = bcrypt.compareSync(String(password), user.passwordHash)
-  if (!isValidPassword) {
-    throw new AppError(401, 'INVALID_CREDENTIALS', 'Invalid email or password.')
+  if (!organizer) {
+    try {
+      const result = await pool.query(
+        'SELECT organizer_id AS "organizerId", email, password FROM organizers WHERE email = $1 LIMIT 1',
+        [normalizedEmail],
+      )
+      if (result.rows.length > 0) {
+        organizer = result.rows[0]
+      }
+    } catch (err) {
+      // Ignore fallback error
+    }
   }
+
+  if (!organizer || String(organizer.password) !== String(password)) {
+    throw new AppError(401, 'INVALID_CREDENTIALS', 'Invalid organizer credentials.')
+  }
+
+  const token = jwt.sign(
+    { userId: organizer.organizer_id || organizer.organizerId || 'org-1', email: organizer.email, role: 'ORGANIZER' },
+    process.env.JWT_SECRET || 'dev-secret',
+    { expiresIn: '7d' },
+  )
 
   return {
     success: true,
     data: {
+      token,
       user: {
-        id: user.id,
-        fullName: user.fullName,
-        email: user.email,
-        role: user.role,
+        id: organizer.organizer_id || organizer.organizerId || 'org-1',
+        email: organizer.email,
+        role: 'ORGANIZER',
       },
-      token: createJwtToken(user),
     },
   }
 }
+
+const loginUser = async (payload = {}) => {
+  return loginOrganizer(payload)
+}
+
 
 const refreshAuthToken = async (user) => ({
   success: true,
@@ -1478,8 +1513,10 @@ module.exports = {
   registerUser,
   loginParticipant,
   getCurrentParticipant,
+  loginOrganizer,
   registerAuthUser,
   loginUser,
+
   refreshAuthToken,
   logoutUser,
   getEvents,

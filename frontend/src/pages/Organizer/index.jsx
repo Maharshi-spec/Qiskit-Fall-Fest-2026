@@ -7,7 +7,31 @@ const ORGANIZER_EMAIL = 'admin@qiskitfallfest.com'
 const ORGANIZER_PASSWORD = 'Admin@123'
 
 const getOrganizerToken = () => api.getOrganizerToken()
-const isOrganizerAuthenticated = () => Boolean(getOrganizerToken())
+
+const parseJwtPayload = (token) => {
+  if (!token) return null
+  try {
+    const base64Url = token.split('.')[1]
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join(''),
+    )
+    return JSON.parse(jsonPayload)
+  } catch (e) {
+    return null
+  }
+}
+
+const isOrganizerAuthenticated = () => {
+  const token = getOrganizerToken()
+  if (!token) return false
+  const payload = parseJwtPayload(token)
+  if (!payload) return false
+  return payload.role === 'ORGANIZER' || payload.role === 'ADMIN'
+}
 
 const OrganizerLayout = ({ children }) => {
   const navigate = useNavigate()
@@ -67,7 +91,7 @@ const OrganizerLayout = ({ children }) => {
 
 const OrganizerLogin = () => {
   const navigate = useNavigate()
-  const [form, setForm] = useState({ email: ORGANIZER_EMAIL, password: ORGANIZER_PASSWORD })
+  const [form, setForm] = useState({ email: '', password: '' })
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
@@ -96,7 +120,7 @@ const OrganizerLogin = () => {
       return
     }
 
-    setError(result.error?.message || 'Organizer login failed.')
+    setError('Invalid organizer credentials.')
   }
 
   return (

@@ -38,8 +38,18 @@ const getCurrentParticipant = async (req, res, next) => {
   }
 }
 
+const loginOrganizer = async (req, res, next) => {
+  try {
+    const result = await registrationService.loginOrganizer(req.body)
+    return res.status(200).json(result)
+  } catch (error) {
+    return next(error)
+  }
+}
+
 module.exports = {
   createRegistration,
   loginParticipant,
   getCurrentParticipant,
+  loginOrganizer,
 }

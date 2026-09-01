@@ -60,8 +60,8 @@ const requireAdmin = (req, res, next) => {
       return next(authErr)
     }
 
-    if (req.user.role !== 'ADMIN') {
-      return next(new AppError(403, 'FORBIDDEN', 'Admin access required.'))
+    if (req.user.role !== 'ADMIN' && req.user.role !== 'ORGANIZER') {
+      return next(new AppError(403, 'FORBIDDEN', 'Organizer access required.'))
     }
 
     return next()

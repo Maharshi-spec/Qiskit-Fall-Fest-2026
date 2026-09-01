@@ -139,7 +139,7 @@ export const api = {
 
   async organizerLogin(payload) {
     try {
-      const response = await fetch(resolveApiUrl('/api/v1/auth/login'), {
+      const response = await fetch(resolveApiUrl('/api/v1/organizers/login'), {
         method: 'POST',
         headers: buildJsonHeaders(),
         credentials: 'include',
@@ -151,7 +151,7 @@ export const api = {
       if (!response.ok) {
         return {
           success: false,
-          error: data?.error || { code: 'LOGIN_FAILED', message: 'Organizer login failed.' },
+          error: data?.error || { code: 'INVALID_CREDENTIALS', message: 'Invalid organizer credentials.' },
         }
       }
 
@@ -167,7 +167,7 @@ export const api = {
     } catch (err) {
       return {
         success: false,
-        error: { code: 'NETWORK_ERROR', message: 'Organizer login is unavailable right now.' },
+        error: { code: 'NETWORK_ERROR', message: 'Invalid organizer credentials.' },
       }
     }
   },
