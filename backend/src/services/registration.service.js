@@ -480,11 +480,117 @@ const sendMail = async ({ to, subject, text, html }) => {
   })
 }
 
+const buildRegistrationConfirmationEmailContent = (registration) => {
+  const participantName = String(registration.fullName || 'Participant').trim() || 'Participant'
+  const registrationId = String(registration.registrationId || 'N/A').trim()
+  const status = String(registration.status || 'CONFIRMED').trim().toUpperCase()
+  const participantEmail = String(registration.email || '').trim()
+
+  const text = [
+    `Hi ${participantName},`,
+    '',
+    'Your registration for Qiskit Fall Fest 2026 has been successfully received and confirmed.',
+    '',
+    `Registration ID: ${registrationId}`,
+    `Status: ${status}`,
+    `Participant: ${participantName}`,
+    `Email: ${participantEmail}`,
+    '',
+    'Thank you for registering for Qiskit Fall Fest 2026. We are looking forward to having you join us for a hands-on experience around quantum computing, learning, workshops, community, and experimentation.',
+    '',
+    "What's next?",
+    '- Keep your registration ID safe for future communication and check-in.',
+    '- Watch your registered email for event updates and follow-up instructions.',
+    '- Follow official event communication for schedule and participation guidance.',
+    '- Contact the organizers if you need assistance.',
+    '',
+    'Thank you for being part of the Qiskit Fall Fest 2026 community.',
+  ].join('\n')
+
+  const html = `
+    <div style="margin:0;padding:0;background:#f5f3f8;font-family:Arial,Helvetica,sans-serif;">
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#f5f3f8;padding:32px 0;">
+        <tr>
+          <td align="center">
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width:640px;background:#ffffff;border:1px solid #f3d8e6;border-radius:14px;overflow:hidden;">
+              <tr>
+                <td style="padding:30px 28px 10px 28px;background:#ffffff;">
+                  <div style="font-size:12px;letter-spacing:1.5px;color:#d14b9b;font-weight:700;text-transform:uppercase;">Qiskit Fall Fest 2026</div>
+                  <h1 style="margin:14px 0 10px 0;font-size:28px;line-height:1.3;color:#1f1f1f;">Registration confirmed</h1>
+                  <p style="margin:0;color:#4a4a4a;font-size:16px;line-height:1.6;">Hi ${participantName},</p>
+                  <p style="margin:16px 0 0 0;color:#4a4a4a;font-size:16px;line-height:1.7;">Your registration for Qiskit Fall Fest 2026 has been successfully received and confirmed.</p>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:20px 28px;">
+                  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#fff8fc;border:1px solid #f3d8e6;border-radius:10px;">
+                    <tr>
+                      <td style="padding:18px 20px;">
+                        <div style="font-size:11px;letter-spacing:1.3px;color:#d14b9b;text-transform:uppercase;font-weight:700;">Registration ID</div>
+                        <div style="margin-top:8px;font-size:26px;font-weight:700;color:#1f1f1f;letter-spacing:0.5px;">${registrationId}</div>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:0 28px 16px 28px;">
+                  <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="font-size:15px;color:#303030;line-height:1.7;">
+                    <tr>
+                      <td style="padding:6px 0;width:120px;font-weight:700;color:#1f1f1f;">Status</td>
+                      <td style="padding:6px 0;color:#4a4a4a;">${status}</td>
+                    </tr>
+                    <tr>
+                      <td style="padding:6px 0;width:120px;font-weight:700;color:#1f1f1f;">Participant</td>
+                      <td style="padding:6px 0;color:#4a4a4a;">${participantName}</td>
+                    </tr>
+                    <tr>
+                      <td style="padding:6px 0;width:120px;font-weight:700;color:#1f1f1f;">Email</td>
+                      <td style="padding:6px 0;color:#4a4a4a;">${participantEmail}</td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:0 28px 8px 28px;">
+                  <p style="margin:0;color:#4a4a4a;font-size:15px;line-height:1.7;">Thank you for registering for Qiskit Fall Fest 2026. We are looking forward to having you join us for a hands-on experience around quantum computing, learning, workshops, community, and experimentation.</p>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:18px 28px 8px 28px;">
+                  <h2 style="margin:0 0 10px 0;font-size:20px;color:#1f1f1f;">What’s next?</h2>
+                  <ul style="margin:0;padding-left:20px;color:#4a4a4a;font-size:15px;line-height:1.8;">
+                    <li>Keep your registration ID safe for future communication and check-in.</li>
+                    <li>Watch your registered email for event updates and follow-up instructions.</li>
+                    <li>Follow official event communication for schedule and participation guidance.</li>
+                    <li>Contact the organizers if you need assistance.</li>
+                  </ul>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:20px 28px 30px 28px;">
+                  <div style="border-top:1px solid #f0e0eb;padding-top:16px;color:#4a4a4a;font-size:14px;line-height:1.7;">
+                    Thank you for being part of the Qiskit Fall Fest 2026 community.
+                  </div>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </div>
+  `
+
+  return { text, html }
+}
+
 const sendRegistrationConfirmationEmail = async (registration) => {
+  const emailContent = buildRegistrationConfirmationEmailContent(registration)
   const emailPayload = {
     to: registration.email,
-    subject: 'Qiskit Fall Fest 2026 Registration Confirmed',
-    text: `Hello ${registration.fullName},\n\nYour registration for Qiskit Fall Fest 2026 has been confirmed.\nRegistration ID: ${registration.registrationId}\nStatus: ${registration.status}\n\nImportant: Please keep this registration ID for future communication and check-in.\n\nEvent details will be shared closer to the event date.`,
+    subject: 'Registration Confirmed — Qiskit Fall Fest 2026',
+    text: emailContent.text,
+    html: emailContent.html,
   }
 
   try {
@@ -1030,5 +1136,7 @@ module.exports = {
   eventRepository,
   notificationRepository,
   sendEventDayReminder,
+  sendRegistrationConfirmationEmail,
+  buildRegistrationConfirmationEmailContent,
   normalizeEmail,
 }
