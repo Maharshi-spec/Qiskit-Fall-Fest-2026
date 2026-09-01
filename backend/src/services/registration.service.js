@@ -863,9 +863,22 @@ const registerUser = async (payload = {}, file) => {
   )
 
   try {
+    console.info('[REGISTRATION_EMAIL_DIAGNOSTIC] registration confirmation email call', {
+      recipient: registration.email,
+      registrationId: registration.registrationId,
+      smtpHost: process.env.MAIL_HOST,
+      smtpPort: process.env.MAIL_PORT,
+      hasMailUser: Boolean(process.env.MAIL_USER),
+      hasMailPassword: Boolean(process.env.MAIL_PASSWORD),
+    })
     await sendRegistrationConfirmationEmail(registration)
   } catch (error) {
-    console.warn('[EMAIL WARN] registration confirmation failed', error)
+    console.error('[REGISTRATION_EMAIL_ERROR] registration confirmation failed', {
+      code: error && error.code,
+      message: error && error.message ? String(error.message).replace(/(pass|password|token|secret)\s*[:=]?\s*[^\s,;]+/gi, '[REDACTED]') : 'Unknown email failure',
+      registrationId: registration.registrationId,
+      recipient: registration.email,
+    })
   }
 
   try {
