@@ -4,9 +4,9 @@ import sticker02 from '../../assets/qiskit/Sticker 02.svg'
 import sticker07 from '../../assets/qiskit/Sticker 07.svg'
 
 const certificateHighlights = [
-  'Participation and attendance guidance will be shared as the program is finalized.',
-  'The event experience is designed to support learning, experimentation, and community connection.',
-  'Certificate details will be made available through the official event flow when enabled.',
+  'Event Participant Certificate — awarded to participants who attend and take part in Qiskit Fall Fest 2026.',
+  'Hackathon Participant Certificate — awarded to participants who complete and participate in the Qiskit Fall Fest 2026 hackathon.',
+  'Workshop Participant Certificate — awarded to participants who attend and participate in the Qiskit Fall Fest 2026 workshops.',
 ]
 
 const Certificates = () => {
@@ -15,9 +15,9 @@ const Certificates = () => {
       <div className="container detail-page__header">
         <div className="detail-page__intro">
           <p className="page-shell__eyebrow">Certificates</p>
-          <h1>Your Qiskit Fall Fest journey.</h1>
+          <h1>Your Qiskit Fall Fest 2026 Certificate.</h1>
           <p>
-            Qiskit Fall Fest is designed as a learning-centered experience, and certificate information will be shared through the event workflow when it becomes available.
+            Participants can receive certificates based on their involvement in Qiskit Fall Fest 2026. Whether you attend the main event, take part in the hackathon, or join a workshop, your participation can be recognized with the corresponding certificate.
           </p>
         </div>
         <div className="detail-page__visual">
@@ -28,7 +28,7 @@ const Certificates = () => {
       <div className="container detail-page__grid detail-page__grid--three">
         {certificateHighlights.map((item) => (
           <div key={item} className="detail-card">
-            <p className="detail-card__eyebrow">Certificate info</p>
+            <p className="detail-card__eyebrow">Certificate</p>
             <p>{item}</p>
           </div>
         ))}
@@ -37,9 +37,9 @@ const Certificates = () => {
       <div className="container detail-page__panel detail-page__panel--split">
         <div className="detail-page__panel-copy">
           <p className="page-shell__eyebrow">Certificate collection</p>
-          <h2>Frontend-ready structure for the event utility flow.</h2>
+          <h2>Find your certificate after the event.</h2>
           <p>
-            This page keeps the experience polished and clear while intentionally avoiding unsupported claims about generation, validity, or backend certificate logic.
+            Use your registered event email to check whether your certificate is available for collection. Certificates are provided according to your participation in the event, hackathon, or workshops.
           </p>
         </div>
 
