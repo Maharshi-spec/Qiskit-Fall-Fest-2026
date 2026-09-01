@@ -1,23 +1,145 @@
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const nodemailer = require('nodemailer')
+const path = require('path')
 const { AppError } = require('../middleware/error.middleware')
+const { pool } = require('../config/database')
+const { supabase } = require('../config/supabase')
 
 const VALID_ROLES = new Set(['STUDENT', 'FACULTY', 'PROFESSIONAL', 'OTHER'])
 const BOOLEAN_FIELDS = new Set(['knowsPython', 'aicteQuantumCourse', 'knowsQuantumBasics', 'usedQiskitBefore'])
 
+const uploadIdCardToSupabase = async (file) => {
+  const ext = path.extname(file.originalname || '') || (file.mimetype === 'application/pdf' ? '.pdf' : '.jpg')
+  const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`
+  const filePathInBucket = `id cards/${uniqueName}`
+
+  const { data: uploadData, error: uploadError } = await supabase.storage
+    .from('ID Cards')
+    .upload(filePathInBucket, file.buffer, {
+      contentType: file.mimetype,
+      upsert: true,
+    })
+
+  if (uploadError) {
+    console.error('[SUPABASE STORAGE ERROR]', uploadError)
+    throw new AppError(500, 'FILE_UPLOAD_FAILED', `Failed to upload ID card to cloud storage: ${uploadError.message}`)
+  }
+
+  const { data: publicUrlData } = supabase.storage
+    .from('ID Cards')
+    .getPublicUrl(filePathInBucket)
+
+  return publicUrlData.publicUrl
+}
+
 const registrationRepository = {
-  registrations: [],
   notificationLog: [],
 
-  findByEmail(email) {
+  async findByEmail(email) {
     const normalizedEmail = normalizeEmail(email)
-    return this.registrations.find((registration) => normalizeEmail(registration.email) === normalizedEmail) || null
+
+    try {
+      const { data, error } = await supabase
+        .from('registrations')
+        .select('registration_id')
+        .eq('email', normalizedEmail)
+        .limit(1)
+
+      if (!error && data && data.length > 0) {
+        return { registrationId: data[0].registration_id }
+      }
+    } catch (err) {
+      console.warn('[SUPABASE DB WARN] findByEmail error, falling back:', err.message)
+    }
+
+    try {
+      const result = await pool.query(
+        'SELECT registration_id AS "registrationId" FROM registrations WHERE email = $1 LIMIT 1',
+        [normalizedEmail],
+      )
+      return result.rows[0] || null
+    } catch (err) {
+      return null
+    }
   },
 
-  createRegistration(record) {
-    this.registrations.push(record)
-    return record
+  async createRegistration(record, idCardUrl) {
+    try {
+      const { data, error } = await supabase
+        .from('registrations')
+        .insert({
+          registration_id: record.registrationId,
+          full_name: record.fullName,
+          email: record.email,
+          mobile_number: record.mobileNumber,
+          role: record.role,
+          institute_name: record.instituteName,
+          department: record.department,
+          knows_python: record.knowsPython,
+          aicte_quantum_course: record.aicteQuantumCourse,
+          knows_quantum_basics: record.knowsQuantumBasics,
+          used_qiskit_before: record.usedQiskitBefore,
+          id_card_url: idCardUrl,
+          status: record.status,
+        })
+        .select('registration_id, status')
+        .single()
+
+      if (error) {
+        console.error('[SUPABASE DB INSERT ERROR]', error)
+        if (error.code === '23505' || (error.message && error.message.includes('unique constraint'))) {
+          throw new AppError(400, 'EMAIL_ALREADY_REGISTERED', 'This email is already registered.')
+        }
+        throw new AppError(500, 'DATABASE_ERROR', error.message || 'Failed to save registration.')
+      }
+
+      return { registrationId: data.registration_id, status: data.status }
+    } catch (err) {
+      if (err instanceof AppError) throw err
+      console.error('[SUPABASE DB EXCEPTION]', err)
+      throw new AppError(503, 'DATABASE_UNAVAILABLE', 'Registration could not be saved. Please try again.')
+    }
+  },
+
+  async findAll() {
+    try {
+      const { data, error } = await supabase
+        .from('registrations')
+        .select('*')
+        .order('created_at', { ascending: false })
+
+      if (!error && data) {
+        return data.map((item) => ({
+          registrationId: item.registration_id,
+          status: item.status,
+          fullName: item.full_name,
+          email: item.email,
+          mobileNumber: item.mobile_number,
+          role: item.role,
+          instituteName: item.institute_name,
+          department: item.department,
+          knowsPython: item.knows_python,
+          aicteQuantumCourse: item.aicte_quantum_course,
+          knowsQuantumBasics: item.knows_quantum_basics,
+          usedQiskitBefore: item.used_qiskit_before,
+          idCardUrl: item.id_card_url,
+          createdAt: item.created_at,
+        }))
+      }
+    } catch (err) {
+      console.warn('[SUPABASE DB WARN] findAll falling back to pg pool:', err.message)
+    }
+
+    const result = await pool.query(
+      `SELECT registration_id AS "registrationId", status, full_name AS "fullName",
+        email, mobile_number AS "mobileNumber", role, institute_name AS "instituteName",
+        department, knows_python AS "knowsPython", aicte_quantum_course AS "aicteQuantumCourse",
+        knows_quantum_basics AS "knowsQuantumBasics", used_qiskit_before AS "usedQiskitBefore",
+        id_card_url AS "idCardUrl", created_at AS "createdAt"
+      FROM registrations ORDER BY created_at DESC`,
+    )
+    return result.rows
   },
 
   logNotification(notification) {
@@ -265,9 +387,24 @@ const normalizeBooleanField = (value) => {
   return false
 }
 
-const generateRegistrationId = () => {
-  const currentIndex = (registrationRepository.registrations.length || 0) + 1
-  return `QFF26-R-${String(currentIndex).padStart(5, '0')}`
+const generateRegistrationId = async () => {
+  try {
+    const { count, error } = await supabase
+      .from('registrations')
+      .select('*', { count: 'exact', head: true })
+
+    const nextNumber = (count || 0) + 1
+    return {
+      id: Date.now(),
+      registrationId: `QFF26-R-${String(nextNumber).padStart(5, '0')}`,
+    }
+  } catch (err) {
+    const fallbackId = Date.now()
+    return {
+      id: fallbackId,
+      registrationId: `QFF26-R-${String(fallbackId).slice(-5)}`,
+    }
+  }
 }
 
 const createJwtToken = (user) => jwt.sign({ userId: user.id, email: user.email, role: user.role }, process.env.JWT_SECRET || 'dev-secret', { expiresIn: '24h' })
@@ -305,8 +442,8 @@ const sendRegistrationConfirmationEmail = async (registration) => {
     await sendMail(emailPayload)
     return emailPayload
   } catch (error) {
-    console.error('[EMAIL] registration confirmation failed', error)
-    throw error
+    console.warn('[EMAIL WARN] Registration confirmation email could not be sent (SMTP not configured):', error.message)
+    return null
   }
 }
 
@@ -338,8 +475,8 @@ const sendEventDayReminder = async (dayId, registration) => {
     return { skipped: false, reminderKey }
   } catch (error) {
     notificationRepository.markFailed(payload, error.message)
-    console.error(`[EMAIL] failed to send reminder for day ${dayId}`, error)
-    throw error
+    console.warn(`[EMAIL WARN] Failed to send reminder for day ${dayId}:`, error.message)
+    return { skipped: true, reason: 'failed', reminderKey }
   }
 }
 
@@ -350,7 +487,7 @@ const scheduleEventDayReminders = async (registration) => {
     try {
       await sendEventDayReminder(dayId, registration)
     } catch (error) {
-      console.error(`[EMAIL] failed to schedule reminder for day ${dayId}`, error)
+      console.warn(`[EMAIL WARN] Failed to schedule reminder for day ${dayId}:`, error.message)
     }
   }
 
@@ -413,7 +550,7 @@ const registerUser = async (payload = {}, file) => {
   validateRegistrationPayload(requestPayload)
 
   const email = normalizeEmail(requestPayload.email)
-  const existingRegistration = registrationRepository.findByEmail(email)
+  const existingRegistration = await registrationRepository.findByEmail(email)
 
   if (existingRegistration) {
     throw new AppError(400, 'EMAIL_ALREADY_REGISTERED', 'This email is already registered.')
@@ -423,7 +560,7 @@ const registerUser = async (payload = {}, file) => {
     throw new AppError(400, 'VALIDATION_ERROR', 'idCard is required.')
   }
 
-  if (!file.originalname || file.size <= 0) {
+  if ((!file.buffer && !file.path) || file.size <= 0) {
     throw new AppError(400, 'VALIDATION_ERROR', 'idCard file is missing or empty.')
   }
 
@@ -436,9 +573,12 @@ const registerUser = async (payload = {}, file) => {
     throw new AppError(400, 'INVALID_FILE_TYPE', 'Invalid ID card file type. Allowed types: JPEG, PNG, PDF.')
   }
 
-  const registrationId = generateRegistrationId()
+  const idCardUrl = await uploadIdCardToSupabase(file)
+  const generatedId = await generateRegistrationId()
+
   const registration = {
-    registrationId,
+    id: generatedId.id,
+    registrationId: generatedId.registrationId,
     status: 'CONFIRMED',
     fullName: String(requestPayload.fullName).trim(),
     email,
@@ -450,36 +590,22 @@ const registerUser = async (payload = {}, file) => {
     aicteQuantumCourse: normalizeBooleanField(requestPayload.aicteQuantumCourse),
     knowsQuantumBasics: normalizeBooleanField(requestPayload.knowsQuantumBasics),
     usedQiskitBefore: normalizeBooleanField(requestPayload.usedQiskitBefore),
-    idCard: {
-      originalName: file.originalname,
-      mimetype: file.mimetype,
-      size: file.size,
-      uploadedAt: new Date().toISOString(),
-    },
+    idCardUrl,
     createdAt: new Date().toISOString(),
   }
 
-  registrationRepository.createRegistration(registration)
+  await registrationRepository.createRegistration(registration, idCardUrl)
 
   try {
     await sendRegistrationConfirmationEmail(registration)
   } catch (error) {
-    notificationRepository.create({
-      registrationId: registration.registrationId,
-      eventDay: 'registration',
-      emailType: 'REGISTRATION_CONFIRMATION',
-      recipient: registration.email,
-      status: 'FAILED',
-      errorMessage: error.message,
-      createdAt: new Date().toISOString(),
-    })
-    console.error('[EMAIL] registration confirmation failed', error)
+    console.warn('[EMAIL WARN] registration confirmation failed', error)
   }
 
   try {
     await scheduleEventDayReminders(registration)
   } catch (error) {
-    console.error('[EMAIL] scheduled reminder process failed', error)
+    console.warn('[EMAIL WARN] scheduled reminder process failed', error)
   }
 
   return {
@@ -487,6 +613,7 @@ const registerUser = async (payload = {}, file) => {
     data: {
       registrationId: registration.registrationId,
       status: registration.status,
+      idCardUrl,
     },
   }
 }
@@ -806,7 +933,7 @@ const updateParticipantById = async (participantId, payload = {}, user) => {
 
 const getAdminRegistrations = async () => ({
   success: true,
-  data: registrationRepository.registrations,
+  data: await registrationRepository.findAll(),
 })
 
 const getAdminParticipants = async () => ({

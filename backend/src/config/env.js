@@ -17,4 +17,8 @@ module.exports = {
   jwtSecret: process.env.JWT_SECRET || 'dev-secret',
   frontendUrl: process.env.FRONTEND_URL || 'http://localhost:5173',
   mailFrom: process.env.MAIL_FROM || 'noreply@qiskitfallfest.com',
+  supabaseUrl: process.env.SUPABASE_URL || 'https://lxnsncmlpkdwtvrbktpb.supabase.co',
+  supabaseAnonKey: process.env.SUPABASE_ANON_KEY || 'sb_publishable_jblNqUk7CFsLaRFNoUtdPw_eDMXNbc4',
+  supabaseServiceRoleKey: process.env.SUPABASE_SERVICE_ROLE_KEY || '',
 }
+
