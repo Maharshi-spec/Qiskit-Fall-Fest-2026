@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { NavLink } from 'react-router-dom'
 import { useEffect, useState } from 'react'
+import { useAuth } from '../../context/AuthContext'
 import qiskitBadge from '../../assets/qiskit/badge-pink.png.png'
 
 const navItems = [
@@ -17,6 +18,7 @@ const navItems = [
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
+  const { isLoggedIn, userRegistration, openLoginModal, logout } = useAuth()
 
   useEffect(() => {
     const updateMobileState = () => setIsMobile(window.innerWidth <= 860)
@@ -26,6 +28,61 @@ const Navbar = () => {
 
     return () => window.removeEventListener('resize', updateMobileState)
   }, [])
+
+  const authActions = (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+      {isLoggedIn ? (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+          <span
+            style={{
+              padding: '0.35rem 0.65rem',
+              borderRadius: '20px',
+              backgroundColor: 'rgba(255, 79, 163, 0.12)',
+              color: '#ff4fa3',
+              fontSize: '0.82rem',
+              fontWeight: 700,
+            }}
+          >
+            {userRegistration?.registrationId || 'Registered'}
+          </span>
+          <button
+            type="button"
+            onClick={logout}
+            style={{
+              background: 'none',
+              border: '1px solid rgba(139, 132, 156, 0.3)',
+              borderRadius: '20px',
+              padding: '0.35rem 0.75rem',
+              fontSize: '0.82rem',
+              fontWeight: 600,
+              color: '#5e5670',
+              cursor: 'pointer',
+            }}
+          >
+            Logout
+          </button>
+        </div>
+      ) : (
+        <button
+          type="button"
+          onClick={openLoginModal}
+          style={{
+            backgroundColor: '#ff4fa3',
+            color: '#ffffff',
+            border: 'none',
+            borderRadius: '20px',
+            padding: '0.4rem 0.9rem',
+            fontSize: '0.85rem',
+            fontWeight: 700,
+            cursor: 'pointer',
+            boxShadow: '0 2px 8px rgba(255, 79, 163, 0.25)',
+          }}
+        >
+          Login
+        </button>
+      )}
+    </div>
+  )
 
   const navContent = (
     <>
@@ -39,6 +96,7 @@ const Navbar = () => {
           {item.label}
         </NavLink>
       ))}
+      {authActions}
     </>
   )
 
