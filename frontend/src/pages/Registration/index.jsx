@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import Button from '../../components/Button'
 import { api } from '../../services/api'
+import { useAuth } from '../../context/AuthContext'
 import sticker01 from '../../assets/qiskit/Sticker 01.svg'
 import sticker02 from '../../assets/qiskit/Sticker 02.svg'
 
@@ -27,6 +28,8 @@ const registrationHighlights = [
 ]
 
 const Registration = () => {
+  const { isLoggedIn, userRegistration, login, logout } = useAuth()
+
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -46,6 +49,14 @@ const Registration = () => {
   const [isLoading, setIsLoading] = useState(false)
   const [submittedData, setSubmittedData] = useState(null)
   const [apiError, setApiError] = useState(null)
+
+  useEffect(() => {
+    if (isLoggedIn && userRegistration) {
+      setSubmittedData(userRegistration)
+    }
+  }, [isLoggedIn, userRegistration])
+
+  const activeRegistration = submittedData || (isLoggedIn ? userRegistration : null)
 
   const handleInputChange = (event) => {
     const { name, value, type, checked } = event.target
@@ -135,7 +146,21 @@ const Registration = () => {
       const result = await api.submitRegistration(data)
 
       if (result.success) {
-        setSubmittedData(result.data)
+        const regData = result.data.registration || {
+          registrationId: result.data.registrationId,
+          status: result.data.status,
+          idCardUrl: result.data.idCardUrl,
+          fullName: formData.fullName,
+          email: formData.email,
+          instituteName: formData.instituteName,
+          role: formData.role,
+        }
+
+        setSubmittedData(regData)
+        if (result.data.token) {
+          login(result.data.token, regData)
+        }
+
         setFormData({
           fullName: '',
           email: '',
@@ -198,30 +223,74 @@ const Registration = () => {
         ))}
       </div>
 
-      {submittedData ? (
+      {activeRegistration ? (
         <div className="container detail-page__panel">
           <div className="detail-page__panel-copy">
             <p className="page-shell__eyebrow" style={{ color: '#ff4fa3' }}>✓ Registration Confirmed</p>
             <h2 style={{ color: '#3d2f59' }}>You're all set!</h2>
             <p>
-              Your registration for Qiskit Fall Fest 2026 has been successfully submitted. Check your email for further details and event updates.
+              Your registration for Qiskit Fall Fest 2026 is confirmed and active on this device.
             </p>
 
             <div className="detail-page__info-stack" style={{ marginTop: '1.5rem' }}>
               <div className="detail-info-item">
                 <span>Registration ID</span>
-                <strong>{submittedData.registrationId || 'Processing...'}</strong>
+                <strong>{activeRegistration.registrationId || 'Processing...'}</strong>
               </div>
               <div className="detail-info-item">
-                <span>Status</span>
-                <strong>{submittedData.status || 'Confirmed'}</strong>
+                <span>Name</span>
+                <strong>{activeRegistration.fullName || 'Registered Participant'}</strong>
               </div>
+              <div className="detail-info-item">
+                <span>Email</span>
+                <strong>{activeRegistration.email || '—'}</strong>
+              </div>
+              {activeRegistration.instituteName && (
+                <div className="detail-info-item">
+                  <span>Institution</span>
+                  <strong>{activeRegistration.instituteName}</strong>
+                </div>
+              )}
+              <div className="detail-info-item">
+                <span>Status</span>
+                <strong>{activeRegistration.status || 'Confirmed'}</strong>
+              </div>
+              {activeRegistration.idCardUrl && (
+                <div className="detail-info-item">
+                  <span>ID Card</span>
+                  <a
+                    href={activeRegistration.idCardUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{ color: '#ff4fa3', textDecoration: 'underline', fontWeight: 600 }}
+                  >
+                    View Uploaded Document →
+                  </a>
+                </div>
+              )}
             </div>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginTop: '1.5rem' }}>
             <Button to="/" kind="primary">Back to home</Button>
             <Button to="/#program" kind="secondary">View the program</Button>
+            <button
+              type="button"
+              onClick={logout}
+              style={{
+                marginTop: '0.5rem',
+                background: 'none',
+                border: '1px solid rgba(139, 132, 156, 0.3)',
+                borderRadius: '12px',
+                padding: '0.65rem',
+                color: '#5e5670',
+                fontWeight: 600,
+                fontSize: '0.9rem',
+                cursor: 'pointer',
+              }}
+            >
+              Sign out on this device
+            </button>
           </div>
         </div>
       ) : (

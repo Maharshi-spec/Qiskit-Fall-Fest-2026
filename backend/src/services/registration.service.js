@@ -64,6 +64,106 @@ const registrationRepository = {
     }
   },
 
+  async findByEmailAndRegistrationId(email, registrationId) {
+    const normalizedEmail = normalizeEmail(email)
+    const normalizedId = String(registrationId || '').trim().toUpperCase()
+
+    try {
+      const { data, error } = await supabase
+        .from('registrations')
+        .select('*')
+        .eq('email', normalizedEmail)
+        .eq('registration_id', normalizedId)
+        .limit(1)
+
+      if (!error && data && data.length > 0) {
+        const item = data[0]
+        return {
+          registrationId: item.registration_id,
+          status: item.status,
+          fullName: item.full_name,
+          email: item.email,
+          mobileNumber: item.mobile_number,
+          role: item.role,
+          instituteName: item.institute_name,
+          department: item.department,
+          knowsPython: item.knows_python,
+          aicteQuantumCourse: item.aicte_quantum_course,
+          knowsQuantumBasics: item.knows_quantum_basics,
+          usedQiskitBefore: item.used_qiskit_before,
+          idCardUrl: item.id_card_url,
+          createdAt: item.created_at,
+        }
+      }
+    } catch (err) {
+      console.warn('[SUPABASE DB WARN] findByEmailAndRegistrationId error:', err.message)
+    }
+
+    try {
+      const result = await pool.query(
+        `SELECT registration_id AS "registrationId", status, full_name AS "fullName",
+          email, mobile_number AS "mobileNumber", role, institute_name AS "instituteName",
+          department, knows_python AS "knowsPython", aicte_quantum_course AS "aicteQuantumCourse",
+          knows_quantum_basics AS "knowsQuantumBasics", used_qiskit_before AS "usedQiskitBefore",
+          id_card_url AS "idCardUrl", created_at AS "createdAt"
+        FROM registrations WHERE email = $1 AND registration_id = $2 LIMIT 1`,
+        [normalizedEmail, normalizedId],
+      )
+      return result.rows[0] || null
+    } catch (err) {
+      return null
+    }
+  },
+
+  async findByRegistrationId(registrationId) {
+    const normalizedId = String(registrationId || '').trim().toUpperCase()
+
+    try {
+      const { data, error } = await supabase
+        .from('registrations')
+        .select('*')
+        .eq('registration_id', normalizedId)
+        .limit(1)
+
+      if (!error && data && data.length > 0) {
+        const item = data[0]
+        return {
+          registrationId: item.registration_id,
+          status: item.status,
+          fullName: item.full_name,
+          email: item.email,
+          mobileNumber: item.mobile_number,
+          role: item.role,
+          instituteName: item.institute_name,
+          department: item.department,
+          knowsPython: item.knows_python,
+          aicteQuantumCourse: item.aicte_quantum_course,
+          knowsQuantumBasics: item.knows_quantum_basics,
+          usedQiskitBefore: item.used_qiskit_before,
+          idCardUrl: item.id_card_url,
+          createdAt: item.created_at,
+        }
+      }
+    } catch (err) {
+      console.warn('[SUPABASE DB WARN] findByRegistrationId error:', err.message)
+    }
+
+    try {
+      const result = await pool.query(
+        `SELECT registration_id AS "registrationId", status, full_name AS "fullName",
+          email, mobile_number AS "mobileNumber", role, institute_name AS "instituteName",
+          department, knows_python AS "knowsPython", aicte_quantum_course AS "aicteQuantumCourse",
+          knows_quantum_basics AS "knowsQuantumBasics", used_qiskit_before AS "usedQiskitBefore",
+          id_card_url AS "idCardUrl", created_at AS "createdAt"
+        FROM registrations WHERE registration_id = $1 LIMIT 1`,
+        [normalizedId],
+      )
+      return result.rows[0] || null
+    } catch (err) {
+      return null
+    }
+  },
+
   async createRegistration(record, idCardUrl) {
     try {
       const { data, error } = await supabase
@@ -373,19 +473,18 @@ const normalizeEmail = (value) => String(value || '').trim().toLowerCase()
 const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value || '').trim())
 
 const isValidMobileNumber = (value) => /^\+?[0-9\s()-]{7,20}$/.test(String(value || '').trim())
-const sanitizeSmtpPassword = (value) => String(value ?? '').replace(/\s+/g, '').trim()
 
 const getMailConfiguration = () => {
   const environment = process.env.NODE_ENV || 'development'
   const requiredFields = ['MAIL_HOST', 'MAIL_PORT', 'MAIL_USER', 'MAIL_PASSWORD', 'MAIL_FROM']
 
   const config = {
-    host: String(process.env.MAIL_HOST || (environment === 'production' ? '' : 'localhost')).trim(),
-    port: String(process.env.MAIL_PORT || (environment === 'production' ? '' : '1025')).trim(),
-    user: String(process.env.MAIL_USER || '').trim(),
-    password: sanitizeSmtpPassword(process.env.MAIL_PASSWORD),
-    from: String(process.env.MAIL_FROM || (environment === 'production' ? '' : 'noreply@qiskitfallfest.com')).trim(),
-    fromName: String(process.env.MAIL_FROM_NAME || 'Qiskit Fall Fest 2026').trim(),
+    host: process.env.MAIL_HOST || (environment === 'production' ? '' : 'localhost'),
+    port: process.env.MAIL_PORT ? Number(process.env.MAIL_PORT) : (environment === 'production' ? '' : 1025),
+    user: process.env.MAIL_USER || '',
+    password: process.env.MAIL_PASSWORD || '',
+    from: process.env.MAIL_FROM || (environment === 'production' ? '' : 'noreply@qiskitfallfest.com'),
+    fromName: process.env.MAIL_FROM_NAME || 'Qiskit Fall Fest 2026',
   }
 
   const missingFields = requiredFields.filter((fieldName) => {
@@ -452,16 +551,16 @@ const sendMail = async ({ to, subject, text, html }) => {
     throw new AppError(
       503,
       'EMAIL_CONFIGURATION_INCOMPLETE',
-      'Email delivery is disabled until SMTP configuration is complete.',
+      `Email delivery is disabled until SMTP configuration is complete. Missing: ${missingFields.join(', ')}`,
     )
   }
 
   const transport = nodemailer.createTransport({
     host: config.host,
     port: Number(config.port || 587),
-    secure: Number(config.port || 587) === 465,
-    tls: { rejectUnauthorized: true },
-    auth: config.user && config.password ? { user: config.user, pass: config.password } : undefined,
+    secure: config.port ? Number(config.port) === 465 : false,
+    ignoreTLS: !isProduction && !(config.port && Number(config.port) === 587),
+    auth: config.user ? { user: config.user, pass: config.password || '' } : undefined,
   })
 
   if (process.env.NODE_ENV === 'test') {
@@ -477,17 +576,13 @@ const sendMail = async ({ to, subject, text, html }) => {
     ? `${config.fromName} <${config.from}>`
     : config.from
 
-  try {
-    return await transport.sendMail({
-      from: senderAddress,
-      to,
-      subject,
-      text,
-      html,
-    })
-  } catch (error) {
-    throw new AppError(503, 'SMTP_DELIVERY_FAILED', 'Email delivery failed. SMTP authentication or transport could not complete.')
-  }
+  return transport.sendMail({
+    from: senderAddress,
+    to,
+    subject,
+    text,
+    html,
+  })
 }
 
 const buildRegistrationConfirmationEmailContent = (registration) => {
@@ -761,6 +856,12 @@ const registerUser = async (payload = {}, file) => {
 
   await registrationRepository.createRegistration(registration, idCardUrl)
 
+  const token = jwt.sign(
+    { email: registration.email, registrationId: registration.registrationId, role: 'PARTICIPANT' },
+    process.env.JWT_SECRET || 'dev-secret',
+    { expiresIn: '7d' },
+  )
+
   try {
     await sendRegistrationConfirmationEmail(registration)
   } catch (error) {
@@ -779,6 +880,71 @@ const registerUser = async (payload = {}, file) => {
       registrationId: registration.registrationId,
       status: registration.status,
       idCardUrl,
+      token,
+      registration,
+    },
+  }
+}
+
+const loginParticipant = async (payload = {}) => {
+  const { email, registrationId } = payload
+
+  if (!email || !registrationId) {
+    throw new AppError(400, 'VALIDATION_ERROR', 'Email and registration ID are required.')
+  }
+
+  if (!isValidEmail(email)) {
+    throw new AppError(400, 'VALIDATION_ERROR', 'Invalid email format.')
+  }
+
+  const registration = await registrationRepository.findByEmailAndRegistrationId(email, registrationId)
+
+  if (!registration) {
+    throw new AppError(401, 'INVALID_CREDENTIALS', 'Invalid email or registration ID.')
+  }
+
+  const token = jwt.sign(
+    { email: registration.email, registrationId: registration.registrationId, role: 'PARTICIPANT' },
+    process.env.JWT_SECRET || 'dev-secret',
+    { expiresIn: '7d' },
+  )
+
+  return {
+    success: true,
+    data: {
+      token,
+      registration,
+    },
+  }
+}
+
+const getCurrentParticipant = async (authHeader) => {
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    throw new AppError(401, 'UNAUTHORIZED', 'Authentication token is missing.')
+  }
+
+  const token = authHeader.split(' ')[1]
+  let decoded
+  try {
+    decoded = jwt.verify(token, process.env.JWT_SECRET || 'dev-secret')
+  } catch (err) {
+    throw new AppError(401, 'INVALID_TOKEN', 'Session expired or invalid token.')
+  }
+
+  if (!decoded || !decoded.registrationId) {
+    throw new AppError(401, 'INVALID_TOKEN', 'Invalid session token.')
+  }
+
+  const registration = await registrationRepository.findByRegistrationId(decoded.registrationId)
+
+  if (!registration) {
+    throw new AppError(404, 'REGISTRATION_NOT_FOUND', 'Registration record not found.')
+  }
+
+  return {
+    success: true,
+    data: {
+      registration,
     },
   }
 }
@@ -1118,6 +1284,8 @@ const getAdminEmailLogs = async () => ({
 
 module.exports = {
   registerUser,
+  loginParticipant,
+  getCurrentParticipant,
   registerAuthUser,
   loginUser,
   refreshAuthToken,

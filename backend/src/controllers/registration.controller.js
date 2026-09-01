@@ -19,6 +19,27 @@ const createRegistration = async (req, res, next) => {
   }
 }
 
+const loginParticipant = async (req, res, next) => {
+  try {
+    const result = await registrationService.loginParticipant(req.body)
+    return res.status(200).json(result)
+  } catch (error) {
+    return next(error)
+  }
+}
+
+const getCurrentParticipant = async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization
+    const result = await registrationService.getCurrentParticipant(authHeader)
+    return res.status(200).json(result)
+  } catch (error) {
+    return next(error)
+  }
+}
+
 module.exports = {
   createRegistration,
+  loginParticipant,
+  getCurrentParticipant,
 }
