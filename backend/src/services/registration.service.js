@@ -374,6 +374,41 @@ const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value |
 
 const isValidMobileNumber = (value) => /^\+?[0-9\s()-]{7,20}$/.test(String(value || '').trim())
 
+const getMailConfiguration = () => {
+  const environment = process.env.NODE_ENV || 'development'
+  const requiredFields = ['MAIL_HOST', 'MAIL_PORT', 'MAIL_USER', 'MAIL_PASSWORD', 'MAIL_FROM']
+
+  const config = {
+    host: process.env.MAIL_HOST || (environment === 'production' ? '' : 'localhost'),
+    port: process.env.MAIL_PORT ? Number(process.env.MAIL_PORT) : (environment === 'production' ? '' : 1025),
+    user: process.env.MAIL_USER || '',
+    password: process.env.MAIL_PASSWORD || '',
+    from: process.env.MAIL_FROM || (environment === 'production' ? '' : 'noreply@qiskitfallfest.com'),
+    fromName: process.env.MAIL_FROM_NAME || 'Qiskit Fall Fest 2026',
+  }
+
+  const missingFields = requiredFields.filter((fieldName) => {
+    const fieldValue = process.env[fieldName]
+    return !fieldValue || String(fieldValue).trim() === ''
+  })
+
+  const summary = {
+    MAIL_HOST: Boolean(config.host),
+    MAIL_PORT: Boolean(config.port),
+    MAIL_USER: Boolean(config.user),
+    MAIL_PASSWORD: Boolean(config.password),
+    MAIL_FROM: Boolean(config.from),
+    MAIL_FROM_NAME: Boolean(config.fromName),
+  }
+
+  return {
+    config,
+    summary,
+    missingFields,
+    isProduction: environment === 'production',
+  }
+}
+
 const isBooleanLikeText = (value) => {
   if (typeof value === 'boolean') return true
   const normalized = String(value || '').trim().toLowerCase()
@@ -410,20 +445,34 @@ const generateRegistrationId = async () => {
 const createJwtToken = (user) => jwt.sign({ userId: user.id, email: user.email, role: user.role }, process.env.JWT_SECRET || 'dev-secret', { expiresIn: '24h' })
 
 const sendMail = async ({ to, subject, text, html }) => {
+  const { config, missingFields, isProduction } = getMailConfiguration()
+
+  if (isProduction && missingFields.length > 0) {
+    throw new AppError(
+      503,
+      'EMAIL_CONFIGURATION_INCOMPLETE',
+      `Email delivery is disabled until SMTP configuration is complete. Missing: ${missingFields.join(', ')}`,
+    )
+  }
+
   const transport = nodemailer.createTransport({
-    host: process.env.MAIL_HOST || 'localhost',
-    port: Number(process.env.MAIL_PORT || 1025),
-    secure: false,
-    ignoreTLS: true,
-    auth: process.env.MAIL_USER ? { user: process.env.MAIL_USER, pass: process.env.MAIL_PASSWORD || '' } : undefined,
+    host: config.host,
+    port: Number(config.port || 587),
+    secure: config.port ? Number(config.port) === 465 : false,
+    ignoreTLS: !isProduction && !(config.port && Number(config.port) === 587),
+    auth: config.user ? { user: config.user, pass: config.password || '' } : undefined,
   })
 
   if (process.env.NODE_ENV === 'test') {
     return { messageId: `mock-${Date.now()}`, accepted: [to] }
   }
 
+  const senderAddress = config.fromName
+    ? `${config.fromName} <${config.from}>`
+    : config.from
+
   return transport.sendMail({
-    from: process.env.MAIL_FROM || 'noreply@qiskitfallfest.com',
+    from: senderAddress,
     to,
     subject,
     text,
