@@ -7,6 +7,7 @@ const certificateHighlights = [
   'Event Participant Certificate — awarded to participants who attend and take part in Qiskit Fall Fest 2026.',
   'Hackathon Participant Certificate — awarded to participants who complete and participate in the Qiskit Fall Fest 2026 hackathon.',
   'Workshop Participant Certificate — awarded to participants who attend and participate in the Qiskit Fall Fest 2026 workshops.',
+  'BootCamp Participant Certificate — awarded to participants who attend and participate in the Qiskit Fall Fest 2026 BootCamp.',
 ]
 
 const Certificates = () => {
@@ -17,7 +18,7 @@ const Certificates = () => {
           <p className="page-shell__eyebrow">Certificates</p>
           <h1>Your Qiskit Fall Fest 2026 Certificate.</h1>
           <p>
-            Participants can receive certificates based on their involvement in Qiskit Fall Fest 2026. Whether you attend the main event, take part in the hackathon, or join a workshop, your participation can be recognized with the corresponding certificate.
+            Participants can receive certificates based on their involvement in Qiskit Fall Fest 2026. Whether you attend the main event, take part in the hackathon, join a workshop, or participate in the BootCamp, your participation can be recognized with the corresponding certificate.
           </p>
         </div>
         <div className="detail-page__visual">
@@ -39,7 +40,7 @@ const Certificates = () => {
           <p className="page-shell__eyebrow">Certificate collection</p>
           <h2>Find your certificate after the event.</h2>
           <p>
-            Use your registered event email to check whether your certificate is available for collection. Certificates are provided according to your participation in the event, hackathon, or workshops.
+            Use your registered event email to check whether your certificate is available for collection. Certificates are provided according to your participation in the event, hackathon, workshops, or BootCamp.
           </p>
         </div>
 
