@@ -544,6 +544,141 @@ const generateRegistrationId = async () => {
 
 const createJwtToken = (user) => jwt.sign({ userId: user.id, email: user.email, role: user.role }, process.env.JWT_SECRET || 'dev-secret', { expiresIn: '24h' })
 
+const ensureAttendanceTable = async () => {
+  if (!pool) {
+    return
+  }
+
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS attendance (
+        id SERIAL PRIMARY KEY,
+        registration_id VARCHAR(64) NOT NULL UNIQUE,
+        full_name VARCHAR(160),
+        email VARCHAR(320),
+        status VARCHAR(32) NOT NULL DEFAULT 'NOT_MARKED',
+        marked_at TIMESTAMPTZ,
+        created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+        updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+      )
+    `)
+  } catch (error) {
+    console.warn('[ATTENDANCE WARN] Unable to ensure attendance table exists:', error.message)
+  }
+}
+
+const getAttendanceRecords = async () => {
+  const memory = global.__organizerAttendance || {}
+
+  if (!pool) {
+    return Object.values(memory).map((item) => ({
+      registrationId: item.registrationId,
+      fullName: item.fullName,
+      email: item.email,
+      status: item.status || 'NOT_MARKED',
+      markedAt: item.markedAt || null,
+    }))
+  }
+
+  try {
+    await ensureAttendanceTable()
+    const result = await pool.query(
+      `SELECT registration_id AS "registrationId", full_name AS "fullName", email, status, marked_at AS "markedAt"
+       FROM attendance ORDER BY updated_at DESC`,
+    )
+    return result.rows
+  } catch (error) {
+    console.warn('[ATTENDANCE WARN] Falling back to in-memory attendance:', error.message)
+    return Object.values(memory).map((item) => ({
+      registrationId: item.registrationId,
+      fullName: item.fullName,
+      email: item.email,
+      status: item.status || 'NOT_MARKED',
+      markedAt: item.markedAt || null,
+    }))
+  }
+}
+
+const setAttendanceRecord = async (registrationId, status, participant = {}) => {
+  const normalizedStatus = ['PRESENT', 'ABSENT', 'NOT_MARKED'].includes(String(status).toUpperCase())
+    ? String(status).toUpperCase()
+    : 'NOT_MARKED'
+
+  const record = {
+    registrationId: String(registrationId),
+    fullName: participant.fullName || participant.full_name || 'Participant',
+    email: participant.email || '',
+    status: normalizedStatus,
+    markedAt: new Date().toISOString(),
+  }
+
+  global.__organizerAttendance = global.__organizerAttendance || {}
+  global.__organizerAttendance[record.registrationId] = record
+
+  if (!pool) {
+    return record
+  }
+
+  try {
+    await ensureAttendanceTable()
+    await pool.query(
+      `INSERT INTO attendance (registration_id, full_name, email, status, marked_at, updated_at)
+       VALUES ($1, $2, $3, $4, NOW(), NOW())
+       ON CONFLICT (registration_id)
+       DO UPDATE SET full_name = EXCLUDED.full_name, email = EXCLUDED.email, status = EXCLUDED.status, marked_at = NOW(), updated_at = NOW()`,
+      [record.registrationId, record.fullName, record.email, record.status],
+    )
+  } catch (error) {
+    console.warn('[ATTENDANCE WARN] Attendance update failed in database, using in-memory fallback:', error.message)
+  }
+
+  return record
+}
+
+const sendOrganizerEmail = async (payload = {}) => {
+  const recipients = Array.isArray(payload.recipients)
+    ? payload.recipients
+    : String(payload.recipients || '').split(',').map((item) => item.trim()).filter(Boolean)
+
+  const subject = String(payload.subject || '').trim()
+  const message = String(payload.message || '').trim()
+
+  if (!recipients.length) {
+    throw new AppError(400, 'VALIDATION_ERROR', 'At least one recipient is required.')
+  }
+
+  if (!subject) {
+    throw new AppError(400, 'VALIDATION_ERROR', 'Email subject is required.')
+  }
+
+  if (!message) {
+    throw new AppError(400, 'VALIDATION_ERROR', 'Email message is required.')
+  }
+
+  const uniqueRecipients = [...new Set(recipients)]
+  const preparedMessage = message.replace(/\n/g, '<br />')
+
+  try {
+    await sendMail({
+      to: uniqueRecipients.join(', '),
+      subject,
+      text: message,
+      html: `<div style="font-family: Arial, sans-serif; line-height: 1.6;">${preparedMessage}</div>`,
+    })
+  } catch (error) {
+    throw new AppError(500, 'EMAIL_SEND_FAILED', error.message || 'Unable to send email.')
+  }
+
+  return {
+    success: true,
+    data: {
+      sentTo: uniqueRecipients,
+      subject,
+      sentAt: new Date().toISOString(),
+    },
+  }
+}
+
 const sendMail = async ({ to, subject, text, html }) => {
   const { config, missingFields, isProduction } = getMailConfiguration()
 
@@ -1267,15 +1402,72 @@ const getAdminRegistrations = async () => ({
   data: await registrationRepository.findAll(),
 })
 
-const getAdminParticipants = async () => ({
-  success: true,
-  data: userRepository.users.map((user) => ({
-    id: user.id,
-    fullName: user.fullName,
-    email: user.email,
-    role: user.role,
-  })),
-})
+const getAdminParticipants = async () => {
+  const registrations = await registrationRepository.findAll()
+  const attendanceByRegistrationId = Object.fromEntries(
+    (await getAttendanceRecords()).map((record) => [record.registrationId, record.status || 'NOT_MARKED']),
+  )
+
+  return {
+    success: true,
+    data: registrations.map((registration) => ({
+      registrationId: registration.registrationId,
+      fullName: registration.fullName,
+      email: registration.email,
+      mobileNumber: registration.mobileNumber,
+      role: registration.role,
+      instituteName: registration.instituteName,
+      department: registration.department,
+      status: registration.status,
+      attendanceStatus: attendanceByRegistrationId[registration.registrationId] || 'NOT_MARKED',
+      createdAt: registration.createdAt,
+    })),
+  }
+}
+
+const getAttendanceSummary = async () => {
+  const registrations = await registrationRepository.findAll()
+  const attendanceRecords = await getAttendanceRecords()
+  const attendanceMap = Object.fromEntries(attendanceRecords.map((item) => [item.registrationId, item.status || 'NOT_MARKED']))
+
+  return {
+    success: true,
+    data: registrations.map((participant) => ({
+      registrationId: participant.registrationId,
+      fullName: participant.fullName,
+      email: participant.email,
+      role: participant.role,
+      attendanceStatus: attendanceMap[participant.registrationId] || 'NOT_MARKED',
+      status: participant.status,
+    })),
+  }
+}
+
+const updateAttendanceStatus = async (registrationId, payload = {}) => {
+  const participant = (await registrationRepository.findAll()).find((item) => item.registrationId === registrationId)
+
+  if (!participant) {
+    throw new AppError(404, 'PARTICIPANT_NOT_FOUND', 'Participant not found.')
+  }
+
+  const nextStatus = String(payload.status || 'NOT_MARKED').toUpperCase()
+  if (!['PRESENT', 'ABSENT', 'NOT_MARKED'].includes(nextStatus)) {
+    throw new AppError(400, 'VALIDATION_ERROR', 'Attendance status must be PRESENT, ABSENT, or NOT_MARKED.')
+  }
+
+  const saved = await setAttendanceRecord(registrationId, nextStatus, participant)
+
+  return {
+    success: true,
+    data: {
+      registrationId,
+      fullName: saved.fullName,
+      email: saved.email,
+      attendanceStatus: saved.status,
+      markedAt: saved.markedAt,
+    },
+  }
+}
 
 const getAdminEmailLogs = async () => ({
   success: true,
@@ -1308,7 +1500,13 @@ module.exports = {
   updateParticipantById,
   getAdminRegistrations,
   getAdminParticipants,
+  getAttendanceSummary,
+  updateAttendanceStatus,
   getAdminEmailLogs,
+  sendOrganizerEmail,
+  ensureAttendanceTable,
+  getAttendanceRecords,
+  setAttendanceRecord,
   registrationRepository,
   userRepository,
   eventRepository,

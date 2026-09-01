@@ -1,4 +1,5 @@
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_URL || '').replace(/\/$/, '')
+const ORGANIZER_TOKEN_KEY = 'qff-organizer-token'
 
 const resolveApiUrl = (path = '') => {
   const normalizedPath = path.startsWith('/') ? path : `/${path}`
@@ -10,9 +11,37 @@ const resolveApiUrl = (path = '') => {
   return `${API_BASE_URL}${normalizedPath}`
 }
 
+const readOrganizerToken = () => localStorage.getItem(ORGANIZER_TOKEN_KEY) || ''
+
+const writeOrganizerToken = (token) => {
+  if (token) {
+    localStorage.setItem(ORGANIZER_TOKEN_KEY, token)
+    return
+  }
+
+  localStorage.removeItem(ORGANIZER_TOKEN_KEY)
+}
+
+const buildJsonHeaders = (extra = {}) => ({
+  'Content-Type': 'application/json',
+  ...extra,
+})
+
+const parseApiResponse = async (response) => {
+  const contentType = response.headers.get('content-type') || ''
+  if (!contentType.includes('application/json')) {
+    return null
+  }
+
+  return response.json()
+}
+
 export const api = {
   baseUrl: API_BASE_URL,
   getUrl: resolveApiUrl,
+  getOrganizerToken: readOrganizerToken,
+  setOrganizerToken: writeOrganizerToken,
+  clearOrganizerToken: () => writeOrganizerToken(''),
 
   async submitRegistration(formData) {
     try {
@@ -22,13 +51,12 @@ export const api = {
         credentials: 'include',
       })
 
-      const contentType = response.headers.get('content-type') || ''
-      const data = contentType.includes('application/json') ? await response.json() : null
+      const data = await parseApiResponse(response)
 
       if (!response.ok) {
         return {
           success: false,
-          error: data?.error || { code: 'UNKNOWN_ERROR', message: data?.error?.message || 'Registration failed.' },
+          error: data?.error || { code: 'UNKNOWN_ERROR', message: 'Registration failed.' },
         }
       }
 
@@ -105,6 +133,200 @@ export const api = {
       return {
         success: false,
         error: { code: 'NETWORK_ERROR', message: 'Unable to connect to the server.' },
+      }
+    }
+  },
+
+  async organizerLogin(payload) {
+    try {
+      const response = await fetch(resolveApiUrl('/api/v1/auth/login'), {
+        method: 'POST',
+        headers: buildJsonHeaders(),
+        credentials: 'include',
+        body: JSON.stringify(payload),
+      })
+
+      const data = await parseApiResponse(response)
+
+      if (!response.ok) {
+        return {
+          success: false,
+          error: data?.error || { code: 'LOGIN_FAILED', message: 'Organizer login failed.' },
+        }
+      }
+
+      const token = data?.data?.token
+      if (token) {
+        writeOrganizerToken(token)
+      }
+
+      return {
+        success: true,
+        data: data?.data || {},
+      }
+    } catch (err) {
+      return {
+        success: false,
+        error: { code: 'NETWORK_ERROR', message: 'Organizer login is unavailable right now.' },
+      }
+    }
+  },
+
+  async organizerFetchParticipants() {
+    try {
+      const response = await fetch(resolveApiUrl('/api/v1/admin/participants'), {
+        headers: {
+          Authorization: `Bearer ${readOrganizerToken()}`,
+          ...buildJsonHeaders(),
+        },
+        credentials: 'include',
+      })
+
+      const data = await parseApiResponse(response)
+
+      if (!response.ok) {
+        return {
+          success: false,
+          error: data?.error || { code: 'REQUEST_FAILED', message: 'Unable to load participants.' },
+        }
+      }
+
+      return {
+        success: true,
+        data: data?.data || [],
+      }
+    } catch (err) {
+      return {
+        success: false,
+        error: { code: 'NETWORK_ERROR', message: 'Unable to load participant records.' },
+      }
+    }
+  },
+
+  async organizerFetchAttendance() {
+    try {
+      const response = await fetch(resolveApiUrl('/api/v1/admin/attendance'), {
+        headers: {
+          Authorization: `Bearer ${readOrganizerToken()}`,
+          ...buildJsonHeaders(),
+        },
+        credentials: 'include',
+      })
+
+      const data = await parseApiResponse(response)
+
+      if (!response.ok) {
+        return {
+          success: false,
+          error: data?.error || { code: 'REQUEST_FAILED', message: 'Unable to load attendance.' },
+        }
+      }
+
+      return {
+        success: true,
+        data: data?.data || [],
+      }
+    } catch (err) {
+      return {
+        success: false,
+        error: { code: 'NETWORK_ERROR', message: 'Unable to load attendance records.' },
+      }
+    }
+  },
+
+  async organizerUpdateAttendance(registrationId, status) {
+    try {
+      const response = await fetch(resolveApiUrl(`/api/v1/admin/attendance/${registrationId}`), {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${readOrganizerToken()}`,
+          ...buildJsonHeaders(),
+        },
+        credentials: 'include',
+        body: JSON.stringify({ status }),
+      })
+
+      const data = await parseApiResponse(response)
+
+      if (!response.ok) {
+        return {
+          success: false,
+          error: data?.error || { code: 'UPDATE_FAILED', message: 'Attendance update failed.' },
+        }
+      }
+
+      return {
+        success: true,
+        data: data?.data || {},
+      }
+    } catch (err) {
+      return {
+        success: false,
+        error: { code: 'NETWORK_ERROR', message: 'Unable to update attendance.' },
+      }
+    }
+  },
+
+  async organizerSendEmail(payload) {
+    try {
+      const response = await fetch(resolveApiUrl('/api/v1/admin/email/send'), {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${readOrganizerToken()}`,
+          ...buildJsonHeaders(),
+        },
+        credentials: 'include',
+        body: JSON.stringify(payload),
+      })
+
+      const data = await parseApiResponse(response)
+
+      if (!response.ok) {
+        return {
+          success: false,
+          error: data?.error || { code: 'EMAIL_FAILED', message: 'Unable to send email.' },
+        }
+      }
+
+      return {
+        success: true,
+        data: data?.data || {},
+      }
+    } catch (err) {
+      return {
+        success: false,
+        error: { code: 'NETWORK_ERROR', message: 'Unable to send the email right now.' },
+      }
+    }
+  },
+
+  async organizerFetchCertificates() {
+    try {
+      const response = await fetch(resolveApiUrl('/api/v1/certificates'), {
+        headers: {
+          Authorization: `Bearer ${readOrganizerToken()}`,
+          ...buildJsonHeaders(),
+        },
+        credentials: 'include',
+      })
+
+      const data = await parseApiResponse(response)
+
+      if (!response.ok) {
+        return {
+          success: false,
+          error: data?.error || { code: 'REQUEST_FAILED', message: 'Unable to fetch rewards.' },
+        }
+      }
+
+      return {
+        success: true,
+        data: data?.data || [],
+      }
+    } catch (err) {
+      return {
+        success: false,
+        error: { code: 'NETWORK_ERROR', message: 'Unable to load certificates.' },
       }
     }
   },
