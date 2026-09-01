@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import LoginModal from './components/LoginModal'
 import MainLayout from './layouts/MainLayout'
 import Home from './pages/Home'
 import Registration from './pages/Registration'
@@ -10,8 +11,7 @@ import Day1 from './pages/Day1'
 import Day2 from './pages/Day2'
 import Day3 from './pages/Day3'
 import Certificates from './pages/Certificates'
-import Organizer from './pages/Organizer'
-import LoginModal from './components/LoginModal'
+import OrganizerPage from './pages/Organizer'
 import { initializeGsap } from './utils/animation'
 
 function App() {
@@ -39,7 +39,7 @@ function App() {
         <Route path="/day-2" element={<MainLayout><Day2 /></MainLayout>} />
         <Route path="/day-3" element={<MainLayout><Day3 /></MainLayout>} />
         <Route path="/certificates" element={<MainLayout><Certificates /></MainLayout>} />
-        <Route path="/organizer" element={<MainLayout><Organizer /></MainLayout>} />
+        <Route path="/organizer/*" element={<OrganizerPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>
