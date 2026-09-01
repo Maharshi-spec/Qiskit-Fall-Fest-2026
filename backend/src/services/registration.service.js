@@ -682,20 +682,30 @@ const sendOrganizerEmail = async (payload = {}) => {
 const sendMail = async ({ to, subject, text, html }) => {
   const { config, missingFields, isProduction } = getMailConfiguration()
 
+  console.info('[REGISTRATION_EMAIL_DIAGNOSTIC] sendMail start', {
+    to,
+    subject,
+    smtpHost: config.host,
+    smtpPort: config.port,
+    hasMailUser: Boolean(config.user),
+    hasMailPassword: Boolean(config.password),
+    from: config.from,
+  })
+
   if (isProduction && missingFields.length > 0) {
     throw new AppError(
       503,
       'EMAIL_CONFIGURATION_INCOMPLETE',
-      `Email delivery is disabled until SMTP configuration is complete. Missing: ${missingFields.join(', ')}`,
+      'Email delivery is disabled until SMTP configuration is complete.',
     )
   }
 
   const transport = nodemailer.createTransport({
     host: config.host,
     port: Number(config.port || 587),
-    secure: config.port ? Number(config.port) === 465 : false,
-    ignoreTLS: !isProduction && !(config.port && Number(config.port) === 587),
-    auth: config.user ? { user: config.user, pass: config.password || '' } : undefined,
+    secure: Number(config.port || 587) === 465,
+    tls: { rejectUnauthorized: true },
+    auth: config.user && config.password ? { user: config.user, pass: config.password } : undefined,
   })
 
   if (process.env.NODE_ENV === 'test') {
@@ -704,6 +714,7 @@ const sendMail = async ({ to, subject, text, html }) => {
 
   await transport.verify().catch((error) => {
     const safeMessage = error && error.message ? error.message.replace(/(pass|password|token|secret)\s*[:=]?\s*[^\s,;]+/gi, '[REDACTED]') : 'SMTP verification failed.'
+    console.error('[REGISTRATION_EMAIL_ERROR] SMTP verification failed', { code: error && error.code, message: safeMessage })
     throw new AppError(503, 'SMTP_VERIFICATION_FAILED', safeMessage)
   })
 
@@ -711,13 +722,29 @@ const sendMail = async ({ to, subject, text, html }) => {
     ? `${config.fromName} <${config.from}>`
     : config.from
 
-  return transport.sendMail({
-    from: senderAddress,
-    to,
-    subject,
-    text,
-    html,
-  })
+  try {
+    const result = await transport.sendMail({
+      from: senderAddress,
+      to,
+      subject,
+      text,
+      html,
+    })
+    console.info('[REGISTRATION_EMAIL_DIAGNOSTIC] sendMail success', {
+      to,
+      subject,
+      messageId: result && result.messageId,
+      smtpHost: config.host,
+      smtpPort: config.port,
+    })
+    return result
+  } catch (error) {
+    console.error('[REGISTRATION_EMAIL_ERROR] SMTP delivery failed', {
+      code: error && error.code,
+      message: error && error.message ? String(error.message).replace(/(pass|password|token|secret)\s*[:=]?\s*[^\s,;]+/gi, '[REDACTED]') : 'SMTP delivery failed',
+    })
+    throw new AppError(503, 'SMTP_DELIVERY_FAILED', 'Email delivery failed. SMTP authentication or transport could not complete.')
+  }
 }
 
 const buildRegistrationConfirmationEmailContent = (registration) => {
