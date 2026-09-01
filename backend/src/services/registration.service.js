@@ -373,18 +373,19 @@ const normalizeEmail = (value) => String(value || '').trim().toLowerCase()
 const isValidEmail = (value) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(value || '').trim())
 
 const isValidMobileNumber = (value) => /^\+?[0-9\s()-]{7,20}$/.test(String(value || '').trim())
+const sanitizeSmtpPassword = (value) => String(value ?? '').replace(/\s+/g, '').trim()
 
 const getMailConfiguration = () => {
   const environment = process.env.NODE_ENV || 'development'
   const requiredFields = ['MAIL_HOST', 'MAIL_PORT', 'MAIL_USER', 'MAIL_PASSWORD', 'MAIL_FROM']
 
   const config = {
-    host: process.env.MAIL_HOST || (environment === 'production' ? '' : 'localhost'),
-    port: process.env.MAIL_PORT ? Number(process.env.MAIL_PORT) : (environment === 'production' ? '' : 1025),
-    user: process.env.MAIL_USER || '',
-    password: process.env.MAIL_PASSWORD || '',
-    from: process.env.MAIL_FROM || (environment === 'production' ? '' : 'noreply@qiskitfallfest.com'),
-    fromName: process.env.MAIL_FROM_NAME || 'Qiskit Fall Fest 2026',
+    host: String(process.env.MAIL_HOST || (environment === 'production' ? '' : 'localhost')).trim(),
+    port: String(process.env.MAIL_PORT || (environment === 'production' ? '' : '1025')).trim(),
+    user: String(process.env.MAIL_USER || '').trim(),
+    password: sanitizeSmtpPassword(process.env.MAIL_PASSWORD),
+    from: String(process.env.MAIL_FROM || (environment === 'production' ? '' : 'noreply@qiskitfallfest.com')).trim(),
+    fromName: String(process.env.MAIL_FROM_NAME || 'Qiskit Fall Fest 2026').trim(),
   }
 
   const missingFields = requiredFields.filter((fieldName) => {
@@ -451,33 +452,42 @@ const sendMail = async ({ to, subject, text, html }) => {
     throw new AppError(
       503,
       'EMAIL_CONFIGURATION_INCOMPLETE',
-      `Email delivery is disabled until SMTP configuration is complete. Missing: ${missingFields.join(', ')}`,
+      'Email delivery is disabled until SMTP configuration is complete.',
     )
   }
 
   const transport = nodemailer.createTransport({
     host: config.host,
     port: Number(config.port || 587),
-    secure: config.port ? Number(config.port) === 465 : false,
-    ignoreTLS: !isProduction && !(config.port && Number(config.port) === 587),
-    auth: config.user ? { user: config.user, pass: config.password || '' } : undefined,
+    secure: Number(config.port || 587) === 465,
+    tls: { rejectUnauthorized: true },
+    auth: config.user && config.password ? { user: config.user, pass: config.password } : undefined,
   })
 
   if (process.env.NODE_ENV === 'test') {
     return { messageId: `mock-${Date.now()}`, accepted: [to] }
   }
 
+  await transport.verify().catch((error) => {
+    const safeMessage = error && error.message ? error.message.replace(/(pass|password|token|secret)\s*[:=]?\s*[^\s,;]+/gi, '[REDACTED]') : 'SMTP verification failed.'
+    throw new AppError(503, 'SMTP_VERIFICATION_FAILED', safeMessage)
+  })
+
   const senderAddress = config.fromName
     ? `${config.fromName} <${config.from}>`
     : config.from
 
-  return transport.sendMail({
-    from: senderAddress,
-    to,
-    subject,
-    text,
-    html,
-  })
+  try {
+    return await transport.sendMail({
+      from: senderAddress,
+      to,
+      subject,
+      text,
+      html,
+    })
+  } catch (error) {
+    throw new AppError(503, 'SMTP_DELIVERY_FAILED', 'Email delivery failed. SMTP authentication or transport could not complete.')
+  }
 }
 
 const buildRegistrationConfirmationEmailContent = (registration) => {
@@ -597,7 +607,7 @@ const sendRegistrationConfirmationEmail = async (registration) => {
     await sendMail(emailPayload)
     return emailPayload
   } catch (error) {
-    console.warn('[EMAIL WARN] Registration confirmation email could not be sent (SMTP not configured):', error.message)
+    console.warn('[EMAIL WARN] Registration confirmation email could not be sent.')
     return null
   }
 }
@@ -629,8 +639,8 @@ const sendEventDayReminder = async (dayId, registration) => {
     notificationRepository.markSent(payload)
     return { skipped: false, reminderKey }
   } catch (error) {
-    notificationRepository.markFailed(payload, error.message)
-    console.warn(`[EMAIL WARN] Failed to send reminder for day ${dayId}:`, error.message)
+    notificationRepository.markFailed(payload, 'SMTP delivery failed')
+    console.warn(`[EMAIL WARN] Failed to send reminder for day ${dayId}.`)
     return { skipped: true, reason: 'failed', reminderKey }
   }
 }
