@@ -186,7 +186,7 @@ const Home = () => {
       <Hero />
 
       <div className="home-page">
-        <motion.section className="section section--event" {...sectionMotion}>
+        <motion.section id="home-event" className="section section--event" {...sectionMotion}>
           <div className="container section__inner">
             <div className="section__content">
               <SectionHeader
@@ -638,18 +638,38 @@ const Home = () => {
         <motion.section className="section section--venue" {...sectionMotion}>
           <div className="container venue-shell">
             <div className="venue-panel">
-              <div className="venue-panel__content">
-                <p className="section-header__label">Venue</p>
-                <h2>{venue.name}</h2>
-                <p className="venue-panel__city">{venue.city}</p>
-                <p>{venue.description}</p>
+              <div className="venue-panel__body">
+                <div className="venue-panel__content">
+                  <p className="section-header__label">Venue</p>
+                  <h2>{venue.name}</h2>
+                  <p className="venue-panel__city">{venue.city}</p>
+                  <p>{venue.description}</p>
+                  {venue.locationUrl ? (
+                    <a href={venue.locationUrl} target="_blank" rel="noreferrer" className="venue-panel__link venue-panel__link--primary">
+                      Open in Maps →
+                    </a>
+                  ) : (
+                    <span className="venue-panel__link venue-panel__link--muted">Location details coming soon</span>
+                  )}
+                </div>
+
                 {venue.locationUrl ? (
-                  <a href={venue.locationUrl} target="_blank" rel="noreferrer" className="venue-panel__link">
-                    View location →
+                  <a
+                    href={venue.locationUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="venue-map-preview"
+                    aria-label="Open Centurion University in Google Maps"
+                  >
+                    <iframe
+                      title="Centurion University Vizianagaram map"
+                      src="https://www.google.com/maps?q=Centurion+University+Vizianagaram,+Rollavaka+Village,+Bondapalli,+Mandal,+Andhra+Pradesh+535003&z=14&output=embed"
+                      loading="lazy"
+                      allowFullScreen
+                      referrerPolicy="no-referrer-when-downgrade"
+                    />
                   </a>
-                ) : (
-                  <span className="venue-panel__link venue-panel__link--muted">Location details coming soon</span>
-                )}
+                ) : null}
               </div>
               <StickerAccent src={sticker08} alt="" className="sticker--venue" rotate={8} delay={0.12} />
             </div>

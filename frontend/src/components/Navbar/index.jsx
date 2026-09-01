@@ -1,5 +1,6 @@
+import { AnimatePresence, motion } from 'framer-motion'
 import { NavLink } from 'react-router-dom'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import qiskitBadge from '../../assets/qiskit/badge-pink.png.png'
 
 const navItems = [
@@ -15,6 +16,31 @@ const navItems = [
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const updateMobileState = () => setIsMobile(window.innerWidth <= 860)
+
+    updateMobileState()
+    window.addEventListener('resize', updateMobileState)
+
+    return () => window.removeEventListener('resize', updateMobileState)
+  }, [])
+
+  const navContent = (
+    <>
+      {navItems.map((item) => (
+        <NavLink
+          key={item.to}
+          to={item.to}
+          className={({ isActive }) => `nav__link ${isActive ? 'nav__link--active' : ''}`}
+          onClick={() => setIsOpen(false)}
+        >
+          {item.label}
+        </NavLink>
+      ))}
+    </>
+  )
 
   return (
     <header className="topbar">
@@ -36,18 +62,26 @@ const Navbar = () => {
           <span />
         </button>
 
-        <nav className={`nav ${isOpen ? 'nav--open' : ''}`} aria-label="Main navigation">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              className={({ isActive }) => `nav__link ${isActive ? 'nav__link--active' : ''}`}
-              onClick={() => setIsOpen(false)}
-            >
-              {item.label}
-            </NavLink>
-          ))}
-        </nav>
+        {isMobile ? (
+          <AnimatePresence initial={false}>
+            {isOpen && (
+              <motion.nav
+                className="nav nav--open"
+                aria-label="Main navigation"
+                initial={{ opacity: 0, y: -10, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -10, scale: 0.98 }}
+                transition={{ duration: 0.2, ease: 'easeOut' }}
+              >
+                {navContent}
+              </motion.nav>
+            )}
+          </AnimatePresence>
+        ) : (
+          <nav className="nav" aria-label="Main navigation">
+            {navContent}
+          </nav>
+        )}
       </div>
     </header>
   )

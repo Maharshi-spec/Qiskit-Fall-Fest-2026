@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import MainLayout from './layouts/MainLayout'
 import Home from './pages/Home'
 import Registration from './pages/Registration'
@@ -12,9 +13,17 @@ import Certificates from './pages/Certificates'
 import { initializeGsap } from './utils/animation'
 
 function App() {
+  const location = useLocation()
+
   useEffect(() => {
     initializeGsap()
   }, [])
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+    ScrollTrigger.getAll().forEach((trigger) => trigger.kill())
+    ScrollTrigger.refresh()
+  }, [location.pathname])
 
   return (
     <Routes>
