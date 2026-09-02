@@ -17,7 +17,14 @@ const navItems = [
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false)
-  const { isLoggedIn, openLoginModal, logout } = useAuth()
+  const { isLoggedIn, userRegistration, openLoginModal, logout } = useAuth()
+
+  const profileInitials = (() => {
+    const fullName = userRegistration?.fullName || 'Profile'
+    const names = fullName.split(' ').filter(Boolean)
+    const initials = names.slice(0, 2).map((name) => name[0]?.toUpperCase() || '').join('')
+    return initials || 'P'
+  })()
 
   const authActions = (
     <div className="topbar__actions">
@@ -28,9 +35,15 @@ const Navbar = () => {
       >
         {isLoggedIn ? 'Logout' : 'Login'}
       </button>
-      <NavLink to="/register" className="topbar__action topbar__action--register">
-        Register
-      </NavLink>
+      {isLoggedIn ? (
+        <NavLink to="/profile" className="topbar__profile-btn" aria-label="Open profile">
+          <span>{profileInitials}</span>
+        </NavLink>
+      ) : (
+        <NavLink to="/register" className="topbar__action topbar__action--register">
+          Register
+        </NavLink>
+      )}
     </div>
   )
 

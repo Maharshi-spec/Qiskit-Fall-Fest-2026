@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { gsap } from 'gsap'
+import { useAuth } from '../../context/AuthContext'
 import heroArtwork from '../../assets/qiskit/hero-1-without-title.png.png'
 
 const Hero = () => {
@@ -10,6 +11,7 @@ const Hero = () => {
   const badgeRef = useRef(null)
   const storyRefs = useRef([])
   const navigate = useNavigate()
+  const { isLoggedIn } = useAuth()
 
   const handleRegister = () => {
     navigate('/register')
@@ -103,7 +105,9 @@ const Hero = () => {
             Explore quantum computing, learn with Qiskit, build hands-on skills, and connect through workshops, collaboration, and innovation.
           </p>
           <div className="hero__actions" aria-label="Hero actions">
-            <button type="button" className="button button--primary" onClick={handleRegister}>Register</button>
+            {!isLoggedIn && (
+              <button type="button" className="button button--primary" onClick={handleRegister}>Register</button>
+            )}
             <button type="button" className="button button--secondary" onClick={handleExploreEvent}>Explore Event</button>
           </div>
         </div>
