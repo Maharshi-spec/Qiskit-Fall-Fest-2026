@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken')
 const { AppError } = require('./error.middleware')
+const { reminderProcessorToken } = require('../config/env')
 
 const validateRequest = (req, res, next) => {
   if (req.method === 'OPTIONS') {
@@ -68,10 +69,19 @@ const requireAdmin = (req, res, next) => {
   })
 }
 
+const requireReminderProcessor = (req, res, next) => {
+  const token = parseToken(req)
+  if (!reminderProcessorToken || !token || token !== reminderProcessorToken) {
+    return next(new AppError(401, 'UNAUTHORIZED', 'Reminder processor authentication required.'))
+  }
+  return next()
+}
+
 module.exports = {
   validateRequest,
   parseToken,
   getCurrentUser,
   requireAuth,
   requireAdmin,
+  requireReminderProcessor,
 }

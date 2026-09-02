@@ -5,6 +5,7 @@ const path = require('path')
 const { AppError } = require('../middleware/error.middleware')
 const { pool } = require('../config/database')
 const { supabase } = require('../config/supabase')
+const reminderService = require('./reminder.service')
 
 const VALID_ROLES = new Set(['STUDENT', 'FACULTY', 'PROFESSIONAL', 'OTHER'])
 const BOOLEAN_FIELDS = new Set(['knowsPython', 'aicteQuantumCourse', 'knowsQuantumBasics', 'usedQiskitBefore'])
@@ -704,10 +705,7 @@ const sendMail = async ({ to, subject, text, html }) => {
     host: config.host,
     port: Number(config.port || 587),
     secure: Number(config.port || 587) === 465,
-<<<<<<< HEAD
-=======
     family: 4,
->>>>>>> 6bcddea976a6fb06cd677558b15ccf0675a4881f
     tls: { rejectUnauthorized: true },
     auth: config.user && config.password ? { user: config.user, pass: config.password } : undefined,
   })
@@ -873,53 +871,6 @@ const sendRegistrationConfirmationEmail = async (registration) => {
   }
 }
 
-const sendEventDayReminder = async (dayId, registration) => {
-  const reminderKey = `${registration.registrationId}:${dayId}`
-  const payload = {
-    registrationId: registration.registrationId,
-    eventDay: dayId,
-    emailType: 'EVENT_DAY_REMINDER',
-    recipient: registration.email,
-    status: 'PENDING',
-    createdAt: new Date().toISOString(),
-  }
-
-  const existingNotification = notificationRepository.findExisting(payload)
-  if (existingNotification) {
-    return { skipped: true, reason: 'already_sent', reminderKey }
-  }
-
-  const emailPayload = {
-    to: registration.email,
-    subject: `Qiskit Fall Fest 2026 - Day ${dayId} Reminder`,
-    text: `Hello ${registration.fullName},\n\nThis is a reminder for Day ${dayId} of Qiskit Fall Fest 2026.\nPlease check the final schedule and venue details shared by the organizers.`,
-  }
-
-  try {
-    await sendMail(emailPayload)
-    notificationRepository.markSent(payload)
-    return { skipped: false, reminderKey }
-  } catch (error) {
-    notificationRepository.markFailed(payload, 'SMTP delivery failed')
-    console.warn(`[EMAIL WARN] Failed to send reminder for day ${dayId}.`)
-    return { skipped: true, reason: 'failed', reminderKey }
-  }
-}
-
-const scheduleEventDayReminders = async (registration) => {
-  const relevantDays = ['1', '2', '3']
-
-  for (const dayId of relevantDays) {
-    try {
-      await sendEventDayReminder(dayId, registration)
-    } catch (error) {
-      console.warn(`[EMAIL WARN] Failed to schedule reminder for day ${dayId}:`, error.message)
-    }
-  }
-
-  return true
-}
-
 const validateRegistrationPayload = (payload) => {
   const requiredFields = [
     'fullName',
@@ -1048,9 +999,10 @@ const registerUser = async (payload = {}, file) => {
   }
 
   try {
-    await scheduleEventDayReminders(registration)
+    await reminderService.scheduleRegistrationReminders(registration)
+    console.info('[REMINDER] scheduled', { registrationId: registration.registrationId, dayCount: reminderService.EVENT_DAYS.length })
   } catch (error) {
-    console.warn('[EMAIL WARN] scheduled reminder process failed', error)
+    console.error('[REMINDER] scheduling failed', { registrationId: registration.registrationId, error: error.message })
   }
 
   return {
@@ -1592,8 +1544,8 @@ module.exports = {
   userRepository,
   eventRepository,
   notificationRepository,
-  sendEventDayReminder,
   sendRegistrationConfirmationEmail,
   buildRegistrationConfirmationEmailContent,
   normalizeEmail,
+  sendMail,
 }
