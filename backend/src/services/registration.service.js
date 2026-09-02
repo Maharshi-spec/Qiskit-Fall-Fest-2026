@@ -621,6 +621,9 @@ const sendMail = async ({ to, subject, text, html }) => {
     port: Number(config.port || 587),
     secure: Number(config.port || 587) === 465,
     family: 4,
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000,
     tls: { rejectUnauthorized: true },
     auth: config.user && config.password ? { user: config.user, pass: config.password } : undefined,
   })
@@ -777,13 +780,8 @@ const sendRegistrationConfirmationEmail = async (registration) => {
     html: emailContent.html,
   }
 
-  try {
-    await sendMail(emailPayload)
-    return emailPayload
-  } catch (error) {
-    console.warn('[EMAIL WARN] Registration confirmation email could not be sent.')
-    return null
-  }
+  await sendMail(emailPayload)
+  return emailPayload
 }
 
 const validateRegistrationPayload = (payload) => {
@@ -895,30 +893,35 @@ const registerUser = async (payload = {}, file) => {
   )
 
   try {
-    console.info('[REGISTRATION_EMAIL_DIAGNOSTIC] registration confirmation email call', {
-      recipient: registration.email,
-      registrationId: registration.registrationId,
-      smtpHost: process.env.MAIL_HOST,
-      smtpPort: process.env.MAIL_PORT,
-      hasMailUser: Boolean(process.env.MAIL_USER),
-      hasMailPassword: Boolean(process.env.MAIL_PASSWORD),
-    })
-    await sendRegistrationConfirmationEmail(registration)
-  } catch (error) {
-    console.error('[REGISTRATION_EMAIL_ERROR] registration confirmation failed', {
-      code: error && error.code,
-      message: error && error.message ? String(error.message).replace(/(pass|password|token|secret)\s*[:=]?\s*[^\s,;]+/gi, '[REDACTED]') : 'Unknown email failure',
-      registrationId: registration.registrationId,
-      recipient: registration.email,
-    })
-  }
-
-  try {
     await reminderService.scheduleRegistrationReminders(registration)
     console.info('[REMINDER] scheduled', { registrationId: registration.registrationId, dayCount: reminderService.EVENT_DAYS.length })
   } catch (error) {
     console.error('[REMINDER] scheduling failed', { registrationId: registration.registrationId, error: error.message })
   }
+
+  console.info('[REGISTRATION_EMAIL_DIAGNOSTIC] registration confirmation email call', {
+    recipient: registration.email,
+    registrationId: registration.registrationId,
+    smtpHost: process.env.MAIL_HOST,
+    smtpPort: process.env.MAIL_PORT,
+    hasMailUser: Boolean(process.env.MAIL_USER),
+    hasMailPassword: Boolean(process.env.MAIL_PASSWORD),
+  })
+  sendRegistrationConfirmationEmail(registration)
+    .then(() => {
+      console.info('[REGISTRATION_EMAIL] confirmation email sent', {
+        registrationId: registration.registrationId,
+        recipient: registration.email,
+      })
+    })
+    .catch((error) => {
+      console.error('[REGISTRATION_EMAIL_ERROR] registration confirmation failed', {
+        code: error && error.code,
+        message: error && error.message ? String(error.message).replace(/(pass|password|token|secret)\s*[:=]?\s*[^\s,;]+/gi, '[REDACTED]') : 'Unknown email failure',
+        registrationId: registration.registrationId,
+        recipient: registration.email,
+      })
+    })
 
   return {
     success: true,
