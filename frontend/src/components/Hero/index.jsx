@@ -1,10 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import heroArtwork from '../../assets/qiskit/hero-1-without-title.png.png'
-
-gsap.registerPlugin(ScrollTrigger)
 
 const Hero = () => {
   const sectionRef = useRef(null)
@@ -36,97 +33,40 @@ const Hero = () => {
     }
 
     const ctx = gsap.context(() => {
-      const mm = gsap.matchMedia()
+      gsap.fromTo(
+        sectionRef.current,
+        { y: 30, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.7,
+          ease: 'power2.out',
+        },
+      )
 
-      mm.add('(min-width: 861px)', () => {
-        const timeline = gsap.timeline({
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top top',
-            end: '+=1700',
-            scrub: 1.2,
-            pin: true,
-            pinSpacing: true,
-            anticipatePin: 1,
-          },
-        })
+      gsap.fromTo(
+        '.hero__content > *',
+        { opacity: 0, y: 16 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.5,
+          stagger: 0.08,
+          ease: 'power2.out',
+        },
+      )
 
-        gsap.fromTo(
-          '.hero__content > *',
-          { opacity: 0 },
-          {
-            opacity: 1,
-            duration: 0.5,
-            stagger: 0.08,
-            ease: 'power2.out',
-          },
-        )
-
-        gsap.fromTo(
-          '.hero__actions .button',
-          { opacity: 0, scale: 0.9 },
-          {
-            opacity: 1,
-            scale: 1,
-            duration: 0.35,
-            stagger: 0.08,
-            ease: 'back.out(1.7)',
-          },
-        )
-
-        timeline
-          .to(artworkRef.current, {
-            scale: 0.82,
-            x: 18,
-            y: -120,
-            rotation: -2,
-            filter: 'brightness(0.96) saturate(0.9)',
-            ease: 'none',
-          }, 0)
-          .to(contentRef.current, {
-            y: -92,
-            opacity: 0.44,
-            scale: 0.97,
-            ease: 'none',
-          }, 0)
-          .to(badgeRef.current, {
-            y: -24,
-            opacity: 0.35,
-            ease: 'none',
-          }, 0)
-          .to('.hero__story-card', {
-            y: -28,
-            opacity: 0.28,
-            ease: 'none',
-          }, 0.25)
-      })
-
-      mm.add('(max-width: 860px)', () => {
-        const mobileTimeline = gsap.timeline({
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top top',
-            end: '+=1100',
-            scrub: 1.1,
-            pin: true,
-            pinSpacing: true,
-          },
-        })
-
-        mobileTimeline
-          .to(artworkRef.current, {
-            scale: 0.94,
-            y: -18,
-            opacity: 0.82,
-            ease: 'none',
-          }, 0)
-          .to(contentRef.current, {
-            y: -18,
-            opacity: 0.82,
-            scale: 0.98,
-            ease: 'none',
-          }, 0)
-      })
+      gsap.fromTo(
+        '.hero__actions .button',
+        { opacity: 0, scale: 0.88 },
+        {
+          opacity: 1,
+          scale: 1,
+          duration: 0.38,
+          stagger: 0.08,
+          ease: 'back.out(1.8)',
+        },
+      )
 
       gsap.fromTo(
         storyRefs.current,
@@ -137,20 +77,11 @@ const Hero = () => {
           duration: 1,
           stagger: 0.18,
           ease: 'power2.out',
-          scrollTrigger: {
-            trigger: '.hero__story',
-            start: 'top 80%',
-            end: 'bottom 40%',
-            scrub: 1,
-          },
         },
       )
     }, sectionRef)
 
-    return () => {
-      ctx.revert()
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill())
-    }
+    return () => ctx.revert()
   }, [])
 
   return (

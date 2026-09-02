@@ -685,7 +685,7 @@ const Home = () => {
             </div>
             <div className="final-cta-actions">
               <Button to="/register" kind="primary">Register for Qiskit Fall Fest →</Button>
-              <Button to="/#program" kind="secondary">Explore the Program →</Button>
+              <Button to="/day-1" kind="secondary">Explore the Program →</Button>
             </div>
             <StickerAccent src={sticker09} alt="" className="sticker--final" rotate={-7} delay={0.2} />
           </div>
