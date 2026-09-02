@@ -13,6 +13,7 @@ import Day2 from './pages/Day2'
 import Day3 from './pages/Day3'
 import Certificates from './pages/Certificates'
 import OrganizerPage from './pages/Organizer'
+import Profile from './pages/Profile'
 import { initializeGsap } from './utils/animation'
 
 const AnimatedPage = ({ children }) => (
@@ -53,6 +54,7 @@ function App() {
           <Route path="/day-2" element={<AnimatedPage><MainLayout><Day2 /></MainLayout></AnimatedPage>} />
           <Route path="/day-3" element={<AnimatedPage><MainLayout><Day3 /></MainLayout></AnimatedPage>} />
           <Route path="/certificates" element={<AnimatedPage><MainLayout><Certificates /></MainLayout></AnimatedPage>} />
+          <Route path="/profile" element={<AnimatedPage><MainLayout><Profile /></MainLayout></AnimatedPage>} />
           <Route path="/organizer/*" element={<AnimatedPage><OrganizerPage /></AnimatedPage>} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
