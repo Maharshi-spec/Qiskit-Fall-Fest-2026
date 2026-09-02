@@ -36,7 +36,7 @@ const Navbar = () => {
 
   const navContent = (
     <motion.nav
-      className="nav nav--menu"
+      className={`nav nav--menu ${isOpen ? 'nav--open' : ''}`}
       aria-label="Main navigation"
       initial={{ opacity: 0, y: -10, scale: 0.98 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
