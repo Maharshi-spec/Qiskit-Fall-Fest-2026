@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, Navigate, NavLink, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import Button from '../../components/Button'
 import { api } from '../../services/api'
@@ -35,7 +35,24 @@ const isOrganizerAuthenticated = () => {
 
 const OrganizerLayout = ({ children }) => {
   const navigate = useNavigate()
+  const profileRef = useRef(null)
   const [profileOpen, setProfileOpen] = useState(false)
+
+  useEffect(() => {
+    const handlePointerDown = (event) => {
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setProfileOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handlePointerDown)
+    return () => document.removeEventListener('mousedown', handlePointerDown)
+  }, [])
+
+  const organizerToken = getOrganizerToken()
+  const organizerProfile = organizerToken ? parseJwtPayload(organizerToken) : null
+  const organizerName = organizerProfile?.name || organizerProfile?.fullName || 'Organizer'
+  const organizerEmail = organizerProfile?.email || ORGANIZER_EMAIL
 
   const handleLogout = () => {
     api.clearOrganizerToken()
@@ -60,7 +77,12 @@ const OrganizerLayout = ({ children }) => {
             </div>
 
             <div className="organizer-page__header-actions">
-              <div className="organizer-page__profile-wrap" onMouseLeave={() => setProfileOpen(false)}>
+              <div
+                ref={profileRef}
+                className="organizer-page__profile-wrap"
+                onMouseEnter={() => setProfileOpen(true)}
+                onMouseLeave={() => setProfileOpen(false)}
+              >
                 <button
                   type="button"
                   className="organizer-page__profile-button"
@@ -68,21 +90,24 @@ const OrganizerLayout = ({ children }) => {
                   aria-expanded={profileOpen}
                   aria-label="Open profile menu"
                 >
-                  <span className="organizer-page__profile-avatar">P</span>
+                  <span className="organizer-page__profile-avatar">{organizerName.charAt(0).toUpperCase()}</span>
                 </button>
 
                 {profileOpen && (
-                  <div className="organizer-page__profile-popover">
+                  <div className="organizer-page__profile-popover" role="dialog" aria-label="Organizer profile">
                     <div className="organizer-page__profile-summary">
-                      <span className="organizer-page__profile-avatar organizer-page__profile-avatar--large">P</span>
+                      <span className="organizer-page__profile-avatar organizer-page__profile-avatar--large">{organizerName.charAt(0).toUpperCase()}</span>
                       <div>
-                        <strong>Profile</strong>
+                        <strong>{organizerName}</strong>
                         <small>Organizer</small>
                       </div>
                     </div>
                     <div className="organizer-page__profile-meta">
-                      <span>Access</span>
-                      <strong>Event admin</strong>
+                      <span>Email</span>
+                      <strong>{organizerEmail}</strong>
+                    </div>
+                    <div className="organizer-page__profile-status">
+                      <span className="organizer-page__role-badge">Organizer</span>
                     </div>
                   </div>
                 )}

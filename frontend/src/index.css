@@ -762,7 +762,7 @@ a:focus-visible {
   background: transparent;
   border: 1px solid rgba(255, 79, 163, 0.18);
   color: #4d2f74;
-  transition: background 0.28s ease, color 0.28s ease, transform 0.3s ease, box-shadow 0.28s ease, opacity 0.3s ease;
+  transition: background 0.28s ease, color 0.28s ease, transform 0.28s ease, box-shadow 0.28s ease, opacity 0.3s ease;
 }
 
 .organizer-page__nav .button::before {
@@ -771,25 +771,94 @@ a:focus-visible {
   inset: 0;
   background: linear-gradient(135deg, rgba(255, 125, 193, 0.98), rgba(255, 79, 163, 0.92));
   opacity: 0;
-  transition: opacity 0.28s ease;
+  transform: scale(0.96);
+  transition: opacity 0.24s ease, transform 0.24s ease;
   z-index: -1;
 }
 
+.organizer-page__nav .button:hover::before,
+.organizer-page__nav .button:focus-visible::before,
+.organizer-page__nav .button.is-active::before,
+.organizer-page__nav .button[aria-current='page']::before {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.organizer-page__nav .button:hover,
+.organizer-page__nav .button:focus-visible,
 .organizer-page__nav .button.is-active,
 .organizer-page__nav .button[aria-current='page'] {
   color: #fff;
   border-color: transparent;
   box-shadow: 0 12px 22px rgba(255, 79, 163, 0.18);
-  transform: translateY(-1px);
+  transform: translateY(-1px) scale(1.02);
 }
 
-.organizer-page__nav .button.is-active::before,
-.organizer-page__nav .button[aria-current='page']::before {
-  opacity: 1;
+.organizer-page__profile-popover {
+  position: absolute;
+  top: calc(100% + 0.7rem);
+  right: 0;
+  width: min(220px, 62vw);
+  padding: 0.9rem;
+  border: 1px solid rgba(255, 79, 163, 0.14);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 20px 28px rgba(60, 35, 76, 0.1);
+  animation: organizerProfileFade 0.22s ease;
+  z-index: 30;
 }
 
-.organizer-page__nav .button:hover {
-  transform: translateY(-1px);
+@keyframes organizerProfileFade {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.organizer-page__profile-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 0.7rem;
+}
+
+.organizer-page__profile-summary strong,
+.organizer-page__profile-meta strong {
+  display: block;
+  color: #2f2444;
+  font-size: 0.95rem;
+}
+
+.organizer-page__profile-summary small,
+.organizer-page__profile-meta span {
+  color: #6c607c;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.organizer-page__profile-meta {
+  padding-top: 0.7rem;
+  border-top: 1px solid rgba(255, 79, 163, 0.1);
+}
+
+.organizer-page__profile-status {
+  margin-top: 0.8rem;
+}
+
+.organizer-page__role-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.28rem 0.6rem;
+  border-radius: 999px;
+  background: rgba(255, 79, 163, 0.08);
+  color: #b33f7e;
+  font-size: 0.72rem;
+  font-weight: 700;
 }
 
 .organizer-page__email-form {
