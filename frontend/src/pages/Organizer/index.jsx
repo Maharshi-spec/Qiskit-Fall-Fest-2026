@@ -49,28 +49,20 @@ const OrganizerLayout = ({ children }) => {
   ]
 
   return (
-    <div className="detail-page" style={{ paddingTop: '1.5rem' }}>
-      <div className="container" style={{ display: 'grid', gap: '1.25rem' }}>
-        <div className="detail-page__panel" style={{ gridTemplateColumns: '1fr auto' }}>
+    <div className="detail-page organizer-page">
+      <div className="container organizer-page__content">
+        <div className="detail-page__panel organizer-page__header">
           <div className="detail-page__panel-copy">
             <p className="page-shell__eyebrow">Organizer dashboard</p>
             <h2>Event operations</h2>
           </div>
-          <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+          <div className="organizer-page__header-actions">
             <Link to="/organizer" className="button button--secondary">Dashboard</Link>
             <button type="button" className="button button--primary" onClick={handleLogout}>Logout</button>
           </div>
         </div>
 
-        <nav aria-label="Organizer navigation" style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: '0.75rem',
-          padding: '0.85rem 1rem',
-          border: '1px solid rgba(255,79,163,0.14)',
-          borderRadius: '16px',
-          background: 'rgba(255,255,255,0.82)',
-        }}>
+        <nav aria-label="Organizer navigation" className="organizer-page__nav">
           {navItems.map((item) => (
             <NavLink
               key={item.label}
@@ -124,8 +116,8 @@ const OrganizerLogin = () => {
   }
 
   return (
-    <div className="detail-page">
-      <div className="container detail-page__panel">
+    <div className="detail-page organizer-page organizer-page--login">
+      <div className="container detail-page__panel organizer-page__login-panel">
         <div className="detail-page__panel-copy">
           <p className="page-shell__eyebrow">Organizer access</p>
           <h2>Sign in to your dashboard.</h2>
@@ -226,7 +218,7 @@ const OrganizerEmailPage = () => {
         <p>Send organizer messages using the real backend email service.</p>
       </div>
 
-      <div className="detail-page__form-shell" style={{ maxWidth: '760px' }}>
+      <div className="detail-page__form-shell organizer-page__email-form">
         <form className="detail-form" onSubmit={handleSubmit}>
           {error && (
             <div style={{ padding: '0.8rem 0.9rem', borderRadius: '12px', background: 'rgba(255,79,163,0.08)', color: '#c2348a', border: '1px solid rgba(255,79,163,0.14)' }}>
@@ -310,27 +302,27 @@ const OrganizerAttendancePage = () => {
       ) : participants.length === 0 ? (
         <div className="detail-info-item"><span>Empty state</span><strong>No participants registered yet.</strong></div>
       ) : (
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', background: 'rgba(255,255,255,0.78)', border: '1px solid rgba(255,79,163,0.14)', borderRadius: '16px', overflow: 'hidden' }}>
+        <div className="organizer-page__table-wrap">
+          <table className="organizer-page__table">
             <thead>
               <tr style={{ background: 'rgba(255,79,163,0.06)' }}>
-                <th style={{ textAlign: 'left', padding: '0.9rem' }}>Participant</th>
-                <th style={{ textAlign: 'left', padding: '0.9rem' }}>Role</th>
-                <th style={{ textAlign: 'left', padding: '0.9rem' }}>Status</th>
-                <th style={{ textAlign: 'left', padding: '0.9rem' }}>Mark</th>
+                <th>Participant</th>
+                <th>Role</th>
+                <th>Status</th>
+                <th>Mark</th>
               </tr>
             </thead>
             <tbody>
               {participants.map((participant) => (
                 <tr key={participant.registrationId} style={{ borderTop: '1px solid rgba(255,79,163,0.08)' }}>
-                  <td style={{ padding: '0.9rem' }}>
+                  <td data-label="Participant">
                     <div style={{ fontWeight: 700 }}>{participant.fullName}</div>
                     <div style={{ color: '#655f7b', fontSize: '0.9rem' }}>{participant.email}</div>
                   </td>
-                  <td style={{ padding: '0.9rem' }}>{participant.role || 'N/A'}</td>
-                  <td style={{ padding: '0.9rem' }}>{participant.attendanceStatus || 'NOT_MARKED'}</td>
-                  <td style={{ padding: '0.9rem' }}>
-                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  <td data-label="Role">{participant.role || 'N/A'}</td>
+                  <td data-label="Status">{participant.attendanceStatus || 'NOT_MARKED'}</td>
+                  <td data-label="Mark">
+                    <div className="organizer-page__attendance-actions">
                       {['PRESENT', 'ABSENT', 'NOT_MARKED'].map((status) => (
                         <button
                           key={status}
@@ -391,23 +383,23 @@ const OrganizerParticipantsPage = () => {
       ) : participants.length === 0 ? (
         <div className="detail-info-item"><span>Empty state</span><strong>No participants registered yet.</strong></div>
       ) : (
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', background: 'rgba(255,255,255,0.78)', border: '1px solid rgba(255,79,163,0.14)' }}>
+        <div className="organizer-page__table-wrap">
+          <table className="organizer-page__table">
             <thead>
               <tr style={{ background: 'rgba(255,79,163,0.06)' }}>
-                <th style={{ textAlign: 'left', padding: '0.9rem' }}>Name</th>
-                <th style={{ textAlign: 'left', padding: '0.9rem' }}>Email</th>
-                <th style={{ textAlign: 'left', padding: '0.9rem' }}>Role</th>
-                <th style={{ textAlign: 'left', padding: '0.9rem' }}>Institute</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Institute</th>
               </tr>
             </thead>
             <tbody>
               {participants.map((participant) => (
                 <tr key={participant.registrationId || participant.email} style={{ borderTop: '1px solid rgba(255,79,163,0.08)' }}>
-                  <td style={{ padding: '0.9rem' }}>{participant.fullName}</td>
-                  <td style={{ padding: '0.9rem' }}>{participant.email}</td>
-                  <td style={{ padding: '0.9rem' }}>{participant.role}</td>
-                  <td style={{ padding: '0.9rem' }}>{participant.instituteName || 'N/A'}</td>
+                  <td data-label="Name">{participant.fullName}</td>
+                  <td data-label="Email">{participant.email}</td>
+                  <td data-label="Role">{participant.role}</td>
+                  <td data-label="Institute">{participant.instituteName || 'N/A'}</td>
                 </tr>
               ))}
             </tbody>
@@ -455,21 +447,21 @@ const OrganizerRewardsPage = () => {
       ) : certificates.length === 0 ? (
         <div className="detail-info-item"><span>Empty state</span><strong>No certificates or reward records found.</strong></div>
       ) : (
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', background: 'rgba(255,255,255,0.78)', border: '1px solid rgba(255,79,163,0.14)' }}>
+        <div className="organizer-page__table-wrap">
+          <table className="organizer-page__table">
             <thead>
               <tr style={{ background: 'rgba(255,79,163,0.06)' }}>
-                <th style={{ textAlign: 'left', padding: '0.9rem' }}>Type</th>
-                <th style={{ textAlign: 'left', padding: '0.9rem' }}>Participant</th>
-                <th style={{ textAlign: 'left', padding: '0.9rem' }}>Status</th>
+                <th>Type</th>
+                <th>Participant</th>
+                <th>Status</th>
               </tr>
             </thead>
             <tbody>
               {certificates.map((certificate) => (
                 <tr key={certificate.id || certificate.certificate_number} style={{ borderTop: '1px solid rgba(255,79,163,0.08)' }}>
-                  <td style={{ padding: '0.9rem' }}>{certificate.certificate_type || 'Certificate'}</td>
-                  <td style={{ padding: '0.9rem' }}>{certificate.participant_name || certificate.participant_email || 'Participant'}</td>
-                  <td style={{ padding: '0.9rem' }}>{certificate.status || 'issued'}</td>
+                  <td data-label="Type">{certificate.certificate_type || 'Certificate'}</td>
+                  <td data-label="Participant">{certificate.participant_name || certificate.participant_email || 'Participant'}</td>
+                  <td data-label="Status">{certificate.status || 'issued'}</td>
                 </tr>
               ))}
             </tbody>
