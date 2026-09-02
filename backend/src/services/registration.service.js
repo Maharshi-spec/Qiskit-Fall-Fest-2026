@@ -704,6 +704,7 @@ const sendMail = async ({ to, subject, text, html }) => {
     host: config.host,
     port: Number(config.port || 587),
     secure: Number(config.port || 587) === 465,
+    family: 4,
     tls: { rejectUnauthorized: true },
     auth: config.user && config.password ? { user: config.user, pass: config.password } : undefined,
   })
