@@ -1,7 +1,12 @@
+<<<<<<< HEAD
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+=======
+import { useMemo, useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
+>>>>>>> 6bcddea976a6fb06cd677558b15ccf0675a4881f
 import Hero from '../../components/Hero'
 import SectionHeader from '../../components/SectionHeader'
 import EventCard from '../../components/EventCard'
@@ -128,6 +133,7 @@ const fadeInUp = {
   visible: { opacity: 1, y: 0 },
 }
 
+<<<<<<< HEAD
 gsap.registerPlugin(ScrollTrigger)
 
 const StickerAccent = ({ src, alt = '', className = '', rotate = 0, delay = 0 }) => {
@@ -173,6 +179,20 @@ const StickerAccent = ({ src, alt = '', className = '', rotate = 0, delay = 0 })
     <div className={`sticker-wrap ${className}`.trim()} style={{ '--sticker-rotation': `${rotate}deg` }}>
       <img ref={stickerRef} src={src} alt={alt} className="section-sticker" />
     </div>
+=======
+const StickerAccent = ({ src, alt = '', className = '', rotate = 0, delay = 0 }) => {
+  const shouldReduceMotion = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+  return (
+    <motion.div
+      className={`sticker-wrap ${className}`.trim()}
+      initial={shouldReduceMotion ? false : { opacity: 0, scale: 0.9, rotate: rotate - 6 }}
+      animate={shouldReduceMotion ? { opacity: 1 } : { opacity: 1, scale: 1, rotate, y: [0, -8, 0], transition: { duration: 5, repeat: Infinity, ease: 'easeInOut', delay } }}
+      whileHover={shouldReduceMotion ? undefined : { scale: 1.04, rotate: rotate + 3, y: -6 }}
+    >
+      <img src={src} alt={alt} className="section-sticker" />
+    </motion.div>
+>>>>>>> 6bcddea976a6fb06cd677558b15ccf0675a4881f
   )
 }
 
@@ -253,6 +273,7 @@ const Home = () => {
         </motion.section>
 
         <motion.section className="section section--experience" {...sectionMotion}>
+<<<<<<< HEAD
           <div className="container experience-section">
             <div className="experience-layout">
               <div className="experience-content">
@@ -275,6 +296,25 @@ const Home = () => {
               <div className="experience-visual">
                 <StickerAccent src={sticker02} alt="" className="sticker--experience" rotate={8} delay={0.2} />
               </div>
+=======
+          <div className="container section__with-sticker">
+            <div className="section__header-row">
+              <SectionHeader
+                label="The Experience"
+                title="Learn. Build. Share."
+                description="A practical journey through quantum ideas, experimental learning, and collaboration."
+              />
+              <StickerAccent src={sticker02} alt="" className="sticker--experience" rotate={8} delay={0.2} />
+            </div>
+
+            <div className="feature-grid feature-grid--four">
+              {featureItems.map((item) => (
+                <div key={item.id} className="feature-card">
+                  <span className="feature-card__tag">{item.title}</span>
+                  <p>{item.description}</p>
+                </div>
+              ))}
+>>>>>>> 6bcddea976a6fb06cd677558b15ccf0675a4881f
             </div>
           </div>
         </motion.section>
@@ -725,7 +765,11 @@ const Home = () => {
             </div>
             <div className="final-cta-actions">
               <Button to="/register" kind="primary">Register for Qiskit Fall Fest →</Button>
+<<<<<<< HEAD
               <Button to="/#program" kind="secondary">Explore the Program →</Button>
+=======
+              <Button to="/day-1" kind="secondary">Explore the Program →</Button>
+>>>>>>> 6bcddea976a6fb06cd677558b15ccf0675a4881f
             </div>
             <StickerAccent src={sticker09} alt="" className="sticker--final" rotate={-7} delay={0.2} />
           </div>

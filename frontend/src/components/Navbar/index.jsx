@@ -17,6 +17,7 @@ const navItems = [
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false)
+<<<<<<< HEAD
   const [isMobile, setIsMobile] = useState(false)
   const { isLoggedIn, userRegistration, openLoginModal, logout } = useAuth()
 
@@ -81,10 +82,27 @@ const Navbar = () => {
           Login
         </button>
       )}
+=======
+  const { isLoggedIn, openLoginModal, logout } = useAuth()
+
+  const authActions = (
+    <div className="topbar__actions">
+      <button
+        type="button"
+        className="topbar__action topbar__action--login"
+        onClick={isLoggedIn ? logout : openLoginModal}
+      >
+        {isLoggedIn ? 'Logout' : 'Login'}
+      </button>
+      <NavLink to="/register" className="topbar__action topbar__action--register">
+        Register
+      </NavLink>
+>>>>>>> 6bcddea976a6fb06cd677558b15ccf0675a4881f
     </div>
   )
 
   const navContent = (
+<<<<<<< HEAD
     <>
       {navItems.map((item) => (
         <NavLink
@@ -98,11 +116,42 @@ const Navbar = () => {
       ))}
       {authActions}
     </>
+=======
+    <motion.nav
+      className="nav nav--menu"
+      aria-label="Main navigation"
+      initial={{ opacity: 0, y: -10, scale: 0.98 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, y: -10, scale: 0.98 }}
+      transition={{ duration: 0.22, ease: 'easeOut' }}
+    >
+      {navItems.map((item) => (
+        <motion.div
+          key={item.to}
+          initial={{ opacity: 0, y: -6 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -6 }}
+          transition={{ duration: 0.18 }}
+          whileHover={{ scale: 1.02, y: -2 }}
+          whileTap={{ scale: 0.98 }}
+        >
+          <NavLink
+            to={item.to}
+            className={({ isActive }) => `nav__menu-link ${isActive ? 'nav__menu-link--active' : ''}`}
+            onClick={() => setIsOpen(false)}
+          >
+            {item.label}
+          </NavLink>
+        </motion.div>
+      ))}
+    </motion.nav>
+>>>>>>> 6bcddea976a6fb06cd677558b15ccf0675a4881f
   )
 
   return (
     <header className="topbar">
       <div className="container topbar__inner">
+<<<<<<< HEAD
         <NavLink to="/" className="brand" aria-label="Qiskit Fall Fest home">
           <img src={qiskitBadge} alt="Qiskit Fall Fest 2026 badge" className="brand__logo" />
           <span className="brand__text">Qiskit Fall Fest 2026</span>
@@ -141,6 +190,39 @@ const Navbar = () => {
           </nav>
         )}
       </div>
+=======
+        <div className="topbar__left">
+          <button
+            type="button"
+            className="nav-toggle"
+            aria-label={isOpen ? 'Close navigation menu' : 'Open navigation menu'}
+            aria-expanded={isOpen}
+            onClick={() => setIsOpen((current) => !current)}
+          >
+            <span />
+            <span />
+            <span />
+          </button>
+
+          <NavLink to="/" className="brand" aria-label="Qiskit Fall Fest home">
+            <img src={qiskitBadge} alt="Qiskit Fall Fest 2026 badge" className="brand__logo" />
+            <span className="brand__text">Qiskit Fall Fest 2026</span>
+          </NavLink>
+        </div>
+
+        <div className="topbar__right">
+          {authActions}
+        </div>
+      </div>
+
+      <AnimatePresence initial={false}>
+        {isOpen && (
+          <div className="nav-panel-wrap">
+            {navContent}
+          </div>
+        )}
+      </AnimatePresence>
+>>>>>>> 6bcddea976a6fb06cd677558b15ccf0675a4881f
     </header>
   )
 }

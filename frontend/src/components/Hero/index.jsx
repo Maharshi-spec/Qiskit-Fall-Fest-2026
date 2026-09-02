@@ -1,11 +1,16 @@
 import { useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { gsap } from 'gsap'
+<<<<<<< HEAD
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import heroArtwork from '../../assets/qiskit/hero-1-without-title.png.png'
 
 gsap.registerPlugin(ScrollTrigger)
 
+=======
+import heroArtwork from '../../assets/qiskit/hero-1-without-title.png.png'
+
+>>>>>>> 6bcddea976a6fb06cd677558b15ccf0675a4881f
 const Hero = () => {
   const sectionRef = useRef(null)
   const contentRef = useRef(null)
@@ -36,6 +41,7 @@ const Hero = () => {
     }
 
     const ctx = gsap.context(() => {
+<<<<<<< HEAD
       const mm = gsap.matchMedia()
 
       mm.add('(min-width: 861px)', () => {
@@ -127,6 +133,42 @@ const Hero = () => {
             ease: 'none',
           }, 0)
       })
+=======
+      gsap.fromTo(
+        sectionRef.current,
+        { y: 30, opacity: 0 },
+        {
+          y: 0,
+          opacity: 1,
+          duration: 0.7,
+          ease: 'power2.out',
+        },
+      )
+
+      gsap.fromTo(
+        '.hero__content > *',
+        { opacity: 0, y: 16 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.5,
+          stagger: 0.08,
+          ease: 'power2.out',
+        },
+      )
+
+      gsap.fromTo(
+        '.hero__actions .button',
+        { opacity: 0, scale: 0.88 },
+        {
+          opacity: 1,
+          scale: 1,
+          duration: 0.38,
+          stagger: 0.08,
+          ease: 'back.out(1.8)',
+        },
+      )
+>>>>>>> 6bcddea976a6fb06cd677558b15ccf0675a4881f
 
       gsap.fromTo(
         storyRefs.current,
@@ -137,20 +179,27 @@ const Hero = () => {
           duration: 1,
           stagger: 0.18,
           ease: 'power2.out',
+<<<<<<< HEAD
           scrollTrigger: {
             trigger: '.hero__story',
             start: 'top 80%',
             end: 'bottom 40%',
             scrub: 1,
           },
+=======
+>>>>>>> 6bcddea976a6fb06cd677558b15ccf0675a4881f
         },
       )
     }, sectionRef)
 
+<<<<<<< HEAD
     return () => {
       ctx.revert()
       ScrollTrigger.getAll().forEach((trigger) => trigger.kill())
     }
+=======
+    return () => ctx.revert()
+>>>>>>> 6bcddea976a6fb06cd677558b15ccf0675a4881f
   }, [])
 
   return (
