@@ -35,6 +35,7 @@ const isOrganizerAuthenticated = () => {
 
 const OrganizerLayout = ({ children }) => {
   const navigate = useNavigate()
+  const [profileOpen, setProfileOpen] = useState(false)
 
   const handleLogout = () => {
     api.clearOrganizerToken()
@@ -51,29 +52,60 @@ const OrganizerLayout = ({ children }) => {
   return (
     <div className="detail-page organizer-page">
       <div className="container organizer-page__content">
-        <div className="detail-page__panel organizer-page__header">
-          <div className="detail-page__panel-copy">
-            <p className="page-shell__eyebrow">Organizer dashboard</p>
-            <h2>Event operations</h2>
-          </div>
-          <div className="organizer-page__header-actions">
-            <Link to="/organizer" className="button button--secondary">Dashboard</Link>
-            <button type="button" className="button button--primary" onClick={handleLogout}>Logout</button>
-          </div>
-        </div>
+        <div className="organizer-page__shell">
+          <div className="organizer-page__topbar">
+            <div className="organizer-page__brand">
+              <p className="page-shell__eyebrow">Organizer dashboard</p>
+              <h2>Event operations</h2>
+            </div>
 
-        <nav aria-label="Organizer navigation" className="organizer-page__nav">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.label}
-              to={item.to}
-              className={({ isActive }) => `button ${isActive ? 'button--primary' : 'button--secondary'}`}
-              end={item.to === '/organizer'}
-            >
-              {item.label}
-            </NavLink>
-          ))}
-        </nav>
+            <div className="organizer-page__header-actions">
+              <div className="organizer-page__profile-wrap" onMouseLeave={() => setProfileOpen(false)}>
+                <button
+                  type="button"
+                  className="organizer-page__profile-button"
+                  onClick={() => setProfileOpen((open) => !open)}
+                  aria-expanded={profileOpen}
+                  aria-label="Open profile menu"
+                >
+                  <span className="organizer-page__profile-avatar">P</span>
+                </button>
+
+                {profileOpen && (
+                  <div className="organizer-page__profile-popover">
+                    <div className="organizer-page__profile-summary">
+                      <span className="organizer-page__profile-avatar organizer-page__profile-avatar--large">P</span>
+                      <div>
+                        <strong>Profile</strong>
+                        <small>Organizer</small>
+                      </div>
+                    </div>
+                    <div className="organizer-page__profile-meta">
+                      <span>Access</span>
+                      <strong>Event admin</strong>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <Link to="/organizer" className="button button--secondary">Dashboard</Link>
+              <button type="button" className="button button--primary" onClick={handleLogout}>Logout</button>
+            </div>
+          </div>
+
+          <nav aria-label="Organizer navigation" className="organizer-page__nav">
+            {navItems.map((item) => (
+              <NavLink
+                key={item.label}
+                to={item.to}
+                className={({ isActive }) => `button ${isActive ? 'is-active' : ''}`}
+                end={item.to === '/organizer'}
+              >
+                {item.label}
+              </NavLink>
+            ))}
+          </nav>
+        </div>
 
         {children}
       </div>
