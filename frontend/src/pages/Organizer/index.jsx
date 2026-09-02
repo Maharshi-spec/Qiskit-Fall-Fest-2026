@@ -36,6 +36,7 @@ const isOrganizerAuthenticated = () => {
 
 const OrganizerLayout = ({ children }) => {
   const navigate = useNavigate()
+  const [profileOpen, setProfileOpen] = useState(false)
 
   const handleLogout = () => {
     api.clearOrganizerToken()
@@ -50,28 +51,20 @@ const OrganizerLayout = ({ children }) => {
   ]
 
   return (
-    <div className="detail-page" style={{ paddingTop: '1.5rem' }}>
-      <div className="container" style={{ display: 'grid', gap: '1.25rem' }}>
-        <div className="detail-page__panel" style={{ gridTemplateColumns: '1fr auto' }}>
+    <div className="detail-page organizer-page">
+      <div className="container organizer-page__content">
+        <div className="detail-page__panel organizer-page__header">
           <div className="detail-page__panel-copy">
             <p className="page-shell__eyebrow">Organizer dashboard</p>
             <h2>Event operations</h2>
           </div>
-          <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+          <div className="organizer-page__header-actions">
             <Link to="/organizer" className="button button--secondary">Dashboard</Link>
             <button type="button" className="button button--primary" onClick={handleLogout}>Logout</button>
           </div>
         </div>
 
-        <nav aria-label="Organizer navigation" style={{
-          display: 'flex',
-          flexWrap: 'wrap',
-          gap: '0.75rem',
-          padding: '0.85rem 1rem',
-          border: '1px solid rgba(255,79,163,0.14)',
-          borderRadius: '16px',
-          background: 'rgba(255,255,255,0.82)',
-        }}>
+        <nav aria-label="Organizer navigation" className="organizer-page__nav">
           {navItems.map((item) => (
             <NavLink
               key={item.label}
