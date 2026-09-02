@@ -69,6 +69,7 @@ const isOrganizerAuthenticated = () => {
 const OrganizerLayout = ({ children }) => {
   const navigate = useNavigate()
   const [isProfileOpen, setIsProfileOpen] = useState(false)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const organizerProfile = getOrganizerProfileData()
 
   const handleLogout = () => {
@@ -101,24 +102,25 @@ const OrganizerLayout = ({ children }) => {
             marginBottom: '0.5rem',
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#655f7b', letterSpacing: '0.05em' }}>ORGANIZER DASHBOARD</span>
-            <h2 style={{ margin: 0, fontSize: '1.5rem', fontWeight: 800, color: '#1f1f2b' }}>Event operations</h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: 0, flex: 1 }}>
+            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#655f7b', letterSpacing: '0.05em', display: 'none' }}>ORGANIZER DASHBOARD</span>
+            <h2 style={{ margin: 0, fontSize: 'clamp(1.2rem, 5vw, 1.5rem)', fontWeight: 800, color: '#1f1f2b' }}>Event operations</h2>
           </div>
 
-          <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '0.6rem', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'flex-end' }}>
             <Link
               to="/organizer"
               style={{
                 background: 'none',
                 border: '1px solid rgba(255, 79, 163, 0.28)',
                 borderRadius: '999px',
-                padding: '0.52rem 0.9rem',
-                fontSize: '0.88rem',
+                padding: 'clamp(0.4rem, 2vw, 0.52rem) clamp(0.6rem, 2vw, 0.9rem)',
+                fontSize: 'clamp(0.75rem, 2vw, 0.88rem)',
                 fontWeight: 700,
                 color: '#1f1f2b',
                 cursor: 'pointer',
                 textDecoration: 'none',
+                whiteSpace: 'nowrap',
               }}
             >
               Dashboard
@@ -130,12 +132,13 @@ const OrganizerLayout = ({ children }) => {
                 background: 'linear-gradient(135deg, #ff5aab 0%, #ff4fa3 100%)',
                 border: 'none',
                 borderRadius: '999px',
-                padding: '0.52rem 1rem',
-                fontSize: '0.88rem',
+                padding: 'clamp(0.4rem, 2vw, 0.52rem) clamp(0.7rem, 2vw, 1rem)',
+                fontSize: 'clamp(0.75rem, 2vw, 0.88rem)',
                 fontWeight: 800,
                 color: '#ffffff',
                 cursor: 'pointer',
                 boxShadow: '0 6px 14px rgba(255, 79, 163, 0.18)',
+                whiteSpace: 'nowrap',
               }}
             >
               Logout
@@ -153,11 +156,12 @@ const OrganizerLayout = ({ children }) => {
                   background: 'none',
                   border: '1px solid rgba(255, 79, 163, 0.28)',
                   borderRadius: '999px',
-                  fontSize: '0.88rem',
+                  fontSize: 'clamp(0.75rem, 2vw, 0.88rem)',
                   fontWeight: 700,
                   color: '#1f1f2b',
                   cursor: 'pointer',
-                  padding: '0.52rem 0.9rem',
+                  padding: 'clamp(0.4rem, 2vw, 0.52rem) clamp(0.6rem, 2vw, 0.9rem)',
+                  whiteSpace: 'nowrap',
                 }}
               >
                 <span
@@ -172,6 +176,7 @@ const OrganizerLayout = ({ children }) => {
                     color: '#8c1a5d',
                     fontSize: '0.65rem',
                     fontWeight: 700,
+                    minWidth: '1.4rem',
                   }}
                 >
                   {getProfileInitials(organizerProfile)}
@@ -185,7 +190,7 @@ const OrganizerLayout = ({ children }) => {
                     position: 'absolute',
                     top: 'calc(100% + 0.45rem)',
                     right: 0,
-                    width: '240px',
+                    width: 'clamp(200px, 90vw, 240px)',
                     background: '#fff',
                     border: '1px solid rgba(255,79,163,0.18)',
                     borderRadius: '14px',
@@ -225,6 +230,9 @@ const OrganizerLayout = ({ children }) => {
               to={item.to}
               end={item.to === '/organizer'}
               className={({ isActive }) => `nav__link ${isActive ? 'nav__link--active' : ''}`}
+              style={{
+                fontSize: 'clamp(0.8rem, 2vw, 0.95rem)',
+              }}
             >
               {item.label}
             </NavLink>
@@ -279,45 +287,45 @@ const OrganizerLogin = () => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        paddingTop: '2rem',
-        paddingBottom: '2rem',
+        paddingTop: 'clamp(1rem, 5vw, 2rem)',
+        paddingBottom: 'clamp(1rem, 5vw, 2rem)',
       }}
     >
-      <div className="container" style={{ width: '100%', display: 'flex', justifyContent: 'center' }}>
+      <div className="container" style={{ width: '100%', display: 'flex', justifyContent: 'center', padding: '0 0.5rem' }}>
         <div
           className="detail-page__panel"
           style={{
             width: '100%',
             maxWidth: '960px',
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(clamp(250px, 100%, 300px), 1fr))',
             alignItems: 'center',
-            gap: '1.5rem',
+            gap: 'clamp(1rem, 5vw, 1.5rem)',
             margin: '0 auto',
           }}
         >
           <div className="detail-page__panel-copy">
             <p className="page-shell__eyebrow">Organizer access</p>
-            <h2>Sign in to your dashboard.</h2>
+            <h2 style={{ fontSize: 'clamp(1.5rem, 6vw, 2.2rem)' }}>Sign in to your dashboard.</h2>
             <p>This area is restricted to authorized organizers.</p>
           </div>
 
           <div className="detail-page__form-shell detail-page__form-shell--compact">
             <form className="detail-form" onSubmit={handleLogin}>
               {error && (
-                <div style={{ padding: '0.8rem 0.9rem', borderRadius: '12px', background: 'rgba(255,79,163,0.08)', color: '#c2348a', border: '1px solid rgba(255,79,163,0.14)' }}>
+                <div style={{ padding: 'clamp(0.6rem, 2vw, 0.8rem) clamp(0.7rem, 2vw, 0.9rem)', borderRadius: '12px', background: 'rgba(255,79,163,0.08)', color: '#c2348a', border: '1px solid rgba(255,79,163,0.14)' }}>
                   {error}
                 </div>
               )}
 
-              <label>
+              <label style={{ fontSize: 'clamp(0.85rem, 2vw, 0.95rem)' }}>
                 Email
-                <input type="email" name="email" value={form.email} onChange={handleChange} required />
+                <input type="email" name="email" value={form.email} onChange={handleChange} required style={{ fontSize: 'clamp(0.85rem, 2vw, 0.95rem)' }} />
               </label>
 
-              <label>
+              <label style={{ fontSize: 'clamp(0.85rem, 2vw, 0.95rem)' }}>
                 Password
-                <input type="password" name="password" value={form.password} onChange={handleChange} required />
+                <input type="password" name="password" value={form.password} onChange={handleChange} required style={{ fontSize: 'clamp(0.85rem, 2vw, 0.95rem)' }} />
               </label>
 
               <Button type="submit" kind="primary" disabled={isLoading}>
@@ -333,13 +341,13 @@ const OrganizerLogin = () => {
 
 const OrganizerDashboardHome = () => {
   return (
-    <div className="detail-page__panel">
+    <div className="detail-page__panel" style={{ padding: '0 0.5rem' }}>
       <div className="detail-page__panel-copy">
         <p className="page-shell__eyebrow">Overview</p>
-        <h2>Organizer dashboard</h2>
+        <h2 style={{ fontSize: 'clamp(1.4rem, 6vw, 2rem)' }}>Organizer dashboard</h2>
         <p>Use the sections above to manage email communication, attendance, participant records, and rewards.</p>
       </div>
-      <div className="detail-page__info-stack">
+      <div className="detail-page__info-stack" style={{ display: 'grid', gap: 'clamp(0.8rem, 2vw, 1rem)', gridTemplateColumns: 'repeat(auto-fit, minmax(clamp(150px, 100%, 200px), 1fr))' }}>
         <div className="detail-info-item">
           <span>Operations</span>
           <strong>4 sections</strong>
@@ -390,39 +398,39 @@ const OrganizerEmailPage = () => {
   }
 
   return (
-    <div className="detail-page__panel">
+    <div className="detail-page__panel" style={{ padding: '0 0.5rem' }}>
       <div className="detail-page__panel-copy">
         <p className="page-shell__eyebrow">Send Email</p>
-        <h2>Email participants</h2>
+        <h2 style={{ fontSize: 'clamp(1.4rem, 6vw, 2rem)' }}>Email participants</h2>
         <p>Send organizer messages using the real backend email service.</p>
       </div>
 
-      <div className="detail-page__form-shell" style={{ maxWidth: '760px' }}>
+      <div className="detail-page__form-shell" style={{ maxWidth: '760px', padding: 'clamp(1rem, 5vw, 1.5rem)' }}>
         <form className="detail-form" onSubmit={handleSubmit}>
           {error && (
-            <div style={{ padding: '0.8rem 0.9rem', borderRadius: '12px', background: 'rgba(255,79,163,0.08)', color: '#c2348a', border: '1px solid rgba(255,79,163,0.14)' }}>
+            <div style={{ padding: 'clamp(0.6rem, 2vw, 0.8rem) clamp(0.7rem, 2vw, 0.9rem)', borderRadius: '12px', background: 'rgba(255,79,163,0.08)', color: '#c2348a', border: '1px solid rgba(255,79,163,0.14)' }}>
               {error}
             </div>
           )}
           {success && (
-            <div style={{ padding: '0.8rem 0.9rem', borderRadius: '12px', background: 'rgba(42, 190, 120, 0.08)', color: '#1b8f65', border: '1px solid rgba(42, 190, 120, 0.14)' }}>
+            <div style={{ padding: 'clamp(0.6rem, 2vw, 0.8rem) clamp(0.7rem, 2vw, 0.9rem)', borderRadius: '12px', background: 'rgba(42, 190, 120, 0.08)', color: '#1b8f65', border: '1px solid rgba(42, 190, 120, 0.14)' }}>
               {success}
             </div>
           )}
 
-          <label>
+          <label style={{ fontSize: 'clamp(0.85rem, 2vw, 0.95rem)' }}>
             Recipients
-            <input type="text" name="recipients" value={form.recipients} onChange={handleChange} placeholder="email1@example.com, email2@example.com" required />
+            <input type="text" name="recipients" value={form.recipients} onChange={handleChange} placeholder="email1@example.com, email2@example.com" required style={{ fontSize: 'clamp(0.85rem, 2vw, 0.95rem)' }} />
           </label>
 
-          <label>
+          <label style={{ fontSize: 'clamp(0.85rem, 2vw, 0.95rem)' }}>
             Subject
-            <input type="text" name="subject" value={form.subject} onChange={handleChange} placeholder="Email subject" required />
+            <input type="text" name="subject" value={form.subject} onChange={handleChange} placeholder="Email subject" required style={{ fontSize: 'clamp(0.85rem, 2vw, 0.95rem)' }} />
           </label>
 
-          <label>
+          <label style={{ fontSize: 'clamp(0.85rem, 2vw, 0.95rem)' }}>
             Message
-            <textarea name="message" rows="8" value={form.message} onChange={handleChange} placeholder="Write your message here..." required style={{ width: '100%', borderRadius: '12px', border: '1px solid rgba(255,79,163,0.18)', padding: '0.8rem 0.9rem' }} />
+            <textarea name="message" rows="8" value={form.message} onChange={handleChange} placeholder="Write your message here..." required style={{ width: '100%', borderRadius: '12px', border: '1px solid rgba(255,79,163,0.18)', padding: 'clamp(0.6rem, 2vw, 0.8rem) clamp(0.7rem, 2vw, 0.9rem)', fontSize: 'clamp(0.85rem, 2vw, 0.95rem)', fontFamily: 'inherit' }} />
           </label>
 
           <Button type="submit" kind="primary" disabled={isLoading}>
@@ -478,24 +486,25 @@ const OrganizerAttendancePage = () => {
   }
 
   return (
-    <div style={{ display: 'grid', gridTemplateRows: 'auto 1fr', minHeight: 'calc(100vh - 250px)', gap: '1rem' }}>
+    <div style={{ display: 'grid', gridTemplateRows: 'auto 1fr', minHeight: 'calc(100vh - 280px)', gap: '1rem', padding: '0 0.5rem' }}>
       <div>
         <div style={{ marginBottom: '1rem' }}>
-          <p style={{ fontSize: '0.75rem', fontWeight: 700, color: '#655f7b', letterSpacing: '0.05em', marginBottom: '0.25rem' }}>ATTENDANCE</p>
-          <h2 style={{ margin: 0, fontSize: '2rem', fontWeight: 800, color: '#1f1f2b', marginBottom: '0.5rem' }}>Mark attendee presence</h2>
+          <p style={{ fontSize: 'clamp(0.7rem, 2vw, 0.75rem)', fontWeight: 700, color: '#655f7b', letterSpacing: '0.05em', marginBottom: '0.25rem' }}>ATTENDANCE</p>
+          <h2 style={{ margin: 0, fontSize: 'clamp(1.4rem, 6vw, 2rem)', fontWeight: 800, color: '#1f1f2b', marginBottom: '0.5rem' }}>Mark attendee presence</h2>
         </div>
-        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', marginBottom: '1rem' }}>
+        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap' }}>
           <input
             type="text"
             placeholder="Search by name or email…"
             value={searchQuery}
             onChange={(e) => handleSearch(e.target.value)}
             style={{
-              flex: 1,
-              padding: '0.75rem 1rem',
+              flex: '1 1 100%',
+              minWidth: '200px',
+              padding: 'clamp(0.6rem, 2vw, 0.75rem) clamp(0.8rem, 2vw, 1rem)',
               borderRadius: '12px',
               border: '1px solid rgba(255,79,163,0.18)',
-              fontSize: '0.95rem',
+              fontSize: 'clamp(0.85rem, 2vw, 0.95rem)',
               backgroundColor: 'rgba(255,255,255,0.9)',
             }}
           />
@@ -515,41 +524,42 @@ const OrganizerAttendancePage = () => {
           <strong style={{ color: '#655f7b' }}>{searchQuery ? 'No participants match your search.' : 'No participants registered yet.'}</strong>
         </div>
       ) : (
-        <div style={{ overflowX: 'auto', borderRadius: '16px', border: '1px solid rgba(255,79,163,0.14)' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', background: 'rgba(255,255,255,0.9)' }}>
+        <div style={{ overflowX: 'auto', borderRadius: '16px', border: '1px solid rgba(255,79,163,0.14)', WebkitOverflowScrolling: 'touch' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', background: 'rgba(255,255,255,0.9)', minWidth: '600px' }}>
             <thead>
               <tr style={{ background: 'rgba(255,79,163,0.08)' }}>
-                <th style={{ textAlign: 'left', padding: '1rem', fontWeight: 700, color: '#1f1f2b', fontSize: '0.95rem' }}>Participant</th>
-                <th style={{ textAlign: 'left', padding: '1rem', fontWeight: 700, color: '#1f1f2b', fontSize: '0.95rem' }}>Role</th>
-                <th style={{ textAlign: 'left', padding: '1rem', fontWeight: 700, color: '#1f1f2b', fontSize: '0.95rem' }}>Status</th>
-                <th style={{ textAlign: 'left', padding: '1rem', fontWeight: 700, color: '#1f1f2b', fontSize: '0.95rem' }}>Mark</th>
+                <th style={{ textAlign: 'left', padding: 'clamp(0.8rem, 2vw, 1rem)', fontWeight: 700, color: '#1f1f2b', fontSize: 'clamp(0.8rem, 2vw, 0.95rem)' }}>Participant</th>
+                <th style={{ textAlign: 'left', padding: 'clamp(0.8rem, 2vw, 1rem)', fontWeight: 700, color: '#1f1f2b', fontSize: 'clamp(0.8rem, 2vw, 0.95rem)' }}>Role</th>
+                <th style={{ textAlign: 'left', padding: 'clamp(0.8rem, 2vw, 1rem)', fontWeight: 700, color: '#1f1f2b', fontSize: 'clamp(0.8rem, 2vw, 0.95rem)' }}>Status</th>
+                <th style={{ textAlign: 'left', padding: 'clamp(0.8rem, 2vw, 1rem)', fontWeight: 700, color: '#1f1f2b', fontSize: 'clamp(0.8rem, 2vw, 0.95rem)' }}>Mark</th>
               </tr>
             </thead>
             <tbody>
               {filteredParticipants.map((participant) => (
                 <tr key={participant.registrationId} style={{ borderTop: '1px solid rgba(255,79,163,0.08)' }}>
-                  <td style={{ padding: '1rem' }}>
-                    <div style={{ fontWeight: 700, color: '#1f1f2b' }}>{participant.fullName}</div>
-                    <div style={{ color: '#655f7b', fontSize: '0.9rem' }}>{participant.email}</div>
+                  <td style={{ padding: 'clamp(0.8rem, 2vw, 1rem)' }}>
+                    <div style={{ fontWeight: 700, color: '#1f1f2b', fontSize: 'clamp(0.85rem, 2vw, 0.95rem)' }}>{participant.fullName}</div>
+                    <div style={{ color: '#655f7b', fontSize: 'clamp(0.75rem, 2vw, 0.9rem)' }}>{participant.email}</div>
                   </td>
-                  <td style={{ padding: '1rem', color: '#1f1f2b', fontWeight: 600 }}>{participant.role || 'N/A'}</td>
-                  <td style={{ padding: '1rem', color: '#1f1f2b', fontWeight: 600 }}>{participant.attendanceStatus || 'NOT_MARKED'}</td>
-                  <td style={{ padding: '1rem' }}>
-                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                  <td style={{ padding: 'clamp(0.8rem, 2vw, 1rem)', color: '#1f1f2b', fontWeight: 600, fontSize: 'clamp(0.8rem, 2vw, 0.95rem)' }}>{participant.role || 'N/A'}</td>
+                  <td style={{ padding: 'clamp(0.8rem, 2vw, 1rem)', color: '#1f1f2b', fontWeight: 600, fontSize: 'clamp(0.8rem, 2vw, 0.95rem)' }}>{participant.attendanceStatus || 'NOT_MARKED'}</td>
+                  <td style={{ padding: 'clamp(0.8rem, 2vw, 1rem)' }}>
+                    <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
                       {['PRESENT', 'ABSENT', 'NOT_MARKED'].map((status) => (
                         <button
                           key={status}
                           type="button"
                           onClick={() => updateStatus(participant.registrationId, status)}
                           style={{
-                            padding: '0.55rem 0.8rem',
-                            fontSize: '0.82rem',
+                            padding: 'clamp(0.4rem, 1.5vw, 0.55rem) clamp(0.6rem, 1.5vw, 0.8rem)',
+                            fontSize: 'clamp(0.7rem, 1.5vw, 0.82rem)',
                             borderRadius: '999px',
                             background: participant.attendanceStatus === status ? 'linear-gradient(135deg, #ff5aab 0%, #ff4fa3 100%)' : 'rgba(255, 79, 163, 0.08)',
                             border: participant.attendanceStatus === status ? 'none' : '1px solid rgba(255, 79, 163, 0.18)',
                             color: participant.attendanceStatus === status ? '#fff' : '#1f1f2b',
                             fontWeight: 700,
                             cursor: 'pointer',
+                            whiteSpace: 'nowrap',
                           }}
                         >
                           {status}
@@ -601,24 +611,25 @@ const OrganizerParticipantsPage = () => {
   }
 
   return (
-    <div style={{ display: 'grid', gridTemplateRows: 'auto 1fr', minHeight: 'calc(100vh - 250px)', gap: '1rem' }}>
+    <div style={{ display: 'grid', gridTemplateRows: 'auto 1fr', minHeight: 'calc(100vh - 280px)', gap: '1rem', padding: '0 0.5rem' }}>
       <div>
         <div style={{ marginBottom: '1rem' }}>
-          <p style={{ fontSize: '0.75rem', fontWeight: 700, color: '#655f7b', letterSpacing: '0.05em', marginBottom: '0.25rem' }}>PARTICIPANTS</p>
-          <h2 style={{ margin: 0, fontSize: '2rem', fontWeight: 800, color: '#1f1f2b', marginBottom: '0.5rem' }}>Registered participant records</h2>
+          <p style={{ fontSize: 'clamp(0.7rem, 2vw, 0.75rem)', fontWeight: 700, color: '#655f7b', letterSpacing: '0.05em', marginBottom: '0.25rem' }}>PARTICIPANTS</p>
+          <h2 style={{ margin: 0, fontSize: 'clamp(1.4rem, 6vw, 2rem)', fontWeight: 800, color: '#1f1f2b', marginBottom: '0.5rem' }}>Registered participant records</h2>
         </div>
-        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', marginBottom: '1rem' }}>
+        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap' }}>
           <input
             type="text"
             placeholder="Search by name or email…"
             value={searchQuery}
             onChange={(e) => handleSearch(e.target.value)}
             style={{
-              flex: 1,
-              padding: '0.75rem 1rem',
+              flex: '1 1 100%',
+              minWidth: '200px',
+              padding: 'clamp(0.6rem, 2vw, 0.75rem) clamp(0.8rem, 2vw, 1rem)',
               borderRadius: '12px',
               border: '1px solid rgba(255,79,163,0.18)',
-              fontSize: '0.95rem',
+              fontSize: 'clamp(0.85rem, 2vw, 0.95rem)',
               backgroundColor: 'rgba(255,255,255,0.9)',
             }}
           />
@@ -638,21 +649,21 @@ const OrganizerParticipantsPage = () => {
           <strong style={{ color: '#655f7b' }}>{searchQuery ? 'No participants match your search.' : 'No participants registered yet.'}</strong>
         </div>
       ) : (
-        <div style={{ overflowX: 'auto', borderRadius: '16px', border: '1px solid rgba(255,79,163,0.14)' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', background: 'rgba(255,255,255,0.9)' }}>
+        <div style={{ overflowX: 'auto', borderRadius: '16px', border: '1px solid rgba(255,79,163,0.14)', WebkitOverflowScrolling: 'touch' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', background: 'rgba(255,255,255,0.9)', minWidth: '500px' }}>
             <thead>
               <tr style={{ background: 'rgba(255,79,163,0.08)' }}>
-                <th style={{ textAlign: 'left', padding: '1rem', fontWeight: 700, color: '#1f1f2b', fontSize: '0.95rem' }}>Name</th>
-                <th style={{ textAlign: 'left', padding: '1rem', fontWeight: 700, color: '#1f1f2b', fontSize: '0.95rem' }}>Email</th>
-                <th style={{ textAlign: 'left', padding: '1rem', fontWeight: 700, color: '#1f1f2b', fontSize: '0.95rem' }}>Role</th>
+                <th style={{ textAlign: 'left', padding: 'clamp(0.8rem, 2vw, 1rem)', fontWeight: 700, color: '#1f1f2b', fontSize: 'clamp(0.8rem, 2vw, 0.95rem)' }}>Name</th>
+                <th style={{ textAlign: 'left', padding: 'clamp(0.8rem, 2vw, 1rem)', fontWeight: 700, color: '#1f1f2b', fontSize: 'clamp(0.8rem, 2vw, 0.95rem)' }}>Email</th>
+                <th style={{ textAlign: 'left', padding: 'clamp(0.8rem, 2vw, 1rem)', fontWeight: 700, color: '#1f1f2b', fontSize: 'clamp(0.8rem, 2vw, 0.95rem)' }}>Role</th>
               </tr>
             </thead>
             <tbody>
               {filteredParticipants.map((participant) => (
                 <tr key={participant.registrationId || participant.email} style={{ borderTop: '1px solid rgba(255,79,163,0.08)' }}>
-                  <td style={{ padding: '1rem', color: '#1f1f2b', fontWeight: 600 }}>{participant.fullName}</td>
-                  <td style={{ padding: '1rem', color: '#1f1f2b' }}>{participant.email}</td>
-                  <td style={{ padding: '1rem', color: '#1f1f2b', fontWeight: 600 }}>{participant.role}</td>
+                  <td style={{ padding: 'clamp(0.8rem, 2vw, 1rem)', color: '#1f1f2b', fontWeight: 600, fontSize: 'clamp(0.85rem, 2vw, 0.95rem)' }}>{participant.fullName}</td>
+                  <td style={{ padding: 'clamp(0.8rem, 2vw, 1rem)', color: '#1f1f2b', fontSize: 'clamp(0.75rem, 2vw, 0.95rem)', wordBreak: 'break-word' }}>{participant.email}</td>
+                  <td style={{ padding: 'clamp(0.8rem, 2vw, 1rem)', color: '#1f1f2b', fontWeight: 600, fontSize: 'clamp(0.8rem, 2vw, 0.95rem)' }}>{participant.role}</td>
                 </tr>
               ))}
             </tbody>
@@ -687,10 +698,10 @@ const OrganizerRewardsPage = () => {
   }, [])
 
   return (
-    <div className="detail-page__panel" style={{ display: 'grid' }}>
+    <div className="detail-page__panel" style={{ display: 'grid', padding: '0 0.5rem' }}>
       <div className="detail-page__panel-copy">
         <p className="page-shell__eyebrow">Rewards</p>
-        <h2>Certificates and reward records</h2>
+        <h2 style={{ fontSize: 'clamp(1.4rem, 6vw, 2rem)' }}>Certificates and reward records</h2>
       </div>
 
       {isLoading ? (
@@ -700,21 +711,21 @@ const OrganizerRewardsPage = () => {
       ) : certificates.length === 0 ? (
         <div className="detail-info-item"><span>Empty state</span><strong>No certificates or reward records found.</strong></div>
       ) : (
-        <div style={{ overflowX: 'auto' }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', background: 'rgba(255,255,255,0.78)', border: '1px solid rgba(255,79,163,0.14)' }}>
+        <div style={{ overflowX: 'auto', borderRadius: '16px', WebkitOverflowScrolling: 'touch' }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', background: 'rgba(255,255,255,0.78)', border: '1px solid rgba(255,79,163,0.14)', minWidth: '400px' }}>
             <thead>
               <tr style={{ background: 'rgba(255,79,163,0.06)' }}>
-                <th style={{ textAlign: 'left', padding: '0.9rem' }}>Type</th>
-                <th style={{ textAlign: 'left', padding: '0.9rem' }}>Participant</th>
-                <th style={{ textAlign: 'left', padding: '0.9rem' }}>Status</th>
+                <th style={{ textAlign: 'left', padding: 'clamp(0.7rem, 2vw, 0.9rem)', fontSize: 'clamp(0.8rem, 2vw, 0.95rem)', fontWeight: 700 }}>Type</th>
+                <th style={{ textAlign: 'left', padding: 'clamp(0.7rem, 2vw, 0.9rem)', fontSize: 'clamp(0.8rem, 2vw, 0.95rem)', fontWeight: 700 }}>Participant</th>
+                <th style={{ textAlign: 'left', padding: 'clamp(0.7rem, 2vw, 0.9rem)', fontSize: 'clamp(0.8rem, 2vw, 0.95rem)', fontWeight: 700 }}>Status</th>
               </tr>
             </thead>
             <tbody>
               {certificates.map((certificate) => (
                 <tr key={certificate.id || certificate.certificate_number} style={{ borderTop: '1px solid rgba(255,79,163,0.08)' }}>
-                  <td style={{ padding: '0.9rem' }}>{certificate.certificate_type || 'Certificate'}</td>
-                  <td style={{ padding: '0.9rem' }}>{certificate.participant_name || certificate.participant_email || 'Participant'}</td>
-                  <td style={{ padding: '0.9rem' }}>{certificate.status || 'issued'}</td>
+                  <td style={{ padding: 'clamp(0.7rem, 2vw, 0.9rem)', fontSize: 'clamp(0.8rem, 2vw, 0.95rem)' }}>{certificate.certificate_type || 'Certificate'}</td>
+                  <td style={{ padding: 'clamp(0.7rem, 2vw, 0.9rem)', fontSize: 'clamp(0.8rem, 2vw, 0.95rem)', wordBreak: 'break-word' }}>{certificate.participant_name || certificate.participant_email || 'Participant'}</td>
+                  <td style={{ padding: 'clamp(0.7rem, 2vw, 0.9rem)', fontSize: 'clamp(0.8rem, 2vw, 0.95rem)' }}>{certificate.status || 'issued'}</td>
                 </tr>
               ))}
             </tbody>

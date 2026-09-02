@@ -2517,6 +2517,162 @@ a:focus-visible {
   }
 }
 
+/* Organizer Dashboard Responsive Styles */
+@media (max-width: 768px) {
+  /* Organizer header navbar */
+  .detail-page {
+    padding: clamp(1.5rem, 4vw, 3rem) 0 2rem;
+  }
+
+  /* Table responsive behavior */
+  table {
+    font-size: clamp(0.75rem, 2vw, 0.95rem);
+  }
+
+  table td,
+  table th {
+    padding: clamp(0.6rem, 1.5vw, 0.9rem) !important;
+  }
+
+  /* Button wrapping in tables */
+  button[type="button"] {
+    padding: clamp(0.35rem, 1vw, 0.5rem) clamp(0.5rem, 1vw, 0.7rem);
+    font-size: clamp(0.65rem, 1.5vw, 0.8rem);
+  }
+
+  /* Form inputs responsive */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  textarea,
+  select {
+    font-size: 16px !important; /* Prevents zoom on iOS */
+    padding: clamp(0.6rem, 2vw, 0.8rem) clamp(0.7rem, 2vw, 0.9rem) !important;
+  }
+
+  /* Nav links responsive */
+  .nav__link {
+    padding: clamp(0.6rem, 1.5vw, 0.8rem) clamp(0.8rem, 2vw, 1rem);
+    font-size: clamp(0.75rem, 1.5vw, 0.9rem);
+  }
+
+  /* Search input full width on mobile */
+  input[type="text"][placeholder*="Search"] {
+    width: 100% !important;
+    min-width: 100%;
+  }
+
+  /* Table minimum width for horizontal scroll */
+  table {
+    min-width: 100%;
+  }
+
+  /* Organizer panel responsive grid */
+  .detail-page__panel {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .detail-page__form-shell--compact {
+    max-width: 100%;
+    margin-left: 0;
+  }
+
+  /* Header buttons wrap better */
+  button,
+  a[style*="border"] {
+    min-width: auto;
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Extra small screens */
+  .detail-page {
+    padding: clamp(1rem, 3vw, 2rem) 0 1.5rem;
+  }
+
+  /* Stack navbar items vertically if needed */
+  div[style*="display: flex"][style*="gap"][style*="flexWrap"] {
+    gap: clamp(0.4rem, 1vw, 0.6rem) !important;
+  }
+
+  /* Smaller padding on tables for tiny screens */
+  table td,
+  table th {
+    padding: 0.5rem !important;
+  }
+
+  table thead tr {
+    font-size: 0.75rem;
+  }
+
+  table tbody tr {
+    font-size: 0.75rem;
+  }
+
+  /* Button sizing for tiny screens */
+  button {
+    padding: clamp(0.35rem, 1vw, 0.45rem) clamp(0.5rem, 1.5vw, 0.65rem);
+    font-size: clamp(0.65rem, 1.2vw, 0.75rem);
+    min-height: 2.5rem; /* Ensure touch target is minimum 44px */
+  }
+
+  /* Ensure minimum touch target sizes */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  button,
+  a[role="button"] {
+    min-height: 44px;
+  }
+
+  /* Header profile menu width constraint */
+  div[style*="position: absolute"][style*="width"] {
+    width: clamp(180px, 90vw, 240px) !important;
+  }
+
+  /* Better vertical spacing on mobile */
+  .detail-page__panel-copy {
+    gap: clamp(0.6rem, 1.5vw, 0.85rem) !important;
+  }
+
+  /* Responsive heading sizes */
+  h2 {
+    font-size: clamp(1.3rem, 5vw, 2rem);
+  }
+
+  h3 {
+    font-size: clamp(1.1rem, 4vw, 1.5rem);
+  }
+
+  p {
+    font-size: clamp(0.9rem, 2vw, 1.1rem);
+  }
+
+  /* Form labels text size */
+  label {
+    font-size: clamp(0.8rem, 2vw, 0.9rem) !important;
+  }
+}
+
+/* Touch-friendly enhancements */
+@media (hover: none) and (pointer: coarse) {
+  /* Mobile devices */
+  button,
+  input[type="button"],
+  input[type="submit"],
+  a[role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  .nav__link,
+  button {
+    padding: clamp(0.6rem, 2vw, 0.8rem) clamp(0.8rem, 2vw, 1rem);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;

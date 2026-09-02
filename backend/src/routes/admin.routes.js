@@ -1,6 +1,8 @@
 const express = require('express')
 const { requireAdmin } = require('../middleware/validation.middleware')
+const { requireReminderProcessor } = require('../middleware/validation.middleware')
 const registrationService = require('../services/registration.service')
+const reminderService = require('../services/reminder.service')
 
 const router = express.Router()
 
@@ -44,6 +46,15 @@ router.post('/admin/email/send', requireAdmin, async (req, res, next) => {
   try {
     const result = await registrationService.sendOrganizerEmail(req.body)
     return res.status(200).json(result)
+  } catch (error) {
+    return next(error)
+  }
+})
+
+router.post('/internal/reminders/process', requireReminderProcessor, async (req, res, next) => {
+  try {
+    const result = await reminderService.processDueReminders({ limit: req.body?.limit })
+    return res.status(200).json({ success: true, data: result })
   } catch (error) {
     return next(error)
   }
