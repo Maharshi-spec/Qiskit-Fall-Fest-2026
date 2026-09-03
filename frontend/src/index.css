@@ -253,41 +253,6 @@ p {
   opacity: 0.84;
 }
 
-.scroll-orbit-logo.is-orbiting {
-  animation: qiskitHeadingOrbit 7s linear infinite;
-}
-
-@keyframes qiskitHeadingOrbit {
-  0% {
-    transform: translate(-50%, -50%) translate3d(calc(var(--orbit-radius-x) * 0.72), calc(var(--orbit-radius-y) * -0.9), 0) scale(0.98);
-  }
-  25% {
-    transform: translate(-50%, -50%) translate3d(var(--orbit-radius-x), calc(var(--orbit-radius-y) * 0.15), 8px) scale(1);
-  }
-  50% {
-    transform: translate(-50%, -50%) translate3d(calc(var(--orbit-radius-x) * -0.72), var(--orbit-radius-y), -8px) scale(0.95);
-  }
-  75% {
-    transform: translate(-50%, -50%) translate3d(calc(var(--orbit-radius-x) * -1), calc(var(--orbit-radius-y) * -0.15), 8px) scale(1);
-  }
-  100% {
-    transform: translate(-50%, -50%) translate3d(calc(var(--orbit-radius-x) * 0.72), calc(var(--orbit-radius-y) * -0.9), 0) scale(0.98);
-  }
-}
-
-.scroll-orbit-logo.is-orbiting img {
-  animation: qiskitSphereSelfRotation 11s linear infinite;
-}
-
-@keyframes qiskitSphereSelfRotation {
-  from {
-    transform: rotate3d(0.25, 1, 0.2, 0deg);
-  }
-  to {
-    transform: rotate3d(0.25, 1, 0.2, 360deg);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   .scroll-orbit-logo {
     display: none;
@@ -520,6 +485,11 @@ a:focus-visible {
 .detail-page__intro h1,
 .detail-page__panel-copy h2 {
   margin-bottom: 0;
+}
+
+#registration-anchor-heading {
+  position: relative;
+  z-index: 20;
 }
 
 .detail-page__intro h1 {

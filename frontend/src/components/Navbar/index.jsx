@@ -93,7 +93,60 @@ const Navbar = () => {
     }
 
     let frame = 0
-    const updateLogoPosition = () => {
+    let lastTime = 0
+    let orbitDistance = 0
+    let selfRotation = 0
+    let isOrbiting = false
+    let orbitPath = null
+    const sphereImage = animatedLogo.querySelector('img')
+
+    const buildOrbitPath = (radiusX, radiusY) => {
+      const points = []
+      const cumulativeLengths = [0]
+      const pointCount = 360
+      const orbitTilt = -Math.PI * 0.16
+      for (let index = 0; index <= pointCount; index += 1) {
+        const angle = -Math.PI * 0.38 + (index / pointCount) * Math.PI * 2
+        const ellipseX = radiusX * Math.cos(angle)
+        const ellipseY = radiusY * Math.sin(angle)
+        const point = {
+          x: ellipseX * Math.cos(orbitTilt) - ellipseY * Math.sin(orbitTilt),
+          y: ellipseX * Math.sin(orbitTilt) + ellipseY * Math.cos(orbitTilt),
+          z: Math.sin(angle),
+        }
+        points.push(point)
+        if (index > 0) {
+          const previous = points[index - 1]
+          cumulativeLengths.push(cumulativeLengths[index - 1] + Math.hypot(point.x - previous.x, point.y - previous.y))
+        }
+      }
+      return { points, cumulativeLengths, length: cumulativeLengths[pointCount], radiusX, radiusY }
+    }
+
+    const getPointAtDistance = (path, distance) => {
+      const normalizedDistance = distance % path.length
+      let low = 0
+      let high = path.cumulativeLengths.length - 1
+      while (low < high) {
+        const middle = Math.floor((low + high) / 2)
+        if (path.cumulativeLengths[middle] < normalizedDistance) low = middle + 1
+        else high = middle
+      }
+      const nextIndex = Math.max(1, low)
+      const previousIndex = nextIndex - 1
+      const segmentStart = path.cumulativeLengths[previousIndex]
+      const segmentLength = path.cumulativeLengths[nextIndex] - segmentStart || 1
+      const progress = (normalizedDistance - segmentStart) / segmentLength
+      const start = path.points[previousIndex]
+      const end = path.points[nextIndex]
+      return {
+        x: start.x + (end.x - start.x) * progress,
+        y: start.y + (end.y - start.y) * progress,
+        z: start.z + (end.z - start.z) * progress,
+      }
+    }
+
+    const updateLogoPosition = (time = performance.now()) => {
       frame = 0
       const logoRect = logo.getBoundingClientRect()
       const targetRect = target.getBoundingClientRect()
@@ -123,24 +176,36 @@ const Navbar = () => {
       const travelProgress = Math.min(progress, 1)
       const radiusX = Math.max(42, Math.abs(tPoint.x - uPoint.x) * 0.68)
       const radiusY = Math.max(28, targetRect.height * 0.9)
-      animatedLogo.style.setProperty('--orbit-radius-x', `${radiusX}px`)
-      animatedLogo.style.setProperty('--orbit-radius-y', `${radiusY}px`)
+      if (!orbitPath || Math.abs(orbitPath.radiusX - radiusX) > 0.5 || Math.abs(orbitPath.radiusY - radiusY) > 0.5) {
+        orbitPath = buildOrbitPath(radiusX, radiusY)
+      }
       if (targetReached) {
-        animatedLogo.style.left = `${targetX}px`
-        animatedLogo.style.top = `${targetViewportY}px`
-        animatedLogo.classList.add('is-orbiting')
+        if (!isOrbiting) {
+          isOrbiting = true
+          lastTime = time
+          orbitDistance = 0
+        }
+        const deltaTime = Math.min(0.05, Math.max(0, (time - lastTime) / 1000))
+        lastTime = time
+        orbitDistance += deltaTime * 42
+        selfRotation += deltaTime * 34
+        const point = getPointAtDistance(orbitPath, orbitDistance)
+        const depth = point.z * 10
+        const scale = 0.95 + Math.max(0, point.z) * 0.035
+        animatedLogo.style.transform = `translate3d(${targetX + point.x}px, ${targetViewportY + point.y}px, ${depth}px) translate(-50%, -50%) scale(${scale})`
+        sphereImage.style.transform = `rotate3d(0.25, 1, 0.2, ${selfRotation}deg)`
         animatedLogo.style.opacity = '1'
         logo.style.opacity = '0.2'
+        requestUpdate()
         return
       }
 
-      animatedLogo.classList.remove('is-orbiting')
+      isOrbiting = false
+      lastTime = time
       if (targetPassed) {
         const returnProgress = Math.min(1, Math.max(0, -targetRect.bottom / (window.innerHeight * 0.5)))
         const returnX = targetX + (startX - targetX) * returnProgress
         const returnY = targetViewportY + (startViewportY - targetViewportY) * returnProgress
-        animatedLogo.style.left = '0px'
-        animatedLogo.style.top = '0px'
         animatedLogo.style.transform = `translate3d(${returnX}px, ${returnY}px, 0) translate(-50%, -50%) scale(${1 - returnProgress * 0.05})`
         animatedLogo.style.opacity = returnProgress < 1 ? '1' : '0'
         logo.style.opacity = returnProgress < 1 ? '0.2' : '1'
@@ -149,8 +214,6 @@ const Navbar = () => {
 
       const x = startX + (targetX - startX) * travelProgress
       const y = startViewportY + (targetViewportY - startViewportY) * travelProgress
-      animatedLogo.style.left = '0px'
-      animatedLogo.style.top = '0px'
       animatedLogo.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%) scale(${1 - progress * 0.08})`
       animatedLogo.style.opacity = progress > 0.02 ? '1' : '0'
       logo.style.opacity = progress > 0.03 ? '0.2' : '1'
