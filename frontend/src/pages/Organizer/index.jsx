@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, Navigate, NavLink, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import { QRCodeSVG } from 'qrcode.react'
 import Button from '../../components/Button'
@@ -36,7 +36,24 @@ const isOrganizerAuthenticated = () => {
 
 const OrganizerLayout = ({ children }) => {
   const navigate = useNavigate()
+  const profileRef = useRef(null)
   const [profileOpen, setProfileOpen] = useState(false)
+
+  useEffect(() => {
+    const handlePointerDown = (event) => {
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setProfileOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handlePointerDown)
+    return () => document.removeEventListener('mousedown', handlePointerDown)
+  }, [])
+
+  const organizerToken = getOrganizerToken()
+  const organizerProfile = organizerToken ? parseJwtPayload(organizerToken) : null
+  const organizerName = organizerProfile?.name || organizerProfile?.fullName || 'Organizer'
+  const organizerEmail = organizerProfile?.email || ORGANIZER_EMAIL
 
   const handleLogout = () => {
     api.clearOrganizerToken()
@@ -53,29 +70,68 @@ const OrganizerLayout = ({ children }) => {
   return (
     <div className="detail-page organizer-page">
       <div className="container organizer-page__content">
-        <div className="detail-page__panel organizer-page__header">
-          <div className="detail-page__panel-copy">
-            <p className="page-shell__eyebrow">Organizer dashboard</p>
-            <h2>Event operations</h2>
-          </div>
-          <div className="organizer-page__header-actions">
-            <Link to="/organizer" className="button button--secondary">Dashboard</Link>
-            <button type="button" className="button button--primary" onClick={handleLogout}>Logout</button>
-          </div>
-        </div>
+        <div className="organizer-page__shell">
+          <div className="organizer-page__topbar">
+            <div className="organizer-page__brand">
+              <p className="page-shell__eyebrow">Organizer dashboard</p>
+              <h2>Event operations</h2>
+            </div>
 
-        <nav aria-label="Organizer navigation" className="organizer-page__nav">
-          {navItems.map((item) => (
-            <NavLink
-              key={item.label}
-              to={item.to}
-              className={({ isActive }) => `button ${isActive ? 'button--primary' : 'button--secondary'}`}
-              end={item.to === '/organizer'}
-            >
-              {item.label}
-            </NavLink>
-          ))}
-        </nav>
+            <div className="organizer-page__header-actions">
+              <div
+                ref={profileRef}
+                className="organizer-page__profile-wrap"
+                onMouseEnter={() => setProfileOpen(true)}
+                onMouseLeave={() => setProfileOpen(false)}
+              >
+                <button
+                  type="button"
+                  className="organizer-page__profile-button"
+                  onClick={() => setProfileOpen((open) => !open)}
+                  aria-expanded={profileOpen}
+                  aria-label="Open profile menu"
+                >
+                  <span className="organizer-page__profile-avatar">{organizerName.charAt(0).toUpperCase()}</span>
+                </button>
+
+                {profileOpen && (
+                  <div className="organizer-page__profile-popover" role="dialog" aria-label="Organizer profile">
+                    <div className="organizer-page__profile-summary">
+                      <span className="organizer-page__profile-avatar organizer-page__profile-avatar--large">{organizerName.charAt(0).toUpperCase()}</span>
+                      <div>
+                        <strong>{organizerName}</strong>
+                        <small>Organizer</small>
+                      </div>
+                    </div>
+                    <div className="organizer-page__profile-meta">
+                      <span>Email</span>
+                      <strong>{organizerEmail}</strong>
+                    </div>
+                    <div className="organizer-page__profile-status">
+                      <span className="organizer-page__role-badge">Organizer</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <Link to="/organizer" className="button button--secondary">Dashboard</Link>
+              <button type="button" className="button button--primary" onClick={handleLogout}>Logout</button>
+            </div>
+          </div>
+
+          <nav aria-label="Organizer navigation" className="organizer-page__nav">
+            {navItems.map((item) => (
+              <NavLink
+                key={item.label}
+                to={item.to}
+                className={({ isActive }) => `button ${isActive ? 'is-active' : ''}`}
+                end={item.to === '/organizer'}
+              >
+                {item.label}
+              </NavLink>
+            ))}
+          </nav>
+        </div>
 
         {children}
       </div>
