@@ -37,11 +37,178 @@ const EVENTS = [
   },
 ]
 
-const activeSessions = new Map()
+const mapEventRow = (row) => {
+  const dateStr = row.event_date
+    ? typeof row.event_date === 'string'
+      ? row.event_date.slice(0, 10)
+      : row.event_date instanceof Date
+      ? row.event_date.toISOString().slice(0, 10)
+      : String(row.event_date)
+    : ''
+  return {
+    eventId: row.event_id,
+    event_id: row.event_id,
+    name: row.event_name,
+    event_name: row.event_name,
+    description: row.description || '',
+    venue: row.location || '',
+    location: row.location || '',
+    date: dateStr,
+    event_date: dateStr,
+    startTime: row.start_time || null,
+    start_time: row.start_time || null,
+    endTime: row.end_time || null,
+    end_time: row.end_time || null,
+    status: row.status || 'active',
+    eventType: row.event_type || 'GENERAL',
+    event_type: row.event_type || 'GENERAL',
+    createdAt: row.created_at || null,
+    created_at: row.created_at || null,
+  }
+}
 
-const getEventsList = () => EVENTS
+const getEventsList = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('events')
+      .select('*')
+      .order('event_date', { ascending: true })
 
-const getEventById = (eventId) => EVENTS.find((e) => e.eventId === eventId) || null
+    if (!error && Array.isArray(data) && data.length > 0) {
+      return data.map(mapEventRow)
+    }
+  } catch (err) {
+    console.warn('[SUPABASE DB WARN] getEventsList fallback:', err.message)
+  }
+
+  if (pool) {
+    try {
+      const result = await pool.query('SELECT * FROM events ORDER BY event_date ASC, created_at ASC;')
+      if (result.rows && result.rows.length > 0) {
+        return result.rows.map(mapEventRow)
+      }
+    } catch (err) {
+      console.warn('[POSTGRES DB WARN] getEventsList fallback:', err.message)
+    }
+  }
+
+  return EVENTS
+}
+
+const getEventById = async (eventId) => {
+  try {
+    const { data, error } = await supabase
+      .from('events')
+      .select('*')
+      .eq('event_id', eventId)
+      .maybeSingle()
+
+    if (!error && data) {
+      return mapEventRow(data)
+    }
+  } catch (err) {
+    console.warn('[SUPABASE DB WARN] getEventById fallback:', err.message)
+  }
+
+  if (pool) {
+    try {
+      const result = await pool.query('SELECT * FROM events WHERE event_id = $1 LIMIT 1;', [eventId])
+      if (result.rows && result.rows.length > 0) {
+        return mapEventRow(result.rows[0])
+      }
+    } catch (err) {
+      console.warn('[POSTGRES DB WARN] getEventById fallback:', err.message)
+    }
+  }
+
+  return EVENTS.find((e) => e.eventId === eventId) || null
+}
+
+const createEvent = async (payload = {}) => {
+  const name = (payload.event_name || payload.name || '').trim()
+  const description = (payload.description || '').trim()
+  const date = (payload.event_date || payload.date || '').trim()
+  const startTime = payload.start_time || payload.startTime || null
+  const endTime = payload.end_time || payload.endTime || null
+  const location = (payload.location || payload.venue || '').trim()
+  const status = payload.status || 'active'
+  const eventType = payload.event_type || payload.eventType || 'GENERAL'
+
+  if (!name) {
+    throw new AppError(400, 'VALIDATION_ERROR', 'Event name is required.')
+  }
+  if (!date) {
+    throw new AppError(400, 'VALIDATION_ERROR', 'Event date is required.')
+  }
+
+  let eventId = (payload.event_id || payload.eventId || '').trim()
+  if (!eventId) {
+    const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '').slice(0, 30)
+    eventId = `${slug || 'event'}-${Date.now().toString(36)}`
+  }
+
+  let createdRow = null
+
+  try {
+    const { data, error } = await supabase
+      .from('events')
+      .insert({
+        event_id: eventId,
+        event_name: name,
+        description,
+        event_date: date,
+        start_time: startTime,
+        end_time: endTime,
+        location,
+        status,
+        event_type: eventType,
+      })
+      .select('*')
+      .single()
+
+    if (!error && data) {
+      createdRow = data
+    }
+  } catch (err) {
+    console.warn('[SUPABASE DB WARN] createEvent fallback:', err.message)
+  }
+
+  if (!createdRow && pool) {
+    try {
+      const result = await pool.query(
+        `INSERT INTO events (event_id, event_name, description, event_date, start_time, end_time, location, status, event_type)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+         RETURNING *;`,
+        [eventId, name, description, date, startTime, endTime, location, status, eventType]
+      )
+      createdRow = result.rows[0]
+    } catch (err) {
+      if (err.code === '23505') {
+        throw new AppError(409, 'CONFLICT', 'An event with this ID already exists.')
+      }
+      throw new AppError(500, 'DATABASE_ERROR', `Failed to create event: ${err.message}`)
+    }
+  }
+
+  if (!createdRow) {
+    const memoryEvent = {
+      event_id: eventId,
+      event_name: name,
+      description,
+      event_date: date,
+      start_time: startTime,
+      end_time: endTime,
+      location,
+      status,
+      event_type: eventType,
+    }
+    const mapped = mapEventRow(memoryEvent)
+    EVENTS.push(mapped)
+    return mapped
+  }
+
+  return mapEventRow(createdRow)
+}
 
 const getSession = (eventId) => {
   if (!activeSessions.has(eventId)) {
@@ -289,6 +456,7 @@ const markAttendance = async (participantUser, attendanceToken) => {
 module.exports = {
   getEventsList,
   getEventById,
+  createEvent,
   startAttendanceSession,
   stopAttendanceSession,
   generateLiveQrToken,

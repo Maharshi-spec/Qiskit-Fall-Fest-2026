@@ -2,10 +2,22 @@ const attendanceService = require('../services/attendance.service')
 
 const getEventsList = async (req, res, next) => {
   try {
-    const events = attendanceService.getEventsList()
+    const events = await attendanceService.getEventsList()
     return res.status(200).json({
       success: true,
       data: events,
+    })
+  } catch (error) {
+    return next(error)
+  }
+}
+
+const createEvent = async (req, res, next) => {
+  try {
+    const event = await attendanceService.createEvent(req.body)
+    return res.status(201).json({
+      success: true,
+      data: event,
     })
   } catch (error) {
     return next(error)
@@ -103,6 +115,7 @@ const markAttendance = async (req, res, next) => {
 
 module.exports = {
   getEventsList,
+  createEvent,
   startSession,
   stopSession,
   getLiveQrToken,

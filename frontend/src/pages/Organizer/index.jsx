@@ -38,6 +38,7 @@ const OrganizerLayout = ({ children }) => {
   const navigate = useNavigate()
   const profileRef = useRef(null)
   const [profileOpen, setProfileOpen] = useState(false)
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   useEffect(() => {
     const handlePointerDown = (event) => {
@@ -61,79 +62,173 @@ const OrganizerLayout = ({ children }) => {
   }
 
   const navItems = [
-    { label: 'Send Email', to: '/organizer/email' },
-    { label: 'Attendance', to: '/organizer/attendance' },
-    { label: 'Participants', to: '/organizer/participants' },
-    { label: 'Rewards', to: '/organizer/rewards' },
+    {
+      label: 'Send Email',
+      to: '/organizer/email',
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <rect x="2" y="4" width="20" height="16" rx="2" />
+          <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+        </svg>
+      ),
+    },
+    {
+      label: 'Attendance',
+      to: '/organizer/attendance',
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <rect x="3" y="3" width="7" height="7" />
+          <rect x="14" y="3" width="7" height="7" />
+          <rect x="14" y="14" width="7" height="7" />
+          <rect x="3" y="14" width="7" height="7" />
+        </svg>
+      ),
+    },
+    {
+      label: 'Participants',
+      to: '/organizer/participants',
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+          <circle cx="9" cy="7" r="4" />
+          <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+          <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+        </svg>
+      ),
+    },
+    {
+      label: 'Rewards',
+      to: '/organizer/rewards',
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <circle cx="12" cy="8" r="6" />
+          <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11" />
+        </svg>
+      ),
+    },
+    {
+      label: 'Events',
+      to: '/organizer/events',
+      icon: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+          <line x1="16" y1="2" x2="16" y2="6" />
+          <line x1="8" y1="2" x2="8" y2="6" />
+          <line x1="3" y1="10" x2="21" y2="10" />
+        </svg>
+      ),
+    },
   ]
 
   return (
-    <div className="detail-page organizer-page">
-      <div className="container organizer-page__content">
-        <div className="organizer-page__shell">
-          <div className="organizer-page__topbar">
-            <div className="organizer-page__brand">
-              <p className="page-shell__eyebrow">Organizer dashboard</p>
-              <h2>Event operations</h2>
-            </div>
+    <div className="organizer-layout">
+      {/* TOP NAVBAR */}
+      <header className="organizer-navbar">
+        <div className="organizer-navbar__left">
+          <button
+            type="button"
+            className="organizer-navbar__toggle"
+            onClick={() => setSidebarOpen((prev) => !prev)}
+            aria-label={sidebarOpen ? 'Close navigation sidebar' : 'Open navigation sidebar'}
+            aria-expanded={sidebarOpen}
+          >
+            <span />
+            <span />
+            <span />
+          </button>
+          <div className="organizer-navbar__brand">
+            <h1 className="organizer-navbar__title">Organizers Dashboard</h1>
+            <p className="organizer-navbar__subheading">Event Operations</p>
+          </div>
+        </div>
 
-            <div className="organizer-page__header-actions">
-              <div
-                ref={profileRef}
-                className="organizer-page__profile-wrap"
-                onMouseEnter={() => setProfileOpen(true)}
-                onMouseLeave={() => setProfileOpen(false)}
-              >
-                <button
-                  type="button"
-                  className="organizer-page__profile-button"
-                  onClick={() => setProfileOpen((open) => !open)}
-                  aria-expanded={profileOpen}
-                  aria-label="Open profile menu"
-                >
-                  <span className="organizer-page__profile-avatar">{organizerName.charAt(0).toUpperCase()}</span>
-                </button>
+        {/* TOP RIGHT NAVIGATION: Exactly [Profile Icon] [Logout] [Dashboard] */}
+        <div className="organizer-navbar__actions">
+          {/* 1. Profile Icon */}
+          <div
+            ref={profileRef}
+            className="organizer-page__profile-wrap"
+            onMouseEnter={() => setProfileOpen(true)}
+            onMouseLeave={() => setProfileOpen(false)}
+          >
+            <button
+              type="button"
+              className="organizer-page__profile-button"
+              onClick={() => setProfileOpen((open) => !open)}
+              aria-expanded={profileOpen}
+              aria-label="Organizer profile menu"
+              title={organizerName}
+            >
+              <span className="organizer-page__profile-avatar">{organizerName.charAt(0).toUpperCase()}</span>
+            </button>
 
-                {profileOpen && (
-                  <div className="organizer-page__profile-popover" role="dialog" aria-label="Organizer profile">
-                    <div className="organizer-page__profile-summary">
-                      <span className="organizer-page__profile-avatar organizer-page__profile-avatar--large">{organizerName.charAt(0).toUpperCase()}</span>
-                      <div>
-                        <strong>{organizerName}</strong>
-                        <small>Organizer</small>
-                      </div>
-                    </div>
-                    <div className="organizer-page__profile-meta">
-                      <span>Email</span>
-                      <strong>{organizerEmail}</strong>
-                    </div>
-                    <div className="organizer-page__profile-status">
-                      <span className="organizer-page__role-badge">Organizer</span>
-                    </div>
+            {profileOpen && (
+              <div className="organizer-page__profile-popover" role="dialog" aria-label="Organizer profile">
+                <div className="organizer-page__profile-summary">
+                  <span className="organizer-page__profile-avatar organizer-page__profile-avatar--large">{organizerName.charAt(0).toUpperCase()}</span>
+                  <div>
+                    <strong>{organizerName}</strong>
+                    <small>Organizer</small>
                   </div>
-                )}
+                </div>
+                <div className="organizer-page__profile-meta">
+                  <span>Email</span>
+                  <strong>{organizerEmail}</strong>
+                </div>
+                <div className="organizer-page__profile-status">
+                  <span className="organizer-page__role-badge">Organizer</span>
+                </div>
               </div>
-
-              <Link to="/organizer" className="button button--secondary">Dashboard</Link>
-              <button type="button" className="button button--primary" onClick={handleLogout}>Logout</button>
-            </div>
+            )}
           </div>
 
-          <nav aria-label="Organizer navigation" className="organizer-page__nav">
+          {/* 2. Logout */}
+          <button type="button" className="button button--primary organizer-navbar__btn" onClick={handleLogout}>
+            Logout
+          </button>
+
+          {/* 3. Dashboard */}
+          <Link to="/organizer" className="button button--secondary organizer-navbar__btn">
+            Dashboard
+          </Link>
+        </div>
+      </header>
+
+      {/* MAIN CONTAINER: SIDEBAR + CONTENT AREA */}
+      <div className="organizer-layout__body">
+        {/* MOBILE SIDEBAR BACKDROP */}
+        {sidebarOpen && (
+          <div
+            className="organizer-sidebar__backdrop"
+            onClick={() => setSidebarOpen(false)}
+            aria-hidden="true"
+          />
+        )}
+
+        {/* LEFT SIDEBAR */}
+        <aside className={`organizer-sidebar ${sidebarOpen ? 'is-open' : ''}`} aria-label="Organizer sidebar navigation">
+          <nav className="organizer-sidebar__nav">
             {navItems.map((item) => (
               <NavLink
                 key={item.label}
                 to={item.to}
-                className={({ isActive }) => `button ${isActive ? 'is-active' : ''}`}
+                className={({ isActive }) => `organizer-sidebar__link ${isActive ? 'is-active' : ''}`}
                 end={item.to === '/organizer'}
+                onClick={() => setSidebarOpen(false)}
               >
-                {item.label}
+                <span className="organizer-sidebar__icon">{item.icon}</span>
+                <span className="organizer-sidebar__label">{item.label}</span>
               </NavLink>
             ))}
           </nav>
-        </div>
+        </aside>
 
-        {children}
+        {/* MAIN CONTENT AREA */}
+        <main className="organizer-layout__main" id="organizer-main-content">
+          <div className="organizer-layout__content">
+            {children}
+          </div>
+        </main>
       </div>
     </div>
   )
@@ -212,21 +307,54 @@ const OrganizerLogin = () => {
 
 const OrganizerDashboardHome = () => {
   return (
-    <div className="detail-page__panel">
+    <div className="detail-page__panel organizer-dashboard-home">
       <div className="detail-page__panel-copy">
         <p className="page-shell__eyebrow">Overview</p>
         <h2>Organizer dashboard</h2>
-        <p>Use the sections above to manage email communication, attendance, participant records, and rewards.</p>
+        <p>Use the left sidebar navigation to manage email communication, attendance sessions, participant records, reward certificates, and events.</p>
       </div>
       <div className="detail-page__info-stack">
         <div className="detail-info-item">
           <span>Operations</span>
-          <strong>4 sections</strong>
+          <strong>5 sections</strong>
         </div>
         <div className="detail-info-item">
           <span>Access</span>
           <strong>Restricted to organizers</strong>
         </div>
+      </div>
+
+      <div className="organizer-dashboard-home__cards">
+        <Link to="/organizer/events" className="detail-card organizer-dashboard-home__card">
+          <span className="organizer-dashboard-home__card-icon" aria-hidden="true">📅</span>
+          <h3>Events</h3>
+          <p>Browse and add festival events backed by the database.</p>
+          <span className="organizer-dashboard-home__card-arrow">Open Events →</span>
+        </Link>
+        <Link to="/organizer/attendance" className="detail-card organizer-dashboard-home__card">
+          <span className="organizer-dashboard-home__card-icon" aria-hidden="true">📱</span>
+          <h3>Attendance</h3>
+          <p>Run dynamic QR check-ins and review live attendance logs.</p>
+          <span className="organizer-dashboard-home__card-arrow">Open Attendance →</span>
+        </Link>
+        <Link to="/organizer/participants" className="detail-card organizer-dashboard-home__card">
+          <span className="organizer-dashboard-home__card-icon" aria-hidden="true">👥</span>
+          <h3>Participants</h3>
+          <p>Filter, search, and inspect registered attendee records.</p>
+          <span className="organizer-dashboard-home__card-arrow">Open Participants →</span>
+        </Link>
+        <Link to="/organizer/rewards" className="detail-card organizer-dashboard-home__card">
+          <span className="organizer-dashboard-home__card-icon" aria-hidden="true">🏆</span>
+          <h3>Rewards</h3>
+          <p>Manage prize workflows and generate completion certificates.</p>
+          <span className="organizer-dashboard-home__card-arrow">Open Rewards →</span>
+        </Link>
+        <Link to="/organizer/email" className="detail-card organizer-dashboard-home__card">
+          <span className="organizer-dashboard-home__card-icon" aria-hidden="true">✉️</span>
+          <h3>Send Email</h3>
+          <p>Dispatch official updates and notices to event participants.</p>
+          <span className="organizer-dashboard-home__card-arrow">Open Email →</span>
+        </Link>
       </div>
     </div>
   )
@@ -611,9 +739,17 @@ const OrganizerAttendancePage = () => {
 }
 
 const OrganizerParticipantsPage = () => {
+  const participantRoleOptions = [
+    { value: 'STUDENT', label: 'Student' },
+    { value: 'FACULTY', label: 'Faculty' },
+    { value: 'PROFESSIONAL', label: 'Professional' },
+    { value: 'OTHER', label: 'Other' },
+  ]
   const [participants, setParticipants] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
+  const [searchTerm, setSearchTerm] = useState('')
+  const [selectedRole, setSelectedRole] = useState('ALL')
 
   useEffect(() => {
     const load = async () => {
@@ -633,8 +769,16 @@ const OrganizerParticipantsPage = () => {
     load()
   }, [])
 
+  const normalizedSearchTerm = searchTerm.trim().toLowerCase()
+  const filteredParticipants = participants.filter((participant) => {
+    const matchesSearch = !normalizedSearchTerm || `${participant.fullName || ''} ${participant.email || ''}`.toLowerCase().includes(normalizedSearchTerm)
+    const matchesRole = selectedRole === 'ALL' || String(participant.role || '').toUpperCase() === selectedRole
+    return matchesSearch && matchesRole
+  })
+  const hasFilters = Boolean(normalizedSearchTerm) || selectedRole !== 'ALL'
+
   return (
-    <div className="detail-page__panel" style={{ display: 'grid' }}>
+    <div className="detail-page__panel organizer-participants" style={{ display: 'grid' }}>
       <div className="detail-page__panel-copy">
         <p className="page-shell__eyebrow">Participants</p>
         <h2>Registered participant records</h2>
@@ -647,143 +791,461 @@ const OrganizerParticipantsPage = () => {
       ) : participants.length === 0 ? (
         <div className="detail-info-item"><span>Empty state</span><strong>No participants registered yet.</strong></div>
       ) : (
-        <div className="organizer-page__table-wrap">
-          <table className="organizer-page__table">
+        <div className="organizer-participants__body">
+          <div className="organizer-participants__filters">
+            <label className="organizer-participants__search" htmlFor="participant-search">
+              <span>Search participants</span>
+              <div className="organizer-participants__search-control">
+                <span aria-hidden="true">⌕</span>
+                <input id="participant-search" type="search" value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} placeholder="Search by name or email..." />
+                {searchTerm && <button type="button" onClick={() => setSearchTerm('')}>Clear</button>}
+              </div>
+            </label>
+            <label className="organizer-participants__role" htmlFor="participant-role">
+              <span>Role</span>
+              <select id="participant-role" value={selectedRole} onChange={(event) => setSelectedRole(event.target.value)}>
+                <option value="ALL">All Roles</option>
+                {participantRoleOptions.map((role) => <option key={role.value} value={role.value}>{role.label}</option>)}
+              </select>
+            </label>
+          </div>
+
+          <div className="organizer-participants__summary" aria-live="polite">
+            <span>{hasFilters ? `Showing ${filteredParticipants.length} of ${participants.length} participants` : `Showing ${participants.length} participants`}</span>
+            {hasFilters && <button type="button" onClick={() => { setSearchTerm(''); setSelectedRole('ALL') }}>Clear filters</button>}
+          </div>
+
+          <div className="organizer-page__table-wrap organizer-participants__table-wrap">
+          <table className="organizer-page__table organizer-participants__table">
             <thead>
               <tr style={{ background: 'rgba(255,79,163,0.06)' }}>
                 <th>Name</th>
                 <th>Email</th>
                 <th>Role</th>
-                <th>Institute</th>
               </tr>
             </thead>
             <tbody>
-              {participants.map((participant) => (
+              {filteredParticipants.length > 0 ? filteredParticipants.map((participant) => (
                 <tr key={participant.registrationId || participant.email} style={{ borderTop: '1px solid rgba(255,79,163,0.08)' }}>
                   <td data-label="Name">{participant.fullName}</td>
                   <td data-label="Email">{participant.email}</td>
-                  <td data-label="Role">{participant.role}</td>
-                  <td data-label="Institute">{participant.instituteName || 'N/A'}</td>
+                  <td data-label="Role">{participantRoleOptions.find((role) => role.value === String(participant.role || '').toUpperCase())?.label || participant.role}</td>
                 </tr>
-              ))}
+              )) : <tr className="organizer-participants__empty-row"><td colSpan="3"><strong>No registered participants found.</strong><span>Try searching with a different name or email.</span></td></tr>}
             </tbody>
           </table>
+          </div>
         </div>
       )}
     </div>
   )
 }
 
-const rewardEventOptions = [
-  { value: 'HACKATHON_PARTICIPANT', label: 'Qiskit Fall Fest 2026 Hackathon', shortLabel: 'Hackathon', template: 'CUTM-AP_2.pdf' },
-  { value: 'BOOTCAMP_PARTICIPANT', label: 'Qiskit Fall Fest 2026 Bootcamp', shortLabel: 'Bootcamp', template: 'CUTM-AP_6.pdf' },
-  { value: 'EVENT_PARTICIPANT', label: 'Qiskit Fall Fest 2026 Webinar', shortLabel: 'Webinar', template: 'CUTM-AP_5.pdf' },
-  { value: 'WORKSHOP_PARTICIPANT', label: 'Qiskit Fall Fest 2026 Workshop', shortLabel: 'Workshop', template: 'CUTM-AP_7.pdf' },
+const rewardCategories = [
+  { value: 'HACKATHON_PARTICIPANT', label: 'Hackathon', heading: 'Hackathon rewards' },
+  { value: 'BOOTCAMP_PARTICIPANT', label: 'Bootcamp', heading: 'Quantum Bootcamp' },
+  { value: 'WEBINAR', label: 'Webinar', heading: 'Webinar' },
+  { value: 'WORKSHOP_PARTICIPANT', label: 'Workshop', heading: 'Workshop' },
 ]
 
-const getRewardParticipant = (certificate) => certificate.participant_name || certificate.participant_email || 'Participant'
-
-const TemplateRow = ({ template, note }) => (
-  <div className="organizer-rewards__template">
-    <span>{note}</span>
-    <strong>{template}</strong>
-  </div>
-)
+const getRewardParticipant = (participant) => participant.fullName || participant.full_name || participant.email || participant.participant_name || participant.participant_email || 'Participant'
 
 const OrganizerRewardsPage = () => {
+  const [selectedCategory, setSelectedCategory] = useState('HACKATHON_PARTICIPANT')
   const [certificates, setCertificates] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
-  const [selectedEvent, setSelectedEvent] = useState('HACKATHON_PARTICIPANT')
-  const [selectedTeam, setSelectedTeam] = useState('')
 
   useEffect(() => {
     const load = async () => {
       setIsLoading(true)
       setError('')
-      const result = await api.organizerFetchCertificates()
+      const certificatesResult = await api.organizerFetchCertificates()
       setIsLoading(false)
-
-      if (!result.success) {
-        setError(result.error?.message || 'Unable to load reward records.')
-        return
-      }
-
-      setCertificates(Array.isArray(result.data) ? result.data : [])
+      if (!certificatesResult.success) setError(certificatesResult.error?.message || 'Unable to load reward records.')
+      setCertificates(Array.isArray(certificatesResult.data) ? certificatesResult.data : [])
     }
-
     load()
   }, [])
 
-  const event = rewardEventOptions.find((option) => option.value === selectedEvent) || rewardEventOptions[0]
-  const eligibleParticipants = certificates.filter((certificate) => certificate.certificate_type === selectedEvent)
-  const teams = certificates.filter((certificate) => certificate.certificate_type === 'HACKATHON_PARTICIPANT')
-  const selectedTeamRecord = teams.find((certificate) => String(certificate.id || certificate.certificate_number) === selectedTeam)
+  const category = rewardCategories.find((item) => item.value === selectedCategory) || rewardCategories[0]
+  const eligibleParticipants = certificates.filter((certificate) => certificate.certificate_type === selectedCategory)
 
   return (
     <div className="organizer-rewards">
       <div className="detail-page__panel-copy">
         <p className="page-shell__eyebrow">Rewards</p>
         <h2>Certificates and reward records</h2>
-        <p>Choose an event to review eligible participants and assign the appropriate certificate template.</p>
+        <p>Choose a certificate category to review its reward workflow.</p>
       </div>
 
       {isLoading ? (
-        <div className="detail-info-item"><span>Loading</span><strong>Checking reward data…</strong></div>
+        <div className="detail-info-item"><span>Loading</span><strong>Loading events...</strong></div>
       ) : error ? (
         <div style={{ padding: '0.9rem', borderRadius: '12px', background: 'rgba(255,79,163,0.06)', color: '#c2348a', border: '1px solid rgba(255,79,163,0.14)' }}>{error}</div>
-      ) : certificates.length === 0 ? (
-        <div className="detail-info-item"><span>Empty state</span><strong>No certificates or reward records found.</strong></div>
       ) : (
         <div className="organizer-rewards__content">
-          <section className="organizer-rewards__selector" aria-label="Reward event selector">
-            <label htmlFor="reward-event">Select event</label>
-            <select id="reward-event" value={selectedEvent} onChange={(eventChange) => { setSelectedEvent(eventChange.target.value); setSelectedTeam('') }}>
-              {rewardEventOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+          <section className="organizer-rewards__selector" aria-label="Reward category selector">
+            <label htmlFor="reward-category">Select event</label>
+            <select id="reward-category" value={selectedCategory} onChange={(eventChange) => { setSelectedCategory(eventChange.target.value); setError('') }}>
+              {rewardCategories.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
             </select>
           </section>
 
-          {selectedEvent === 'HACKATHON_PARTICIPANT' ? (
+          {selectedCategory === 'HACKATHON_PARTICIPANT' ? (
             <section className="organizer-rewards__workflow">
               <div className="organizer-rewards__section-heading">
                 <span className="organizer-rewards__kicker">Hackathon rewards</span>
-                <h3>Assign award</h3>
-                <p>Select a team, then choose its placement.</p>
+                <h3>Select team and award</h3>
+                <p>Choose an award to automatically use its certificate template.</p>
               </div>
               <label htmlFor="reward-team">Select team</label>
-              <select id="reward-team" value={selectedTeam} onChange={(eventChange) => setSelectedTeam(eventChange.target.value)}>
-                <option value="">Choose a team</option>
-                {teams.map((certificate) => <option key={certificate.id || certificate.certificate_number} value={certificate.id || certificate.certificate_number}>{getRewardParticipant(certificate)}</option>)}
-              </select>
-              <div className="organizer-rewards__awards" aria-label="Hackathon awards">
-                {['1st Position', '1st Runners Up', '2nd Runners Up'].map((award) => <button type="button" className="organizer-rewards__award" key={award} disabled={!selectedTeam}>{award}<span>Assign award</span></button>)}
-              </div>
-              <div className="organizer-rewards__mapping">
-                <span>Selected team</span>
-                <strong>{selectedTeamRecord ? getRewardParticipant(selectedTeamRecord) : 'No team selected'}</strong>
-              </div>
-              <TemplateRow template={event.template} note="Hackathon award template" />
+              <select id="reward-team" defaultValue=""><option value="">Select Team</option></select>
+              <fieldset className="organizer-rewards__award-list">
+                <legend>Award</legend>
+                {['1st Position', '1st Runner Up', '2nd Runner Up'].map((award, index) => <label key={award}><input type="radio" name="hackathon-award" value={award} defaultChecked={index === 0} />{award}</label>)}
+              </fieldset>
+              <button type="button" className="button button--primary">Assign Award</button>
+              <div className="organizer-rewards__mapping"><span>Team members</span><strong>No team selected</strong></div>
             </section>
           ) : (
             <section className="organizer-rewards__workflow">
               <div className="organizer-rewards__section-heading">
-                <span className="organizer-rewards__kicker">{event.shortLabel}</span>
+                <span className="organizer-rewards__kicker">{category.heading}</span>
                 <h3>Eligible participants</h3>
-                <p>Eligibility comes from the existing attendance and participation records.</p>
+                <p>Eligibility comes from the existing attendance records for this event.</p>
               </div>
               <div className="organizer-rewards__participants">
-                {eligibleParticipants.length > 0 ? eligibleParticipants.map((certificate) => (
-                  <div className="organizer-rewards__participant" key={certificate.id || certificate.certificate_number}>
+                {eligibleParticipants.length > 0 ? eligibleParticipants.map((participant) => (
+                  <div className="organizer-rewards__participant" key={participant.registrationId || participant.email}>
                     <span aria-hidden="true">✓</span>
-                    <strong>{getRewardParticipant(certificate)}</strong>
-                    <small>{certificate.status || 'issued'}</small>
+                    <strong>{getRewardParticipant(participant)}</strong>
+                    <small>{participant.status || 'PRESENT'}</small>
                   </div>
                 )) : <p className="organizer-rewards__empty">No eligible participants in the current records.</p>}
               </div>
-              <button type="button" className="button button--primary" disabled={eligibleParticipants.length === 0}>Generate certificates</button>
-              <TemplateRow template={event.template} note={`${event.shortLabel} certificate template`} />
+              <button type="button" className="button button--primary" disabled={eligibleParticipants.length === 0}>Generate Certificates</button>
             </section>
           )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+const OrganizerEventsPage = () => {
+  const [events, setEvents] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [modalOpen, setModalOpen] = useState(false)
+  const [formData, setFormData] = useState({
+    event_name: '',
+    description: '',
+    event_date: '',
+    start_time: '',
+    end_time: '',
+    location: '',
+    status: 'active',
+  })
+  const [formLoading, setFormLoading] = useState(false)
+  const [formError, setFormError] = useState('')
+  const [formSuccess, setFormSuccess] = useState('')
+
+  const loadEvents = async () => {
+    setIsLoading(true)
+    setError('')
+    const res = await api.organizerFetchEvents()
+    setIsLoading(false)
+    if (res.success && Array.isArray(res.data)) {
+      setEvents(res.data)
+    } else {
+      setError(res.error?.message || 'Failed to load events from database.')
+    }
+  }
+
+  useEffect(() => {
+    loadEvents()
+  }, [])
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({ ...prev, [name]: value }))
+    if (formError) setFormError('')
+  }
+
+  const handleAddEventSubmit = async (e) => {
+    e.preventDefault()
+    setFormLoading(true)
+    setFormError('')
+    setFormSuccess('')
+
+    const payload = {
+      event_name: formData.event_name.trim(),
+      description: formData.description.trim(),
+      event_date: formData.event_date,
+      start_time: formData.start_time || null,
+      end_time: formData.end_time || null,
+      location: formData.location.trim(),
+      status: formData.status || 'active',
+    }
+
+    const res = await api.organizerCreateEvent(payload)
+    setFormLoading(false)
+
+    if (!res.success) {
+      setFormError(res.error?.message || 'Unable to create event. Please verify your inputs.')
+      return
+    }
+
+    setFormSuccess('Event successfully created and saved to database!')
+    setFormData({
+      event_name: '',
+      description: '',
+      event_date: '',
+      start_time: '',
+      end_time: '',
+      location: '',
+      status: 'active',
+    })
+    await loadEvents()
+    setTimeout(() => {
+      setModalOpen(false)
+      setFormSuccess('')
+    }, 1100)
+  }
+
+  const formatEventDate = (dateVal) => {
+    if (!dateVal) return 'Date TBA'
+    try {
+      const d = new Date(dateVal)
+      if (!isNaN(d.getTime())) {
+        return d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })
+      }
+    } catch (e) {}
+    return String(dateVal)
+  }
+
+  const formatTimeRange = (start, end) => {
+    if (!start && !end) return null
+    if (start && end) return `${start.slice(0, 5)} - ${end.slice(0, 5)}`
+    if (start) return `Starts at ${start.slice(0, 5)}`
+    return `Until ${end.slice(0, 5)}`
+  }
+
+  return (
+    <div className="detail-page__panel organizer-events-page">
+      <div className="organizer-events__header">
+        <div className="detail-page__panel-copy">
+          <p className="page-shell__eyebrow">Events Management</p>
+          <h2>Events</h2>
+          <p>Monitor all scheduled sessions and manage events stored in the database.</p>
+        </div>
+        <button
+          type="button"
+          className="button button--primary organizer-events__add-btn"
+          onClick={() => {
+            setModalOpen(true)
+            setFormError('')
+            setFormSuccess('')
+          }}
+        >
+          <span aria-hidden="true" style={{ fontSize: '1.1rem', marginRight: '0.35rem' }}>＋</span>
+          Add Event
+        </button>
+      </div>
+
+      {isLoading ? (
+        <div className="detail-info-item">
+          <span>Loading</span>
+          <strong>Fetching events from database…</strong>
+        </div>
+      ) : error ? (
+        <div className="organizer-events__alert organizer-events__alert--error">
+          <p>{error}</p>
+          <button type="button" className="button button--secondary" onClick={loadEvents} style={{ marginTop: '0.5rem' }}>
+            Retry
+          </button>
+        </div>
+      ) : events.length === 0 ? (
+        <div className="detail-info-item">
+          <span>Empty State</span>
+          <strong>No events exist in the database yet. Click "Add Event" to create the first one.</strong>
+        </div>
+      ) : (
+        <div className="organizer-events__grid">
+          {events.map((evt) => {
+            const timeDisplay = formatTimeRange(evt.startTime || evt.start_time, evt.endTime || evt.end_time)
+            const dateDisplay = formatEventDate(evt.date || evt.event_date)
+            const statusVal = evt.status || 'active'
+            const isConfirmed = statusVal.toLowerCase() === 'active' || statusVal.toLowerCase() === 'confirmed'
+
+            return (
+              <div key={evt.eventId || evt.event_id} className="organizer-event-card">
+                <div className="organizer-event-card__top">
+                  <span className="organizer-event-card__date">{dateDisplay}</span>
+                  <span className={`organizer-event-card__status ${isConfirmed ? 'is-active' : ''}`}>
+                    {statusVal}
+                  </span>
+                </div>
+
+                <h3 className="organizer-event-card__title">{evt.name || evt.event_name}</h3>
+
+                {evt.description && (
+                  <p className="organizer-event-card__desc">{evt.description}</p>
+                )}
+
+                <div className="organizer-event-card__meta">
+                  {(evt.venue || evt.location) && (
+                    <span className="organizer-event-card__meta-item">
+                      <span aria-hidden="true">📍</span> {evt.venue || evt.location}
+                    </span>
+                  )}
+                  {timeDisplay && (
+                    <span className="organizer-event-card__meta-item">
+                      <span aria-hidden="true">⏰</span> {timeDisplay}
+                    </span>
+                  )}
+                  {(evt.eventId || evt.event_id) && (
+                    <span className="organizer-event-card__meta-item organizer-event-card__id">
+                      ID: <code>{evt.eventId || evt.event_id}</code>
+                    </span>
+                  )}
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      {/* ADD EVENT MODAL */}
+      {modalOpen && (
+        <div
+          className="organizer-modal__backdrop"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="add-event-title"
+          onClick={() => setModalOpen(false)}
+        >
+          <div className="organizer-modal__dialog" onClick={(e) => e.stopPropagation()}>
+            <div className="organizer-modal__header">
+              <div>
+                <p className="page-shell__eyebrow">Database Operation</p>
+                <h3 id="add-event-title" style={{ margin: 0 }}>Add Event</h3>
+              </div>
+              <button
+                type="button"
+                className="organizer-modal__close-btn"
+                onClick={() => setModalOpen(false)}
+                aria-label="Close modal"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form className="detail-form organizer-modal__form" onSubmit={handleAddEventSubmit}>
+              {formError && (
+                <div className="organizer-events__alert organizer-events__alert--error">
+                  {formError}
+                </div>
+              )}
+              {formSuccess && (
+                <div className="organizer-events__alert organizer-events__alert--success">
+                  {formSuccess}
+                </div>
+              )}
+
+              <label>
+                Event Name *
+                <input
+                  type="text"
+                  name="event_name"
+                  value={formData.event_name}
+                  onChange={handleInputChange}
+                  placeholder="e.g. Quantum Computing Workshop"
+                  required
+                />
+              </label>
+
+              <label>
+                Description
+                <textarea
+                  name="description"
+                  rows="3"
+                  value={formData.description}
+                  onChange={handleInputChange}
+                  placeholder="Brief summary of this session..."
+                  style={{ width: '100%', borderRadius: '12px', border: '1px solid rgba(255,79,163,0.18)', padding: '0.8rem 0.9rem' }}
+                />
+              </label>
+
+              <div className="organizer-modal__form-row">
+                <label>
+                  Event Date *
+                  <input
+                    type="date"
+                    name="event_date"
+                    value={formData.event_date}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </label>
+                <label>
+                  Status
+                  <select name="status" value={formData.status} onChange={handleInputChange}>
+                    <option value="active">Active</option>
+                    <option value="upcoming">Upcoming</option>
+                    <option value="completed">Completed</option>
+                  </select>
+                </label>
+              </div>
+
+              <div className="organizer-modal__form-row">
+                <label>
+                  Start Time
+                  <input
+                    type="time"
+                    name="start_time"
+                    value={formData.start_time}
+                    onChange={handleInputChange}
+                  />
+                </label>
+                <label>
+                  End Time
+                  <input
+                    type="time"
+                    name="end_time"
+                    value={formData.end_time}
+                    onChange={handleInputChange}
+                  />
+                </label>
+              </div>
+
+              <label>
+                Location / Venue
+                <input
+                  type="text"
+                  name="location"
+                  value={formData.location}
+                  onChange={handleInputChange}
+                  placeholder="e.g. CUTM-AP Campus Auditorium or Virtual"
+                />
+              </label>
+
+              <div className="organizer-modal__actions">
+                <button
+                  type="button"
+                  className="button button--secondary"
+                  onClick={() => setModalOpen(false)}
+                  disabled={formLoading}
+                >
+                  Cancel
+                </button>
+                <Button type="submit" kind="primary" disabled={formLoading}>
+                  {formLoading ? 'Saving to Database…' : 'Save Event'}
+                </Button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>
@@ -805,6 +1267,7 @@ const OrganizerRoutes = () => {
         <Route path="attendance" element={<OrganizerAttendancePage />} />
         <Route path="participants" element={<OrganizerParticipantsPage />} />
         <Route path="rewards" element={<OrganizerRewardsPage />} />
+        <Route path="events" element={<OrganizerEventsPage />} />
       </Routes>
     </OrganizerLayout>
   )
