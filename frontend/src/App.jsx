@@ -6,6 +6,7 @@ import LoginModal from './components/LoginModal'
 import MainLayout from './layouts/MainLayout'
 import Home from './pages/Home'
 import Registration from './pages/Registration'
+import Attendance from './pages/Attendance'
 import Hackathon from './pages/Hackathon'
 import Workshops from './pages/Workshops'
 import Day1 from './pages/Day1'
@@ -48,6 +49,7 @@ function App() {
         <Routes location={location} key={location.pathname}>
           <Route path="/" element={<AnimatedPage><MainLayout><Home /></MainLayout></AnimatedPage>} />
           <Route path="/register" element={<AnimatedPage><MainLayout><Registration /></MainLayout></AnimatedPage>} />
+          <Route path="/attendance" element={<AnimatedPage><MainLayout><Attendance /></MainLayout></AnimatedPage>} />
           <Route path="/hackathon" element={<AnimatedPage><MainLayout><Hackathon /></MainLayout></AnimatedPage>} />
           <Route path="/workshops" element={<AnimatedPage><MainLayout><Workshops /></MainLayout></AnimatedPage>} />
           <Route path="/day-1" element={<AnimatedPage><MainLayout><Day1 /></MainLayout></AnimatedPage>} />

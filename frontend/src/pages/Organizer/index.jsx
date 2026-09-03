@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, Navigate, NavLink, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import { QRCodeSVG } from 'qrcode.react'
 import Button from '../../components/Button'
 import { api } from '../../services/api'
 
@@ -35,6 +36,7 @@ const isOrganizerAuthenticated = () => {
 
 const OrganizerLayout = ({ children }) => {
   const navigate = useNavigate()
+  const [profileOpen, setProfileOpen] = useState(false)
 
   const handleLogout = () => {
     api.clearOrganizerToken()
@@ -116,8 +118,8 @@ const OrganizerLogin = () => {
   }
 
   return (
-    <div className="detail-page organizer-page organizer-page--login">
-      <div className="container detail-page__panel organizer-page__login-panel">
+    <div className="detail-page">
+      <div className="container detail-page__panel">
         <div className="detail-page__panel-copy">
           <p className="page-shell__eyebrow">Organizer access</p>
           <h2>Sign in to your dashboard.</h2>
@@ -218,7 +220,7 @@ const OrganizerEmailPage = () => {
         <p>Send organizer messages using the real backend email service.</p>
       </div>
 
-      <div className="detail-page__form-shell organizer-page__email-form">
+      <div className="detail-page__form-shell" style={{ maxWidth: '760px' }}>
         <form className="detail-form" onSubmit={handleSubmit}>
           {error && (
             <div style={{ padding: '0.8rem 0.9rem', borderRadius: '12px', background: 'rgba(255,79,163,0.08)', color: '#c2348a', border: '1px solid rgba(255,79,163,0.14)' }}>
@@ -256,92 +258,292 @@ const OrganizerEmailPage = () => {
 }
 
 const OrganizerAttendancePage = () => {
-  const [participants, setParticipants] = useState([])
+  const [events, setEvents] = useState([])
+  const [selectedEvent, setSelectedEvent] = useState(null)
+  const [sessionActive, setSessionActive] = useState(false)
+  const [qrToken, setQrToken] = useState('')
+  const [countdown, setCountdown] = useState(3)
+  const [attendanceCount, setAttendanceCount] = useState(0)
+  const [records, setRecords] = useState([])
   const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState('')
 
-  const load = async () => {
-    setIsLoading(true)
-    setError('')
-    const result = await api.organizerFetchAttendance()
-    setIsLoading(false)
-
-    if (!result.success) {
-      setError(result.error?.message || 'Unable to load attendance.')
-      return
+  useEffect(() => {
+    const fetchEvents = async () => {
+      setIsLoading(true)
+      const res = await api.organizerFetchEvents()
+      setIsLoading(false)
+      if (res.success && res.data) {
+        setEvents(res.data)
+      }
     }
+    fetchEvents()
+  }, [])
 
-    setParticipants(Array.isArray(result.data) ? result.data : [])
+  const loadAttendanceData = async (eventId) => {
+    const res = await api.organizerFetchAttendanceData(eventId)
+    if (res.success && res.data) {
+      setAttendanceCount(res.data.count || 0)
+      setRecords(res.data.records || [])
+    }
+  }
+
+  const fetchNewToken = async (eventId) => {
+    const res = await api.organizerFetchQrToken(eventId)
+    if (res.success && res.data?.token) {
+      setQrToken(res.data.token)
+      setCountdown(3)
+    }
   }
 
   useEffect(() => {
-    load()
-  }, [])
+    if (!selectedEvent) return
 
-  const updateStatus = async (registrationId, status) => {
-    const result = await api.organizerUpdateAttendance(registrationId, status)
-    if (!result.success) {
-      setError(result.error?.message || 'Failed to update attendance.')
-      return
+    loadAttendanceData(selectedEvent.eventId)
+    api.organizerStartAttendanceSession(selectedEvent.eventId)
+    setSessionActive(true)
+    fetchNewToken(selectedEvent.eventId)
+
+    const tokenInterval = setInterval(() => {
+      fetchNewToken(selectedEvent.eventId)
+    }, 3000)
+
+    const countdownInterval = setInterval(() => {
+      setCountdown((prev) => (prev > 1 ? prev - 1 : 3))
+    }, 1000)
+
+    const dataPollInterval = setInterval(() => {
+      loadAttendanceData(selectedEvent.eventId)
+    }, 2000)
+
+    return () => {
+      clearInterval(tokenInterval)
+      clearInterval(countdownInterval)
+      clearInterval(dataPollInterval)
     }
+  }, [selectedEvent])
 
-    await load()
+  const toggleSession = async () => {
+    if (!selectedEvent) return
+    if (sessionActive) {
+      await api.organizerStopAttendanceSession(selectedEvent.eventId)
+      setSessionActive(false)
+      setQrToken('')
+    } else {
+      await api.organizerStartAttendanceSession(selectedEvent.eventId)
+      setSessionActive(true)
+      fetchNewToken(selectedEvent.eventId)
+    }
+  }
+
+  if (!selectedEvent) {
+    return (
+      <div className="detail-page__panel" style={{ display: 'grid', gap: '1.25rem' }}>
+        <div className="detail-page__panel-copy">
+          <p className="page-shell__eyebrow">Attendance Management</p>
+          <h2>Select an Event for Attendance</h2>
+          <p>Select an event below to open its Event Attendance Board and launch dynamic QR code check-in.</p>
+        </div>
+
+        {isLoading ? (
+          <div className="detail-info-item"><span>Loading</span><strong>Fetching events list…</strong></div>
+        ) : (
+          <div style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
+            {events.map((evt) => (
+              <div
+                key={evt.eventId}
+                className="detail-card"
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justify: 'space-between',
+                  padding: '1.25rem',
+                  border: '1px solid rgba(255,79,163,0.18)',
+                  borderRadius: '16px',
+                  background: 'rgba(255,255,255,0.85)',
+                }}
+              >
+                <div>
+                  <p className="detail-card__eyebrow" style={{ color: '#ff4fa3' }}>{evt.date}</p>
+                  <h3 style={{ fontSize: '1.15rem', margin: '0.4rem 0', color: '#2d253f' }}>{evt.name}</h3>
+                  <p style={{ fontSize: '0.9rem', color: '#5f5773', marginBottom: '0.8rem' }}>{evt.description}</p>
+                  <span style={{ fontSize: '0.82rem', color: '#88809e' }}>📍 {evt.venue}</span>
+                </div>
+                <button
+                  type="button"
+                  className="button button--primary"
+                  onClick={() => setSelectedEvent(evt)}
+                  style={{ marginTop: '1rem', width: '100%', justifyContent: 'center' }}
+                >
+                  Open Attendance Board →
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    )
   }
 
   return (
-    <div className="detail-page__panel" style={{ display: 'grid' }}>
-      <div className="detail-page__panel-copy">
-        <p className="page-shell__eyebrow">Attendance</p>
-        <h2>Mark attendee presence</h2>
+    <div className="detail-page__panel" style={{ display: 'grid', gap: '1.25rem' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
+        <div>
+          <p className="page-shell__eyebrow" style={{ color: '#ff4fa3' }}>Event Attendance Board</p>
+          <h2 style={{ margin: 0 }}>{selectedEvent.name}</h2>
+          <p style={{ margin: '0.2rem 0 0 0', color: '#5f5773', fontSize: '0.9rem' }}>📍 {selectedEvent.venue} ({selectedEvent.date})</p>
+        </div>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button
+            type="button"
+            className={`button ${sessionActive ? 'button--secondary' : 'button--primary'}`}
+            onClick={toggleSession}
+          >
+            {sessionActive ? 'Stop Session' : 'Start Session'}
+          </button>
+          <button
+            type="button"
+            className="button button--secondary"
+            onClick={() => {
+              setSelectedEvent(null)
+              setQrToken('')
+            }}
+          >
+            ← Back to Events List
+          </button>
+        </div>
       </div>
 
-      {isLoading ? (
-        <div className="detail-info-item"><span>Loading</span><strong>Fetching attendance status…</strong></div>
-      ) : error ? (
-        <div style={{ padding: '0.9rem', borderRadius: '12px', background: 'rgba(255,79,163,0.06)', color: '#c2348a', border: '1px solid rgba(255,79,163,0.14)' }}>{error}</div>
-      ) : participants.length === 0 ? (
-        <div className="detail-info-item"><span>Empty state</span><strong>No participants registered yet.</strong></div>
-      ) : (
-        <div className="organizer-page__table-wrap">
-          <table className="organizer-page__table">
-            <thead>
-              <tr style={{ background: 'rgba(255,79,163,0.06)' }}>
-                <th>Participant</th>
-                <th>Role</th>
-                <th>Status</th>
-                <th>Mark</th>
-              </tr>
-            </thead>
-            <tbody>
-              {participants.map((participant) => (
-                <tr key={participant.registrationId} style={{ borderTop: '1px solid rgba(255,79,163,0.08)' }}>
-                  <td data-label="Participant">
-                    <div style={{ fontWeight: 700 }}>{participant.fullName}</div>
-                    <div style={{ color: '#655f7b', fontSize: '0.9rem' }}>{participant.email}</div>
-                  </td>
-                  <td data-label="Role">{participant.role || 'N/A'}</td>
-                  <td data-label="Status">{participant.attendanceStatus || 'NOT_MARKED'}</td>
-                  <td data-label="Mark">
-                    <div className="organizer-page__attendance-actions">
-                      {['PRESENT', 'ABSENT', 'NOT_MARKED'].map((status) => (
-                        <button
-                          key={status}
-                          type="button"
-                          className="button button--secondary"
-                          onClick={() => updateStatus(participant.registrationId, status)}
-                          style={{ padding: '0.55rem 0.8rem', fontSize: '0.82rem' }}
-                        >
-                          {status}
-                        </button>
-                      ))}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem', marginTop: '0.5rem' }}>
+        {/* Dynamic QR Board */}
+        <div style={{
+          background: 'rgba(255, 255, 255, 0.95)',
+          border: '1px solid rgba(255, 79, 163, 0.2)',
+          borderRadius: '20px',
+          padding: '1.5rem',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          textAlign: 'center',
+          boxShadow: '0 8px 30px rgba(0,0,0,0.04)',
+        }}>
+          <p style={{ fontWeight: 700, color: '#3d2f59', fontSize: '1rem', marginBottom: '0.5rem' }}>
+            DYNAMIC ATTENDANCE QR
+          </p>
+
+          {sessionActive && qrToken ? (
+            <>
+              <div style={{
+                background: '#ffffff',
+                padding: '1rem',
+                borderRadius: '16px',
+                border: '2px solid rgba(255,79,163,0.3)',
+                boxShadow: '0 4px 20px rgba(255,79,163,0.12)',
+              }}>
+                <QRCodeSVG value={qrToken} size={210} level="M" includeMargin />
+              </div>
+
+              <div style={{ marginTop: '1rem', width: '100%' }}>
+                <div style={{
+                  display: 'flex',
+                  justify: 'space-between',
+                  fontSize: '0.85rem',
+                  fontWeight: 600,
+                  color: '#6e6584',
+                  marginBottom: '0.3rem',
+                }}>
+                  <span>Backend QR Refresh</span>
+                  <span style={{ color: '#ff4fa3' }}>{countdown}s</span>
+                </div>
+                <div style={{ height: '6px', background: 'rgba(255,79,163,0.15)', borderRadius: '3px', overflow: 'hidden' }}>
+                  <div style={{
+                    height: '100%',
+                    width: `${(countdown / 3) * 100}%`,
+                    background: '#ff4fa3',
+                    transition: 'width 1s linear',
+                  }} />
+                </div>
+              </div>
+
+              <p style={{ fontSize: '0.8rem', color: '#7a7291', marginTop: '0.75rem' }}>
+                🔒 Expiration enforced by backend every 3 seconds. Screenshots will be rejected.
+              </p>
+            </>
+          ) : (
+            <div style={{ padding: '3rem 1rem', color: '#7a7291' }}>
+              <p style={{ fontSize: '1.1rem', fontWeight: 600 }}>Attendance Session Paused</p>
+              <p style={{ fontSize: '0.9rem' }}>Click "Start Session" above to display the dynamic QR code.</p>
+            </div>
+          )}
+
+          <div style={{
+            marginTop: '1.25rem',
+            padding: '0.75rem 1.5rem',
+            borderRadius: '14px',
+            background: 'rgba(255, 79, 163, 0.08)',
+            border: '1px solid rgba(255, 79, 163, 0.2)',
+            width: '100%',
+          }}>
+            <span style={{ fontSize: '0.85rem', color: '#6e6584', display: 'block' }}>Total Marked Present</span>
+            <strong style={{ fontSize: '1.8rem', color: '#ff4fa3', fontWeight: 800 }}>{attendanceCount}</strong>
+          </div>
         </div>
-      )}
+
+        {/* Live Attendance Log Table */}
+        <div style={{
+          background: 'rgba(255, 255, 255, 0.95)',
+          border: '1px solid rgba(255, 79, 163, 0.2)',
+          borderRadius: '20px',
+          padding: '1.25rem',
+          display: 'flex',
+          flexDirection: 'column',
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#3d2f59' }}>LIVE ATTENDANCE</h3>
+            <span style={{
+              fontSize: '0.78rem',
+              fontWeight: 700,
+              padding: '0.25rem 0.6rem',
+              borderRadius: '20px',
+              background: sessionActive ? 'rgba(42, 190, 120, 0.12)' : 'rgba(120,120,120,0.1)',
+              color: sessionActive ? '#1b8f65' : '#666',
+            }}>
+              {sessionActive ? '● LIVE UPDATES' : 'OFFLINE'}
+            </span>
+          </div>
+
+          {records.length === 0 ? (
+            <div style={{ padding: '2rem', textAlign: 'center', color: '#7a7291', fontSize: '0.9rem' }}>
+              No participants marked present for this event yet.
+            </div>
+          ) : (
+            <div style={{ overflowY: 'auto', maxHeight: '380px' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.88rem' }}>
+                <thead>
+                  <tr style={{ borderBottom: '1px solid rgba(255,79,163,0.15)', textAlign: 'left', color: '#6e6584' }}>
+                    <th style={{ padding: '0.6rem' }}>Participant</th>
+                    <th style={{ padding: '0.6rem' }}>Registration ID</th>
+                    <th style={{ padding: '0.6rem' }}>Time</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {records.map((r) => (
+                    <tr key={r.id || r.registrationId + r.markedAt} style={{ borderBottom: '1px solid rgba(255,79,163,0.08)' }}>
+                      <td style={{ padding: '0.6rem' }}>
+                        <div style={{ fontWeight: 700, color: '#2d253f' }}>{r.fullName}</div>
+                        <div style={{ fontSize: '0.78rem', color: '#7a7291' }}>{r.email}</div>
+                      </td>
+                      <td style={{ padding: '0.6rem', color: '#ff4fa3', fontWeight: 600 }}>{r.registrationId}</td>
+                      <td style={{ padding: '0.6rem', color: '#6e6584', fontSize: '0.8rem' }}>
+                        {r.markedAt ? new Date(r.markedAt).toLocaleTimeString() : 'Just now'}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   )
 }

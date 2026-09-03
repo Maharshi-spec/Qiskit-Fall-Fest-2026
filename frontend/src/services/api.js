@@ -330,4 +330,127 @@ export const api = {
       }
     }
   },
+
+  async organizerFetchEvents() {
+    try {
+      const response = await fetch(resolveApiUrl('/api/v1/organizer/events'), {
+        headers: {
+          Authorization: `Bearer ${readOrganizerToken()}`,
+          ...buildJsonHeaders(),
+        },
+        credentials: 'include',
+      })
+      const data = await parseApiResponse(response)
+      if (!response.ok) {
+        return { success: false, error: data?.error || { message: 'Unable to load events.' } }
+      }
+      return { success: true, data: data?.data || [] }
+    } catch (err) {
+      return { success: false, error: { message: 'Unable to connect to server.' } }
+    }
+  },
+
+  async organizerStartAttendanceSession(eventId) {
+    try {
+      const response = await fetch(resolveApiUrl(`/api/v1/organizer/events/${eventId}/attendance/start`), {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${readOrganizerToken()}`,
+          ...buildJsonHeaders(),
+        },
+        credentials: 'include',
+      })
+      const data = await parseApiResponse(response)
+      return { success: response.ok, data: data?.data }
+    } catch (err) {
+      return { success: false }
+    }
+  },
+
+  async organizerStopAttendanceSession(eventId) {
+    try {
+      const response = await fetch(resolveApiUrl(`/api/v1/organizer/events/${eventId}/attendance/stop`), {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${readOrganizerToken()}`,
+          ...buildJsonHeaders(),
+        },
+        credentials: 'include',
+      })
+      const data = await parseApiResponse(response)
+      return { success: response.ok, data: data?.data }
+    } catch (err) {
+      return { success: false }
+    }
+  },
+
+  async organizerFetchQrToken(eventId) {
+    try {
+      const response = await fetch(resolveApiUrl(`/api/v1/organizer/events/${eventId}/attendance/token`), {
+        headers: {
+          Authorization: `Bearer ${readOrganizerToken()}`,
+          ...buildJsonHeaders(),
+        },
+        credentials: 'include',
+      })
+      const data = await parseApiResponse(response)
+      if (!response.ok) return { success: false }
+      return { success: true, data: data?.data }
+    } catch (err) {
+      return { success: false }
+    }
+  },
+
+  async organizerFetchAttendanceData(eventId) {
+    try {
+      const response = await fetch(resolveApiUrl(`/api/v1/organizer/events/${eventId}/attendance/data`), {
+        headers: {
+          Authorization: `Bearer ${readOrganizerToken()}`,
+          ...buildJsonHeaders(),
+        },
+        credentials: 'include',
+      })
+      const data = await parseApiResponse(response)
+      if (!response.ok) return { success: false, error: data?.error }
+      return { success: true, data: data?.data }
+    } catch (err) {
+      return { success: false }
+    }
+  },
+
+  async markAttendance(attendanceToken) {
+    try {
+      const token = localStorage.getItem('qff_auth_token') || ''
+      const response = await fetch(resolveApiUrl('/api/v1/attendance/mark'), {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          ...buildJsonHeaders(),
+        },
+        credentials: 'include',
+        body: JSON.stringify({ attendance_token: attendanceToken }),
+      })
+      const data = await parseApiResponse(response)
+      if (!response.ok) {
+        return {
+          success: false,
+          code: data?.error?.code || 'ATTENDANCE_FAILED',
+          message: data?.error?.message || 'Unable to mark attendance.',
+        }
+      }
+      return {
+        success: true,
+        alreadyMarked: Boolean(data?.alreadyMarked),
+        message: data?.message || 'You have been successfully marked present for this event.',
+        participant: data?.participant,
+      }
+    } catch (err) {
+      return {
+        success: false,
+        code: 'NETWORK_ERROR',
+        message: 'Unable to connect to server. Please try again.',
+      }
+    }
+  },
 }
+

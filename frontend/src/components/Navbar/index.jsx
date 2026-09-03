@@ -7,6 +7,7 @@ import qiskitBadge from '../../assets/qiskit/badge-pink.png.png'
 const navItems = [
   { label: 'Home', to: '/' },
   { label: 'Register', to: '/register' },
+  { label: 'Attendance', to: '/attendance' },
   { label: 'Hackathon', to: '/hackathon' },
   { label: 'Workshops', to: '/workshops' },
   { label: 'Day 1', to: '/day-1' },
@@ -28,8 +29,8 @@ const Navbar = () => {
       >
         {isLoggedIn ? 'Logout' : 'Login'}
       </button>
-      <NavLink to="/register" className="topbar__action topbar__action--register">
-        Register
+      <NavLink to={isLoggedIn ? '/profile' : '/register'} className="topbar__action topbar__action--register">
+        {isLoggedIn ? 'Profile' : 'Register'}
       </NavLink>
     </div>
   )

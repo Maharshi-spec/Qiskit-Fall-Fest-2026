@@ -41,64 +41,25 @@ const registrationRepository = {
     const normalizedEmail = normalizeEmail(email)
 
     try {
-      const { data, error } = await supabase
-        .from('registrations')
-        .select('registration_id')
-        .eq('email', normalizedEmail)
-        .limit(1)
-
-      if (!error && data && data.length > 0) {
-        return { registrationId: data[0].registration_id }
-      }
-    } catch (err) {
-      console.warn('[SUPABASE DB WARN] findByEmail error, falling back:', err.message)
-    }
-
-    try {
       const result = await pool.query(
-        'SELECT registration_id AS "registrationId" FROM registrations WHERE email = $1 LIMIT 1',
+        `SELECT registration_id AS "registrationId", status, full_name AS "fullName",
+          email, mobile_number AS "mobileNumber", role, institute_name AS "instituteName",
+          department, knows_python AS "knowsPython", aicte_quantum_course AS "aicteQuantumCourse",
+          knows_quantum_basics AS "knowsQuantumBasics", used_qiskit_before AS "usedQiskitBefore",
+          id_card_url AS "idCardUrl", created_at AS "createdAt"
+        FROM registrations WHERE email = $1 LIMIT 1`,
         [normalizedEmail],
       )
       return result.rows[0] || null
     } catch (err) {
-      return null
+      console.error('[PG DB ERROR] findByEmail failed', { message: err.message })
+      throw err
     }
   },
 
   async findByEmailAndRegistrationId(email, registrationId) {
     const normalizedEmail = normalizeEmail(email)
     const normalizedId = String(registrationId || '').trim().toUpperCase()
-
-    try {
-      const { data, error } = await supabase
-        .from('registrations')
-        .select('*')
-        .eq('email', normalizedEmail)
-        .eq('registration_id', normalizedId)
-        .limit(1)
-
-      if (!error && data && data.length > 0) {
-        const item = data[0]
-        return {
-          registrationId: item.registration_id,
-          status: item.status,
-          fullName: item.full_name,
-          email: item.email,
-          mobileNumber: item.mobile_number,
-          role: item.role,
-          instituteName: item.institute_name,
-          department: item.department,
-          knowsPython: item.knows_python,
-          aicteQuantumCourse: item.aicte_quantum_course,
-          knowsQuantumBasics: item.knows_quantum_basics,
-          usedQiskitBefore: item.used_qiskit_before,
-          idCardUrl: item.id_card_url,
-          createdAt: item.created_at,
-        }
-      }
-    } catch (err) {
-      console.warn('[SUPABASE DB WARN] findByEmailAndRegistrationId error:', err.message)
-    }
 
     try {
       const result = await pool.query(
@@ -112,42 +73,13 @@ const registrationRepository = {
       )
       return result.rows[0] || null
     } catch (err) {
-      return null
+      console.error('[PG DB ERROR] findByEmailAndRegistrationId failed', { message: err.message })
+      throw err
     }
   },
 
   async findByRegistrationId(registrationId) {
     const normalizedId = String(registrationId || '').trim().toUpperCase()
-
-    try {
-      const { data, error } = await supabase
-        .from('registrations')
-        .select('*')
-        .eq('registration_id', normalizedId)
-        .limit(1)
-
-      if (!error && data && data.length > 0) {
-        const item = data[0]
-        return {
-          registrationId: item.registration_id,
-          status: item.status,
-          fullName: item.full_name,
-          email: item.email,
-          mobileNumber: item.mobile_number,
-          role: item.role,
-          instituteName: item.institute_name,
-          department: item.department,
-          knowsPython: item.knows_python,
-          aicteQuantumCourse: item.aicte_quantum_course,
-          knowsQuantumBasics: item.knows_quantum_basics,
-          usedQiskitBefore: item.used_qiskit_before,
-          idCardUrl: item.id_card_url,
-          createdAt: item.created_at,
-        }
-      }
-    } catch (err) {
-      console.warn('[SUPABASE DB WARN] findByRegistrationId error:', err.message)
-    }
 
     try {
       const result = await pool.query(
@@ -161,77 +93,70 @@ const registrationRepository = {
       )
       return result.rows[0] || null
     } catch (err) {
-      return null
+      console.error('[PG DB ERROR] findByRegistrationId failed', { message: err.message })
+      throw err
     }
   },
 
   async createRegistration(record, idCardUrl) {
-    try {
-      const { data, error } = await supabase
-        .from('registrations')
-        .insert({
-          registration_id: record.registrationId,
-          full_name: record.fullName,
-          email: record.email,
-          mobile_number: record.mobileNumber,
-          role: record.role,
-          institute_name: record.instituteName,
-          department: record.department,
-          knows_python: record.knowsPython,
-          aicte_quantum_course: record.aicteQuantumCourse,
-          knows_quantum_basics: record.knowsQuantumBasics,
-          used_qiskit_before: record.usedQiskitBefore,
-          id_card_url: idCardUrl,
-          status: record.status,
-        })
-        .select('registration_id, status')
-        .single()
+    const normalizedEmail = normalizeEmail(record.email)
+    const fullName = String(record.fullName || '').trim()
+    const mobileNumber = String(record.mobileNumber || '').trim()
+    const role = String(record.role || '').trim().toUpperCase()
+    const instituteName = String(record.instituteName || '').trim()
+    const department = String(record.department || '').trim()
 
-      if (error) {
-        console.error('[SUPABASE DB INSERT ERROR]', error)
-        if (error.code === '23505' || (error.message && error.message.includes('unique constraint'))) {
-          throw new AppError(400, 'EMAIL_ALREADY_REGISTERED', 'This email is already registered.')
-        }
-        throw new AppError(500, 'DATABASE_ERROR', error.message || 'Failed to save registration.')
+    try {
+      const result = await pool.query(
+        `INSERT INTO registrations (
+          registration_id, full_name, email, mobile_number, role, institute_name, department,
+          knows_python, aicte_quantum_course, knows_quantum_basics, used_qiskit_before,
+          id_card_url, status, created_at
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, NOW())
+        RETURNING registration_id AS "registrationId", status`,
+        [
+          record.registrationId,
+          fullName,
+          normalizedEmail,
+          mobileNumber,
+          role,
+          instituteName,
+          department,
+          Boolean(record.knowsPython),
+          Boolean(record.aicteQuantumCourse),
+          Boolean(record.knowsQuantumBasics),
+          Boolean(record.usedQiskitBefore),
+          idCardUrl,
+          record.status || 'CONFIRMED',
+        ],
+      )
+
+      if (result.rows[0]) {
+        return { registrationId: result.rows[0].registrationId, status: result.rows[0].status }
       }
 
-      return { registrationId: data.registration_id, status: data.status }
+      const existingRegistration = await this.findByEmail(normalizedEmail)
+      if (existingRegistration) {
+        throw new AppError(400, 'EMAIL_ALREADY_REGISTERED', 'This email is already registered.')
+      }
+
+      throw new AppError(500, 'DATABASE_ERROR', 'Failed to save registration.')
     } catch (err) {
       if (err instanceof AppError) throw err
-      console.error('[SUPABASE DB EXCEPTION]', err)
+
+      if (err && err.code === '23505') {
+        const existingRegistration = await this.findByEmail(normalizedEmail)
+        if (existingRegistration) {
+          throw new AppError(400, 'EMAIL_ALREADY_REGISTERED', 'This email is already registered.')
+        }
+      }
+
+      console.error('[PG DB EXCEPTION]', err)
       throw new AppError(503, 'DATABASE_UNAVAILABLE', 'Registration could not be saved. Please try again.')
     }
   },
 
   async findAll() {
-    try {
-      const { data, error } = await supabase
-        .from('registrations')
-        .select('*')
-        .order('created_at', { ascending: false })
-
-      if (!error && data) {
-        return data.map((item) => ({
-          registrationId: item.registration_id,
-          status: item.status,
-          fullName: item.full_name,
-          email: item.email,
-          mobileNumber: item.mobile_number,
-          role: item.role,
-          instituteName: item.institute_name,
-          department: item.department,
-          knowsPython: item.knows_python,
-          aicteQuantumCourse: item.aicte_quantum_course,
-          knowsQuantumBasics: item.knows_quantum_basics,
-          usedQiskitBefore: item.used_qiskit_before,
-          idCardUrl: item.id_card_url,
-          createdAt: item.created_at,
-        }))
-      }
-    } catch (err) {
-      console.warn('[SUPABASE DB WARN] findAll falling back to pg pool:', err.message)
-    }
-
     const result = await pool.query(
       `SELECT registration_id AS "registrationId", status, full_name AS "fullName",
         email, mobile_number AS "mobileNumber", role, institute_name AS "instituteName",
@@ -524,22 +449,12 @@ const normalizeBooleanField = (value) => {
 }
 
 const generateRegistrationId = async () => {
-  try {
-    const { count, error } = await supabase
-      .from('registrations')
-      .select('*', { count: 'exact', head: true })
+  const result = await pool.query('SELECT nextval(\'registrations_registration_id_seq\') AS "nextNumber"')
+  const nextNumber = Number(result.rows[0]?.nextNumber ?? 1)
 
-    const nextNumber = (count || 0) + 1
-    return {
-      id: Date.now(),
-      registrationId: `QFF26-R-${String(nextNumber).padStart(5, '0')}`,
-    }
-  } catch (err) {
-    const fallbackId = Date.now()
-    return {
-      id: fallbackId,
-      registrationId: `QFF26-R-${String(fallbackId).slice(-5)}`,
-    }
+  return {
+    id: null,
+    registrationId: `QFF26-R-${String(nextNumber).padStart(5, '0')}`,
   }
 }
 
@@ -706,6 +621,9 @@ const sendMail = async ({ to, subject, text, html }) => {
     port: Number(config.port || 587),
     secure: Number(config.port || 587) === 465,
     family: 4,
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 15000,
     tls: { rejectUnauthorized: true },
     auth: config.user && config.password ? { user: config.user, pass: config.password } : undefined,
   })
@@ -862,13 +780,8 @@ const sendRegistrationConfirmationEmail = async (registration) => {
     html: emailContent.html,
   }
 
-  try {
-    await sendMail(emailPayload)
-    return emailPayload
-  } catch (error) {
-    console.warn('[EMAIL WARN] Registration confirmation email could not be sent.')
-    return null
-  }
+  await sendMail(emailPayload)
+  return emailPayload
 }
 
 const validateRegistrationPayload = (payload) => {
@@ -980,30 +893,35 @@ const registerUser = async (payload = {}, file) => {
   )
 
   try {
-    console.info('[REGISTRATION_EMAIL_DIAGNOSTIC] registration confirmation email call', {
-      recipient: registration.email,
-      registrationId: registration.registrationId,
-      smtpHost: process.env.MAIL_HOST,
-      smtpPort: process.env.MAIL_PORT,
-      hasMailUser: Boolean(process.env.MAIL_USER),
-      hasMailPassword: Boolean(process.env.MAIL_PASSWORD),
-    })
-    await sendRegistrationConfirmationEmail(registration)
-  } catch (error) {
-    console.error('[REGISTRATION_EMAIL_ERROR] registration confirmation failed', {
-      code: error && error.code,
-      message: error && error.message ? String(error.message).replace(/(pass|password|token|secret)\s*[:=]?\s*[^\s,;]+/gi, '[REDACTED]') : 'Unknown email failure',
-      registrationId: registration.registrationId,
-      recipient: registration.email,
-    })
-  }
-
-  try {
     await reminderService.scheduleRegistrationReminders(registration)
     console.info('[REMINDER] scheduled', { registrationId: registration.registrationId, dayCount: reminderService.EVENT_DAYS.length })
   } catch (error) {
     console.error('[REMINDER] scheduling failed', { registrationId: registration.registrationId, error: error.message })
   }
+
+  console.info('[REGISTRATION_EMAIL_DIAGNOSTIC] registration confirmation email call', {
+    recipient: registration.email,
+    registrationId: registration.registrationId,
+    smtpHost: process.env.MAIL_HOST,
+    smtpPort: process.env.MAIL_PORT,
+    hasMailUser: Boolean(process.env.MAIL_USER),
+    hasMailPassword: Boolean(process.env.MAIL_PASSWORD),
+  })
+  sendRegistrationConfirmationEmail(registration)
+    .then(() => {
+      console.info('[REGISTRATION_EMAIL] confirmation email sent', {
+        registrationId: registration.registrationId,
+        recipient: registration.email,
+      })
+    })
+    .catch((error) => {
+      console.error('[REGISTRATION_EMAIL_ERROR] registration confirmation failed', {
+        code: error && error.code,
+        message: error && error.message ? String(error.message).replace(/(pass|password|token|secret)\s*[:=]?\s*[^\s,;]+/gi, '[REDACTED]') : 'Unknown email failure',
+        registrationId: registration.registrationId,
+        recipient: registration.email,
+      })
+    })
 
   return {
     success: true,

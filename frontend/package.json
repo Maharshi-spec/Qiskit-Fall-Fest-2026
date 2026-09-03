@@ -12,6 +12,10 @@
     "framer-motion": "^13.1.1",
     "gsap": "^3.15.0",
     "html5-qrcode": "^2.3.8",
+<<<<<<< HEAD
+=======
+    "qrcode.react": "^4.2.0",
+>>>>>>> d08b0a463f60a46fe61ae33d75d17cfaf84b344a
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^7.18.3"
