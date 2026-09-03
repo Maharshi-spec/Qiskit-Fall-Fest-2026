@@ -350,6 +350,27 @@ export const api = {
     }
   },
 
+  async organizerCreateEvent(payload) {
+    try {
+      const response = await fetch(resolveApiUrl('/api/v1/organizer/events'), {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${readOrganizerToken()}`,
+          ...buildJsonHeaders(),
+        },
+        credentials: 'include',
+        body: JSON.stringify(payload),
+      })
+      const data = await parseApiResponse(response)
+      if (!response.ok) {
+        return { success: false, error: data?.error || { message: 'Unable to create event.' } }
+      }
+      return { success: true, data: data?.data }
+    } catch (err) {
+      return { success: false, error: { message: 'Unable to connect to server.' } }
+    }
+  },
+
   async organizerStartAttendanceSession(eventId) {
     try {
       const response = await fetch(resolveApiUrl(`/api/v1/organizer/events/${eventId}/attendance/start`), {

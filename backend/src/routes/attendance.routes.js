@@ -2,6 +2,7 @@ const express = require('express')
 const { requireAuth, requireAdmin } = require('../middleware/validation.middleware')
 const {
   getEventsList,
+  createEvent,
   startSession,
   stopSession,
   getLiveQrToken,
@@ -13,6 +14,7 @@ const {
 const router = express.Router()
 
 router.get('/organizer/events', requireAdmin, getEventsList)
+router.post('/organizer/events', requireAdmin, createEvent)
 router.post('/organizer/events/:eventId/attendance/start', requireAdmin, startSession)
 router.post('/organizer/events/:eventId/attendance/stop', requireAdmin, stopSession)
 router.get('/organizer/events/:eventId/attendance/token', requireAdmin, getLiveQrToken)
