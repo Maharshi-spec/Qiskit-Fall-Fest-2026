@@ -674,114 +674,90 @@ const OrganizerParticipantsPage = () => {
   )
 }
 
-const rewardEventOptions = [
-  { value: 'HACKATHON_PARTICIPANT', label: 'Qiskit Fall Fest 2026 Hackathon', shortLabel: 'Hackathon', template: 'CUTM-AP_2.pdf' },
-  { value: 'BOOTCAMP_PARTICIPANT', label: 'Qiskit Fall Fest 2026 Bootcamp', shortLabel: 'Bootcamp', template: 'CUTM-AP_6.pdf' },
-  { value: 'EVENT_PARTICIPANT', label: 'Qiskit Fall Fest 2026 Webinar', shortLabel: 'Webinar', template: 'CUTM-AP_5.pdf' },
-  { value: 'WORKSHOP_PARTICIPANT', label: 'Qiskit Fall Fest 2026 Workshop', shortLabel: 'Workshop', template: 'CUTM-AP_7.pdf' },
+const rewardCategories = [
+  { value: 'HACKATHON_PARTICIPANT', label: 'Hackathon', heading: 'Hackathon rewards' },
+  { value: 'BOOTCAMP_PARTICIPANT', label: 'Bootcamp', heading: 'Quantum Bootcamp' },
+  { value: 'WEBINAR', label: 'Webinar', heading: 'Webinar' },
+  { value: 'WORKSHOP_PARTICIPANT', label: 'Workshop', heading: 'Workshop' },
 ]
 
-const getRewardParticipant = (certificate) => certificate.participant_name || certificate.participant_email || 'Participant'
-
-const TemplateRow = ({ template, note }) => (
-  <div className="organizer-rewards__template">
-    <span>{note}</span>
-    <strong>{template}</strong>
-  </div>
-)
+const getRewardParticipant = (participant) => participant.fullName || participant.full_name || participant.email || participant.participant_name || participant.participant_email || 'Participant'
 
 const OrganizerRewardsPage = () => {
+  const [selectedCategory, setSelectedCategory] = useState('HACKATHON_PARTICIPANT')
   const [certificates, setCertificates] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
-  const [selectedEvent, setSelectedEvent] = useState('HACKATHON_PARTICIPANT')
-  const [selectedTeam, setSelectedTeam] = useState('')
 
   useEffect(() => {
     const load = async () => {
       setIsLoading(true)
       setError('')
-      const result = await api.organizerFetchCertificates()
+      const certificatesResult = await api.organizerFetchCertificates()
       setIsLoading(false)
-
-      if (!result.success) {
-        setError(result.error?.message || 'Unable to load reward records.')
-        return
-      }
-
-      setCertificates(Array.isArray(result.data) ? result.data : [])
+      if (!certificatesResult.success) setError(certificatesResult.error?.message || 'Unable to load reward records.')
+      setCertificates(Array.isArray(certificatesResult.data) ? certificatesResult.data : [])
     }
-
     load()
   }, [])
 
-  const event = rewardEventOptions.find((option) => option.value === selectedEvent) || rewardEventOptions[0]
-  const eligibleParticipants = certificates.filter((certificate) => certificate.certificate_type === selectedEvent)
-  const teams = certificates.filter((certificate) => certificate.certificate_type === 'HACKATHON_PARTICIPANT')
-  const selectedTeamRecord = teams.find((certificate) => String(certificate.id || certificate.certificate_number) === selectedTeam)
+  const category = rewardCategories.find((item) => item.value === selectedCategory) || rewardCategories[0]
+  const eligibleParticipants = certificates.filter((certificate) => certificate.certificate_type === selectedCategory)
 
   return (
     <div className="organizer-rewards">
       <div className="detail-page__panel-copy">
         <p className="page-shell__eyebrow">Rewards</p>
         <h2>Certificates and reward records</h2>
-        <p>Choose an event to review eligible participants and assign the appropriate certificate template.</p>
+        <p>Choose a certificate category to review its reward workflow.</p>
       </div>
 
       {isLoading ? (
-        <div className="detail-info-item"><span>Loading</span><strong>Checking reward data…</strong></div>
+        <div className="detail-info-item"><span>Loading</span><strong>Loading events...</strong></div>
       ) : error ? (
         <div style={{ padding: '0.9rem', borderRadius: '12px', background: 'rgba(255,79,163,0.06)', color: '#c2348a', border: '1px solid rgba(255,79,163,0.14)' }}>{error}</div>
-      ) : certificates.length === 0 ? (
-        <div className="detail-info-item"><span>Empty state</span><strong>No certificates or reward records found.</strong></div>
       ) : (
         <div className="organizer-rewards__content">
-          <section className="organizer-rewards__selector" aria-label="Reward event selector">
-            <label htmlFor="reward-event">Select event</label>
-            <select id="reward-event" value={selectedEvent} onChange={(eventChange) => { setSelectedEvent(eventChange.target.value); setSelectedTeam('') }}>
-              {rewardEventOptions.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}
+          <section className="organizer-rewards__selector" aria-label="Reward category selector">
+            <label htmlFor="reward-category">Select event</label>
+            <select id="reward-category" value={selectedCategory} onChange={(eventChange) => { setSelectedCategory(eventChange.target.value); setError('') }}>
+              {rewardCategories.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
             </select>
           </section>
 
-          {selectedEvent === 'HACKATHON_PARTICIPANT' ? (
+          {selectedCategory === 'HACKATHON_PARTICIPANT' ? (
             <section className="organizer-rewards__workflow">
               <div className="organizer-rewards__section-heading">
                 <span className="organizer-rewards__kicker">Hackathon rewards</span>
-                <h3>Assign award</h3>
-                <p>Select a team, then choose its placement.</p>
+                <h3>Select team and award</h3>
+                <p>Choose an award to automatically use its certificate template.</p>
               </div>
               <label htmlFor="reward-team">Select team</label>
-              <select id="reward-team" value={selectedTeam} onChange={(eventChange) => setSelectedTeam(eventChange.target.value)}>
-                <option value="">Choose a team</option>
-                {teams.map((certificate) => <option key={certificate.id || certificate.certificate_number} value={certificate.id || certificate.certificate_number}>{getRewardParticipant(certificate)}</option>)}
-              </select>
-              <div className="organizer-rewards__awards" aria-label="Hackathon awards">
-                {['1st Position', '1st Runners Up', '2nd Runners Up'].map((award) => <button type="button" className="organizer-rewards__award" key={award} disabled={!selectedTeam}>{award}<span>Assign award</span></button>)}
-              </div>
-              <div className="organizer-rewards__mapping">
-                <span>Selected team</span>
-                <strong>{selectedTeamRecord ? getRewardParticipant(selectedTeamRecord) : 'No team selected'}</strong>
-              </div>
-              <TemplateRow template={event.template} note="Hackathon award template" />
+              <select id="reward-team" defaultValue=""><option value="">Select Team</option></select>
+              <fieldset className="organizer-rewards__award-list">
+                <legend>Award</legend>
+                {['1st Position', '1st Runner Up', '2nd Runner Up'].map((award, index) => <label key={award}><input type="radio" name="hackathon-award" value={award} defaultChecked={index === 0} />{award}</label>)}
+              </fieldset>
+              <button type="button" className="button button--primary">Assign Award</button>
+              <div className="organizer-rewards__mapping"><span>Team members</span><strong>No team selected</strong></div>
             </section>
           ) : (
             <section className="organizer-rewards__workflow">
               <div className="organizer-rewards__section-heading">
-                <span className="organizer-rewards__kicker">{event.shortLabel}</span>
+                <span className="organizer-rewards__kicker">{category.heading}</span>
                 <h3>Eligible participants</h3>
-                <p>Eligibility comes from the existing attendance and participation records.</p>
+                <p>Eligibility comes from the existing attendance records for this event.</p>
               </div>
               <div className="organizer-rewards__participants">
-                {eligibleParticipants.length > 0 ? eligibleParticipants.map((certificate) => (
-                  <div className="organizer-rewards__participant" key={certificate.id || certificate.certificate_number}>
+                {eligibleParticipants.length > 0 ? eligibleParticipants.map((participant) => (
+                  <div className="organizer-rewards__participant" key={participant.registrationId || participant.email}>
                     <span aria-hidden="true">✓</span>
-                    <strong>{getRewardParticipant(certificate)}</strong>
-                    <small>{certificate.status || 'issued'}</small>
+                    <strong>{getRewardParticipant(participant)}</strong>
+                    <small>{participant.status || 'PRESENT'}</small>
                   </div>
                 )) : <p className="organizer-rewards__empty">No eligible participants in the current records.</p>}
               </div>
-              <button type="button" className="button button--primary" disabled={eligibleParticipants.length === 0}>Generate certificates</button>
-              <TemplateRow template={event.template} note={`${event.shortLabel} certificate template`} />
+              <button type="button" className="button button--primary" disabled={eligibleParticipants.length === 0}>Generate Certificates</button>
             </section>
           )}
         </div>
