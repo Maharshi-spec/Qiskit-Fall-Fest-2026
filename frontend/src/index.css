@@ -1695,8 +1695,99 @@ a:focus-visible {
 }
 
 .organizer-layout__content {
-  max-width: 1240px;
-  margin: 0 auto;
+  max-width: none;
+  width: 100%;
+}
+
+.organizer-page-view {
+  display: grid;
+  gap: 1.35rem;
+  width: 100%;
+  min-width: 0;
+}
+
+.organizer-page-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 2rem;
+  width: 100%;
+  padding: 0.5rem 0;
+}
+
+.organizer-page-heading__copy {
+  display: grid;
+  gap: 0.65rem;
+  min-width: 0;
+}
+
+.organizer-page-heading__copy .page-shell__eyebrow {
+  margin: 0;
+}
+
+.organizer-page-heading__copy h2 {
+  margin: 0;
+  color: #2f2444;
+  font-size: clamp(2rem, 3.5vw, 3.3rem);
+}
+
+.organizer-page-heading__copy p:last-child {
+  max-width: 60rem;
+  margin: 0;
+}
+
+.organizer-page-heading__action,
+.organizer-page-heading__buttons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.65rem;
+  flex: 0 0 auto;
+}
+
+.organizer-page-content-panel {
+  display: grid;
+  gap: 1.25rem;
+  width: 100%;
+  min-width: 0;
+  padding: clamp(1.25rem, 2.5vw, 2rem);
+  border: 1px solid rgba(255, 79, 163, 0.14);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 16px 32px rgba(31, 31, 43, 0.04);
+}
+
+.organizer-email-page__form {
+  width: 100%;
+}
+
+.organizer-email-page__form textarea {
+  min-height: min(42vh, 360px);
+  resize: vertical;
+}
+
+.organizer-attendance-page__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: 1rem;
+  width: 100%;
+}
+
+.organizer-attendance-page__board {
+  padding: clamp(1rem, 2vw, 1.5rem);
+}
+
+.organizer-events-page > .organizer-page-content-panel {
+  min-height: 16rem;
+}
+
+.organizer-participants-page > .organizer-page-content-panel {
+  min-height: 24rem;
+}
+
+.organizer-rewards > .organizer-page-heading,
+.organizer-rewards > .organizer-page-content-panel {
   width: 100%;
 }
 
@@ -1785,6 +1876,7 @@ a:focus-visible {
   grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
   gap: 1.25rem;
   margin-top: 0.5rem;
+  width: 100%;
 }
 
 .organizer-event-card {
@@ -2040,6 +2132,52 @@ a:focus-visible {
     padding: 0.4rem 0.65rem;
     font-size: 0.8rem;
     min-height: 2.1rem;
+  }
+
+  .organizer-page-heading {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .organizer-page-heading__action,
+  .organizer-page-heading__buttons {
+    justify-content: flex-start;
+  }
+
+  .organizer-page-heading__action .button,
+  .organizer-page-heading__buttons .button {
+    width: 100%;
+  }
+
+  .organizer-page-content-panel {
+    padding: 1rem;
+  }
+
+  .organizer-participants__table-wrap {
+    overflow-x: auto;
+  }
+
+  .organizer-participants__table,
+  .organizer-participants__table tbody,
+  .organizer-participants__table tr,
+  .organizer-participants__table td {
+    display: table-cell;
+  }
+
+  .organizer-participants__table tbody tr {
+    display: table-row;
+  }
+
+  .organizer-participants__table thead {
+    display: table-header-group;
+  }
+
+  .organizer-participants__table td::before {
+    display: none;
+  }
+
+  .organizer-participants__table {
+    min-width: 560px;
   }
 
   .organizer-modal__form-row {
