@@ -331,6 +331,143 @@ export const api = {
     }
   },
 
+  async organizerFetchEligibleParticipants(eventId, certificateType) {
+    try {
+      const response = await fetch(resolveApiUrl(`/api/v1/organizer/events/${eventId}/certificates/eligible?certificateType=${encodeURIComponent(certificateType)}`), {
+        headers: { Authorization: `Bearer ${readOrganizerToken()}` },
+        credentials: 'include',
+      })
+      const data = await parseApiResponse(response)
+      return response.ok
+        ? { success: true, data: data?.data || [] }
+        : { success: false, error: data?.error || { message: 'Unable to load eligible participants.' } }
+    } catch (err) {
+      return { success: false, error: { code: 'NETWORK_ERROR', message: 'Unable to load eligible participants.' } }
+    }
+  },
+
+  async organizerPreviewCertificateEligibility(eventId, certificateType) {
+    try {
+      const response = await fetch(resolveApiUrl(`/api/v1/organizer/events/${eventId}/certificates/eligibility-preview?certificateType=${encodeURIComponent(certificateType)}`), {
+        headers: { Authorization: `Bearer ${readOrganizerToken()}` },
+        credentials: 'include',
+      })
+      const data = await parseApiResponse(response)
+      return response.ok
+        ? { success: true, data: data?.data || {} }
+        : { success: false, error: data?.error || { message: 'Unable to preview eligibility.' } }
+    } catch (err) {
+      return { success: false, error: { code: 'NETWORK_ERROR', message: 'Unable to preview eligibility.' } }
+    }
+  },
+
+  async organizerGenerateCertificates(eventId, payload) {
+    try {
+      const response = await fetch(resolveApiUrl(`/api/v1/organizer/events/${eventId}/certificates/generate`), {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${readOrganizerToken()}`, ...buildJsonHeaders() },
+        body: JSON.stringify(payload),
+        credentials: 'include',
+      })
+      const data = await parseApiResponse(response)
+      return response.ok
+        ? { success: true, data: data?.data || [] }
+        : { success: false, error: data?.error || { message: 'Unable to generate certificates.' } }
+    } catch (err) {
+      return { success: false, error: { code: 'NETWORK_ERROR', message: 'Unable to generate certificates.' } }
+    }
+  },
+
+  async organizerFetchTeams(eventId) {
+    try {
+      const response = await fetch(resolveApiUrl(`/api/v1/organizer/events/${eventId}/teams`), {
+        headers: { Authorization: `Bearer ${readOrganizerToken()}` },
+        credentials: 'include',
+      })
+      const data = await parseApiResponse(response)
+      return response.ok
+        ? { success: true, data: data?.data || [] }
+        : { success: false, error: data?.error || { message: 'Unable to load teams.' } }
+    } catch (err) {
+      return { success: false, error: { code: 'NETWORK_ERROR', message: 'Unable to load teams.' } }
+    }
+  },
+
+  async organizerFetchTeamMembers(teamId) {
+    try {
+      const response = await fetch(resolveApiUrl(`/api/v1/organizer/teams/${teamId}/members`), {
+        headers: { Authorization: `Bearer ${readOrganizerToken()}` },
+        credentials: 'include',
+      })
+      const data = await parseApiResponse(response)
+      return response.ok
+        ? { success: true, data: data?.data || [] }
+        : { success: false, error: data?.error || { message: 'Unable to load team members.' } }
+    } catch (err) {
+      return { success: false, error: { code: 'NETWORK_ERROR', message: 'Unable to load team members.' } }
+    }
+  },
+
+  async organizerAssignHackathonAward(eventId, teamId, placement) {
+    try {
+      const response = await fetch(resolveApiUrl(`/api/v1/organizer/events/${eventId}/teams/${teamId}/award`), {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${readOrganizerToken()}`, ...buildJsonHeaders() },
+        body: JSON.stringify({ placement }),
+        credentials: 'include',
+      })
+      const data = await parseApiResponse(response)
+      return response.ok
+        ? { success: true, data: data?.data || {} }
+        : { success: false, error: data?.error || { message: 'Unable to assign the award.' } }
+    } catch (err) {
+      return { success: false, error: { code: 'NETWORK_ERROR', message: 'Unable to assign the award.' } }
+    }
+  },
+
+  async organizerGenerateAwardCertificates(eventId, teamId) {
+    try {
+      const response = await fetch(resolveApiUrl(`/api/v1/organizer/events/${eventId}/teams/${teamId}/certificates/generate`), {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${readOrganizerToken()}`, ...buildJsonHeaders() },
+        credentials: 'include',
+      })
+      const data = await parseApiResponse(response)
+      return response.ok
+        ? { success: true, data: data?.data || [] }
+        : { success: false, error: data?.error || { message: 'Unable to generate award certificates.' } }
+    } catch (err) {
+      return { success: false, error: { code: 'NETWORK_ERROR', message: 'Unable to generate award certificates.' } }
+    }
+  },
+
+  async fetchParticipantCertificates(token) {
+    try {
+      const response = await fetch(resolveApiUrl('/api/v1/participants/me/certificates'), {
+        headers: { Authorization: `Bearer ${token}` },
+        credentials: 'include',
+      })
+      const data = await parseApiResponse(response)
+      return response.ok
+        ? { success: true, data: data?.data || [] }
+        : { success: false, error: data?.error || { message: 'Unable to load certificates.' } }
+    } catch (err) {
+      return { success: false, error: { code: 'NETWORK_ERROR', message: 'Unable to load certificates.' } }
+    }
+  },
+
+  async verifyCertificate(verificationCode) {
+    try {
+      const response = await fetch(resolveApiUrl(`/api/v1/certificates/verify/${encodeURIComponent(verificationCode)}`))
+      const data = await parseApiResponse(response)
+      return response.ok
+        ? { success: true, data: data?.data || {} }
+        : { success: false, error: data?.error || { message: 'Unable to verify certificate.' } }
+    } catch (err) {
+      return { success: false, error: { code: 'NETWORK_ERROR', message: 'Unable to verify certificate.' } }
+    }
+  },
+
   async organizerFetchEvents() {
     try {
       const response = await fetch(resolveApiUrl('/api/v1/organizer/events'), {

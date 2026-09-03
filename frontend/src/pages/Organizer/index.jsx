@@ -831,35 +831,168 @@ const OrganizerParticipantsPage = () => {
   )
 }
 
-const rewardCategories = [
-  { value: 'HACKATHON_PARTICIPANT', label: 'Hackathon', heading: 'Hackathon rewards' },
-  { value: 'BOOTCAMP_PARTICIPANT', label: 'Bootcamp', heading: 'Quantum Bootcamp' },
-  { value: 'WEBINAR', label: 'Webinar', heading: 'Webinar' },
-  { value: 'WORKSHOP_PARTICIPANT', label: 'Workshop', heading: 'Workshop' },
+const getRewardParticipant = (participant) => participant.fullName || participant.full_name || participant.email || participant.participant_name || participant.participant_email || 'Participant'
+const normalizeRewardEvents = (responseData) => {
+  const eventRows = Array.isArray(responseData) ? responseData : Array.isArray(responseData?.events) ? responseData.events : []
+  return eventRows.map((event) => ({
+    ...event,
+    event_id: event.event_id || event.eventId,
+    event_name: event.event_name || event.eventName || event.name,
+    event_type: event.event_type || event.eventType,
+  }))
+}
+
+const eventTypeCertificateMap = {
+  GENERAL: 'GENERAL_EVENT_PARTICIPATION',
+  HACKATHON: 'HACKATHON_PARTICIPATION',
+  WEBINAR: 'WEBINAR_PARTICIPATION',
+  WORKSHOP: 'WORKSHOP_PARTICIPATION',
+  BOOTCAMP: 'QUANTUM_BOOTCAMP_COMPLETION',
+}
+
+const hackathonPlacements = [
+  { value: 'FIRST_POSITION', label: '1st Position' },
+  { value: 'FIRST_RUNNERS_UP', label: '1st Runners Up' },
+  { value: 'SECOND_RUNNERS_UP', label: '2nd Runners Up' },
 ]
 
-const getRewardParticipant = (participant) => participant.fullName || participant.full_name || participant.email || participant.participant_name || participant.participant_email || 'Participant'
-
 const OrganizerRewardsPage = () => {
-  const [selectedCategory, setSelectedCategory] = useState('HACKATHON_PARTICIPANT')
-  const [certificates, setCertificates] = useState([])
+  const [events, setEvents] = useState([])
+  const [selectedEventId, setSelectedEventId] = useState('')
+  const [eligibleParticipants, setEligibleParticipants] = useState([])
+  const [alreadyIssued, setAlreadyIssued] = useState([])
+  const [excludedParticipants, setExcludedParticipants] = useState([])
+  const [teams, setTeams] = useState([])
+  const [selectedTeamId, setSelectedTeamId] = useState('')
+  const [teamMembers, setTeamMembers] = useState([])
+  const [placement, setPlacement] = useState('FIRST_POSITION')
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [isAssigning, setIsAssigning] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [isEligibilityLoading, setIsEligibilityLoading] = useState(false)
   const [error, setError] = useState('')
+  const [success, setSuccess] = useState('')
+
+  const selectedEvent = events.find((event) => event.event_id === selectedEventId) || null
+  const eventType = String(selectedEvent?.event_type || '').toUpperCase()
+  const certificateType = eventTypeCertificateMap[eventType] || ''
+  const isHackathon = eventType === 'HACKATHON'
+
+  const loadEligibility = async (eventId, type) => {
+    if (!eventId || !type) return
+    setIsEligibilityLoading(true)
+    const result = await api.organizerPreviewCertificateEligibility(eventId, type)
+    setIsEligibilityLoading(false)
+    if (!result.success) {
+      setError(result.error?.message || 'Unable to load certificate eligibility.')
+      setEligibleParticipants([])
+      setAlreadyIssued([])
+      setExcludedParticipants([])
+      return
+    }
+    const preview = result.data || {}
+    setEligibleParticipants(Array.isArray(preview.eligibleParticipants) ? preview.eligibleParticipants.filter((participant) => !(preview.alreadyIssued || []).some((issued) => String(issued.registrationId) === String(participant.registrationId))) : [])
+    setAlreadyIssued(Array.isArray(preview.alreadyIssued) ? preview.alreadyIssued : [])
+    setExcludedParticipants(Array.isArray(preview.excludedParticipants) ? preview.excludedParticipants : [])
+  }
 
   useEffect(() => {
     const load = async () => {
       setIsLoading(true)
       setError('')
-      const certificatesResult = await api.organizerFetchCertificates()
+      const eventsResult = await api.organizerFetchEvents()
       setIsLoading(false)
-      if (!certificatesResult.success) setError(certificatesResult.error?.message || 'Unable to load reward records.')
-      setCertificates(Array.isArray(certificatesResult.data) ? certificatesResult.data : [])
+      if (!eventsResult.success) {
+        setError(eventsResult.error?.message || 'Unable to load events.')
+        return
+      }
+      const nextEvents = normalizeRewardEvents(eventsResult.data)
+      setEvents(nextEvents)
+      if (nextEvents.length > 0) setSelectedEventId(nextEvents[0].event_id)
     }
     load()
   }, [])
 
-  const category = rewardCategories.find((item) => item.value === selectedCategory) || rewardCategories[0]
-  const eligibleParticipants = certificates.filter((certificate) => certificate.certificate_type === selectedCategory)
+  useEffect(() => {
+    setError('')
+    setSuccess('')
+    setEligibleParticipants([])
+    setAlreadyIssued([])
+    setExcludedParticipants([])
+    setTeams([])
+    setSelectedTeamId('')
+    setTeamMembers([])
+    if (!selectedEventId) return
+    if (!certificateType) {
+      setError(`Unsupported event type: ${eventType || 'unknown'}.`)
+      return
+    }
+    loadEligibility(selectedEventId, certificateType)
+    if (isHackathon) {
+      api.organizerFetchTeams(selectedEventId).then((result) => {
+        if (!result.success) setError(result.error?.message || 'Unable to load hackathon teams.')
+        setTeams(Array.isArray(result.data) ? result.data : [])
+      })
+    }
+  }, [selectedEventId, certificateType, eventType, isHackathon])
+
+  useEffect(() => {
+    if (!selectedTeamId) {
+      setTeamMembers([])
+      return
+    }
+    api.organizerFetchTeamMembers(selectedTeamId).then((result) => {
+      if (!result.success) setError(result.error?.message || 'Unable to load team members.')
+      setTeamMembers(Array.isArray(result.data) ? result.data : [])
+    })
+  }, [selectedTeamId])
+
+  const handleGenerateCertificates = async () => {
+    if (!selectedEventId || !certificateType || !eligibleParticipants.length || isGenerating) return
+    setIsGenerating(true)
+    setError('')
+    setSuccess('')
+    const result = await api.organizerGenerateCertificates(selectedEventId, {
+      certificateType,
+      registrationIds: eligibleParticipants.map((participant) => participant.publicRegistrationId),
+    })
+    setIsGenerating(false)
+    if (!result.success) {
+      setError(result.error?.message || 'Unable to generate certificates.')
+      return
+    }
+    setSuccess(`${result.data?.length || 0} certificate(s) generated successfully.`)
+    await loadEligibility(selectedEventId, certificateType)
+  }
+
+  const handleAssignAward = async () => {
+    if (!selectedEventId || !selectedTeamId || isAssigning) return
+    setIsAssigning(true)
+    setError('')
+    setSuccess('')
+    const result = await api.organizerAssignHackathonAward(selectedEventId, selectedTeamId, placement)
+    setIsAssigning(false)
+    if (!result.success) {
+      setError(result.error?.message || 'Unable to assign hackathon award.')
+      return
+    }
+    setSuccess('Hackathon award assigned successfully.')
+    await loadEligibility(selectedEventId, eventTypeCertificateMap.HACKATHON_FIRST_POSITION)
+  }
+
+  const handleGenerateAwardCertificates = async () => {
+    if (!selectedEventId || !selectedTeamId || isGenerating) return
+    setIsGenerating(true)
+    setError('')
+    setSuccess('')
+    const result = await api.organizerGenerateAwardCertificates(selectedEventId, selectedTeamId)
+    setIsGenerating(false)
+    if (!result.success) {
+      setError(result.error?.message || 'Unable to generate award certificates.')
+      return
+    }
+    setSuccess(`${result.data?.length || 0} team certificate(s) generated successfully.`)
+  }
 
   return (
     <div className="organizer-page-view organizer-rewards">
@@ -867,18 +1000,23 @@ const OrganizerRewardsPage = () => {
 
       {isLoading ? (
         <div className="detail-info-item"><span>Loading</span><strong>Loading events...</strong></div>
+      ) : events.length === 0 ? (
+        <div className="detail-info-item"><span>Empty state</span><strong>No events are available.</strong></div>
       ) : error ? (
         <div style={{ padding: '0.9rem', borderRadius: '12px', background: 'rgba(255,79,163,0.06)', color: '#c2348a', border: '1px solid rgba(255,79,163,0.14)' }}>{error}</div>
       ) : (
         <div className="organizer-page-content-panel organizer-rewards__content">
           <section className="organizer-rewards__selector" aria-label="Reward category selector">
             <label htmlFor="reward-category">Select event</label>
-            <select id="reward-category" value={selectedCategory} onChange={(eventChange) => { setSelectedCategory(eventChange.target.value); setError('') }}>
-              {rewardCategories.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
+            <select id="reward-category" value={selectedEventId} onChange={(eventChange) => setSelectedEventId(eventChange.target.value)}>
+              {events.map((event) => <option key={event.event_id} value={event.event_id}>{event.event_name}</option>)}
             </select>
           </section>
 
-          {selectedCategory === 'HACKATHON_PARTICIPANT' ? (
+          {success && <div style={{ padding: '0.9rem', borderRadius: '12px', background: 'rgba(42,190,120,0.08)', color: '#1b8f65', border: '1px solid rgba(42,190,120,0.18)' }}>{success}</div>}
+          {isEligibilityLoading && <div className="detail-info-item"><span>Loading</span><strong>Reviewing eligibility...</strong></div>}
+
+          {isHackathon ? (
             <section className="organizer-rewards__workflow">
               <div className="organizer-rewards__section-heading">
                 <span className="organizer-rewards__kicker">Hackathon rewards</span>
@@ -886,31 +1024,33 @@ const OrganizerRewardsPage = () => {
                 <p>Choose an award to automatically use its certificate template.</p>
               </div>
               <label htmlFor="reward-team">Select team</label>
-              <select id="reward-team" defaultValue=""><option value="">Select Team</option></select>
+              <select id="reward-team" value={selectedTeamId} onChange={(eventChange) => setSelectedTeamId(eventChange.target.value)}><option value="">Select Team</option>{teams.map((team) => <option key={team.id} value={team.id}>{team.team_name}</option>)}</select>
               <fieldset className="organizer-rewards__award-list">
                 <legend>Award</legend>
-                {['1st Position', '1st Runner Up', '2nd Runner Up'].map((award, index) => <label key={award}><input type="radio" name="hackathon-award" value={award} defaultChecked={index === 0} />{award}</label>)}
+                {hackathonPlacements.map((award) => <label key={award.value}><input type="radio" name="hackathon-award" value={award.value} checked={placement === award.value} onChange={() => setPlacement(award.value)} />{award.label}</label>)}
               </fieldset>
-              <button type="button" className="button button--primary">Assign Award</button>
-              <div className="organizer-rewards__mapping"><span>Team members</span><strong>No team selected</strong></div>
+              <button type="button" className="button button--primary" onClick={handleAssignAward} disabled={!selectedTeamId || isAssigning}>{isAssigning ? 'Assigning Award...' : 'Assign Award'}</button>
+              <div className="organizer-rewards__mapping"><span>Team members</span><strong>{teamMembers.length ? teamMembers.map((member) => member.fullName).join(', ') : 'No team selected'}</strong></div>
+              <button type="button" className="button button--secondary" onClick={handleGenerateAwardCertificates} disabled={!selectedTeamId || !teamMembers.length || isGenerating}>{isGenerating ? 'Generating...' : 'Generate Award Certificates'}</button>
             </section>
           ) : (
             <section className="organizer-rewards__workflow">
               <div className="organizer-rewards__section-heading">
-                <span className="organizer-rewards__kicker">{category.heading}</span>
+                <span className="organizer-rewards__kicker">{selectedEvent?.name || 'Event'}</span>
                 <h3>Eligible participants</h3>
                 <p>Eligibility comes from the existing attendance records for this event.</p>
               </div>
+              <div className="organizer-rewards__mapping"><span>Eligibility summary</span><strong>Eligible: {eligibleParticipants.length} | Already issued: {alreadyIssued.length} | Excluded: {excludedParticipants.length}</strong></div>
               <div className="organizer-rewards__participants">
                 {eligibleParticipants.length > 0 ? eligibleParticipants.map((participant) => (
                   <div className="organizer-rewards__participant" key={participant.registrationId || participant.email}>
                     <span aria-hidden="true">✓</span>
                     <strong>{getRewardParticipant(participant)}</strong>
-                    <small>{participant.status || 'PRESENT'}</small>
+                    <small>{participant.publicRegistrationId} · {participant.email}</small>
                   </div>
                 )) : <p className="organizer-rewards__empty">No eligible participants in the current records.</p>}
               </div>
-              <button type="button" className="button button--primary" disabled={eligibleParticipants.length === 0}>Generate Certificates</button>
+              <button type="button" className="button button--primary" onClick={handleGenerateCertificates} disabled={!selectedEventId || isEligibilityLoading || isGenerating || eligibleParticipants.length === 0}>{isGenerating ? 'Generating Certificates...' : 'Generate Certificates'}</button>
             </section>
           )}
         </div>

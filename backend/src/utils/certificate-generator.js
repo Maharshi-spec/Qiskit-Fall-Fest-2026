@@ -63,7 +63,7 @@ const generateCertificate = async ({
   certificateId,
   registrationId,
   issueDate,
-  certificateType = CERTIFICATE_TYPES.EVENT_PARTICIPANT,
+  certificateType = CERTIFICATE_TYPES.GENERAL_EVENT_PARTICIPATION,
   templateConfig = {},
 } = {}) => {
   if (!templatePath) {

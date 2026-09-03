@@ -1,8 +1,12 @@
 const CERTIFICATE_TYPES = Object.freeze({
-  EVENT_PARTICIPANT: 'EVENT_PARTICIPANT',
-  HACKATHON_PARTICIPANT: 'HACKATHON_PARTICIPANT',
-  WORKSHOP_PARTICIPANT: 'WORKSHOP_PARTICIPANT',
-  BOOTCAMP_PARTICIPANT: 'BOOTCAMP_PARTICIPANT',
+  GENERAL_EVENT_PARTICIPATION: 'GENERAL_EVENT_PARTICIPATION',
+  HACKATHON_PARTICIPATION: 'HACKATHON_PARTICIPATION',
+  WEBINAR_PARTICIPATION: 'WEBINAR_PARTICIPATION',
+  WORKSHOP_PARTICIPATION: 'WORKSHOP_PARTICIPATION',
+  QUANTUM_BOOTCAMP_COMPLETION: 'QUANTUM_BOOTCAMP_COMPLETION',
+  HACKATHON_FIRST_POSITION: 'HACKATHON_FIRST_POSITION',
+  HACKATHON_FIRST_RUNNERS_UP: 'HACKATHON_FIRST_RUNNERS_UP',
+  HACKATHON_SECOND_RUNNERS_UP: 'HACKATHON_SECOND_RUNNERS_UP',
 })
 
 const CERTIFICATE_STORAGE_CONFIG = Object.freeze({
@@ -12,11 +16,15 @@ const CERTIFICATE_STORAGE_CONFIG = Object.freeze({
     templates: 'certificates/templates',
     generated: 'certificates/generated',
   },
-  placeholderTemplates: {
-    [CERTIFICATE_TYPES.EVENT_PARTICIPANT]: 'certificates/templates/TODO-event-template.pdf',
-    [CERTIFICATE_TYPES.HACKATHON_PARTICIPANT]: 'certificates/templates/TODO-hackathon-template.pdf',
-    [CERTIFICATE_TYPES.WORKSHOP_PARTICIPANT]: 'certificates/templates/TODO-workshop-template.pdf',
-    [CERTIFICATE_TYPES.BOOTCAMP_PARTICIPANT]: 'certificates/templates/TODO-bootcamp-template.pdf',
+  templates: {
+    [CERTIFICATE_TYPES.GENERAL_EVENT_PARTICIPATION]: 'Event_Participant.pdf',
+    [CERTIFICATE_TYPES.HACKATHON_PARTICIPATION]: 'Hackathon_Participant.pdf',
+    [CERTIFICATE_TYPES.WEBINAR_PARTICIPATION]: 'Webiner_Participant.pdf',
+    [CERTIFICATE_TYPES.WORKSHOP_PARTICIPATION]: 'Workshop_Participant.pdf',
+    [CERTIFICATE_TYPES.QUANTUM_BOOTCAMP_COMPLETION]: 'BootCamp_Participant.pdf',
+    [CERTIFICATE_TYPES.HACKATHON_FIRST_POSITION]: '1stPlace_Hackathon.pdf',
+    [CERTIFICATE_TYPES.HACKATHON_FIRST_RUNNERS_UP]: '1stRunnerUp_Hackathon.pdf',
+    [CERTIFICATE_TYPES.HACKATHON_SECOND_RUNNERS_UP]: '2ndRunnerUp_Hackathon.pdf',
   },
 })
 
@@ -47,36 +55,14 @@ const DEFAULT_TEMPLATE_LAYOUT = Object.freeze({
   },
 })
 
-const CERTIFICATE_TYPE_CONFIG = Object.freeze({
-  [CERTIFICATE_TYPES.EVENT_PARTICIPANT]: {
-    label: 'Event Participant',
-    templateName: 'event-participant',
-    storagePath: CERTIFICATE_STORAGE_CONFIG.placeholderTemplates[CERTIFICATE_TYPES.EVENT_PARTICIPANT],
-    templateFile: 'TODO-event-template.pdf',
+const CERTIFICATE_TYPE_CONFIG = Object.freeze(Object.fromEntries(
+  Object.entries(CERTIFICATE_STORAGE_CONFIG.templates).map(([certificateType, templateName]) => [certificateType, {
+    label: templateName.replace(/\.pdf$/i, '').replace(/_/g, ' '),
+    templateName,
+    storagePath: templateName,
     layout: { ...DEFAULT_TEMPLATE_LAYOUT },
-  },
-  [CERTIFICATE_TYPES.HACKATHON_PARTICIPANT]: {
-    label: 'Hackathon Participant',
-    templateName: 'hackathon-participant',
-    storagePath: CERTIFICATE_STORAGE_CONFIG.placeholderTemplates[CERTIFICATE_TYPES.HACKATHON_PARTICIPANT],
-    templateFile: 'TODO-hackathon-template.pdf',
-    layout: { ...DEFAULT_TEMPLATE_LAYOUT },
-  },
-  [CERTIFICATE_TYPES.WORKSHOP_PARTICIPANT]: {
-    label: 'Workshop Participant',
-    templateName: 'workshop-participant',
-    storagePath: CERTIFICATE_STORAGE_CONFIG.placeholderTemplates[CERTIFICATE_TYPES.WORKSHOP_PARTICIPANT],
-    templateFile: 'TODO-workshop-template.pdf',
-    layout: { ...DEFAULT_TEMPLATE_LAYOUT },
-  },
-  [CERTIFICATE_TYPES.BOOTCAMP_PARTICIPANT]: {
-    label: 'Bootcamp Participant',
-    templateName: 'bootcamp-participant',
-    storagePath: CERTIFICATE_STORAGE_CONFIG.placeholderTemplates[CERTIFICATE_TYPES.BOOTCAMP_PARTICIPANT],
-    templateFile: 'TODO-bootcamp-template.pdf',
-    layout: { ...DEFAULT_TEMPLATE_LAYOUT },
-  },
-})
+  }]),
+))
 
 const DEFAULT_TEMPLATE_SETTINGS = Object.freeze({
   fontSize: 18,
@@ -87,7 +73,7 @@ const DEFAULT_TEMPLATE_SETTINGS = Object.freeze({
 
 const normalizeCertificateType = (certificateType) => {
   if (typeof certificateType !== 'string') {
-    return CERTIFICATE_TYPES.EVENT_PARTICIPANT
+    return CERTIFICATE_TYPES.GENERAL_EVENT_PARTICIPATION
   }
 
   return certificateType.trim().toUpperCase()
@@ -123,7 +109,7 @@ const resolveCertificateTemplate = (certificateType) => {
   return {
     certificateType: type,
     templateConfig: getCertificateTypeConfig(type),
-    storagePath: CERTIFICATE_STORAGE_CONFIG.placeholderTemplates[type],
+    storagePath: CERTIFICATE_STORAGE_CONFIG.templates[type],
     bucketName: CERTIFICATE_STORAGE_CONFIG.bucketName,
     folderPath: CERTIFICATE_STORAGE_CONFIG.directories.templates,
   }
