@@ -290,8 +290,14 @@ const OrganizerEmailPage = () => {
           )}
 
           <label>
-            Recipients
-            <input type="text" name="recipients" value={form.recipients} onChange={handleChange} placeholder="email1@example.com, email2@example.com" required />
+            Role *
+            <select name="role" value={form.role || ''} onChange={handleChange} required>
+              <option value="">Select your role</option>
+              <option value="Student">Student</option>
+              <option value="Faculty">Faculty</option>
+              <option value="Professional">Professional</option>
+              <option value="Other">Other</option>
+            </select>
           </label>
 
           <label>
