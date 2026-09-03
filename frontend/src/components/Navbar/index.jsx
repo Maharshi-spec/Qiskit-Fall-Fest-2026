@@ -1,24 +1,27 @@
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { NavLink } from 'react-router-dom'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import qiskitBadge from '../../assets/qiskit/badge-pink.png.png'
 
 const navItems = [
   { label: 'Home', to: '/' },
   { label: 'Register', to: '/register' },
-  { label: 'Attendance', to: '/attendance' },
   { label: 'Hackathon', to: '/hackathon' },
   { label: 'Workshops', to: '/workshops' },
-  { label: 'Day 1', to: '/day-1' },
-  { label: 'Day 2', to: '/day-2' },
-  { label: 'Day 3', to: '/day-3' },
+  { label: 'Day 1', to: '/day-1', isDay: true },
+  { label: 'Day 2', to: '/day-2', isDay: true },
+  { label: 'Day 3', to: '/day-3', isDay: true },
   { label: 'Certificates', to: '/certificates' },
 ]
 
+const dayNavItems = navItems.filter((item) => item.isDay)
+const primaryNavItems = navItems.filter((item) => !item.isDay)
+
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false)
-  const { isLoggedIn, userRegistration, openLoginModal, logout } = useAuth()
+  const prefersReducedMotion = useReducedMotion()
+  const { isLoggedIn, openLoginModal, logout } = useAuth()
 
   const authActions = (
     <div className="topbar__actions">
@@ -29,22 +32,22 @@ const Navbar = () => {
       >
         {isLoggedIn ? 'Logout' : 'Login'}
       </button>
-      <NavLink to={isLoggedIn ? '/profile' : '/register'} className="topbar__action topbar__action--register">
-        {isLoggedIn ? 'Profile' : 'Register'}
+      <NavLink to="/register" className="topbar__action topbar__action--register">
+        Register
       </NavLink>
     </div>
   )
 
-  const navContent = (
+  const renderNav = (items, className) => (
     <motion.nav
-      className={`nav nav--menu ${isOpen ? 'nav--open' : ''}`}
+      className={className}
       aria-label="Main navigation"
       initial={{ opacity: 0, y: -10, scale: 0.98 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       exit={{ opacity: 0, y: -10, scale: 0.98 }}
       transition={{ duration: 0.22, ease: 'easeOut' }}
     >
-      {navItems.map((item) => (
+      {items.map((item) => (
         <motion.div
           key={item.to}
           initial={{ opacity: 0, y: -6 }}
@@ -56,11 +59,21 @@ const Navbar = () => {
         >
           <NavLink
             to={item.to}
-            className={({ isActive }) => `nav__menu-link ${isActive ? 'nav__menu-link--active' : ''}`}
-            onClick={() => setIsOpen(false)}
-          >
-            {item.label}
-          </NavLink>
+            end={item.to === '/'}
+            className={({ isActive }) => `nav__menu-link ${item.isDay ? 'nav__menu-link--day' : ''} ${isActive ? 'nav__menu-link--active' : ''}`}
+            onClick={() => item.isDay || setIsOpen(false)}
+          >{({ isActive }) => (
+            <>
+              {item.label}
+              {item.isDay && isActive && (
+                <motion.span
+                  layoutId="active-day-indicator"
+                  className="nav__day-indicator"
+                  transition={{ duration: prefersReducedMotion ? 0 : 0.2, ease: 'easeOut' }}
+                />
+              )}
+            </>
+          )}</NavLink>
         </motion.div>
       ))}
     </motion.nav>
@@ -88,6 +101,8 @@ const Navbar = () => {
           </NavLink>
         </div>
 
+        {renderNav(dayNavItems, 'nav nav--days')}
+
         <div className="topbar__right">
           {authActions}
         </div>
@@ -96,7 +111,7 @@ const Navbar = () => {
       <AnimatePresence initial={false}>
         {isOpen && (
           <div className="nav-panel-wrap">
-            {navContent}
+            {renderNav(primaryNavItems, 'nav nav--menu nav--open')}
           </div>
         )}
       </AnimatePresence>
