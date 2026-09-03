@@ -99,7 +99,8 @@ const Hero = () => {
             Qiskit Fall Fest <span>2026</span>
           </h1>
           <p className="hero__meta">
-            Centurion University of Technology and Management, Vizianagaram
+            <span>Centurion University of Technology and Management</span>
+            <span>Vizianagaram</span>
           </p>
           <p className="hero__supporting-copy">
             Explore quantum computing, learn with Qiskit, build hands-on skills, and connect through workshops, collaboration, and innovation.

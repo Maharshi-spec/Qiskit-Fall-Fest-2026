@@ -58,6 +58,17 @@ const Registration = () => {
 
   const activeRegistration = submittedData || (isLoggedIn ? userRegistration : null)
 
+  const isFormValid = Boolean(
+    formData.fullName.trim() &&
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email) &&
+    formData.mobileNumber.trim() &&
+    formData.role &&
+    formData.instituteName.trim() &&
+    formData.department.trim() &&
+    idCard &&
+    idCard.size <= 500 * 1024,
+  )
+
   const handleInputChange = (event) => {
     const { name, value, type, checked } = event.target
     setFormData({
@@ -71,12 +82,22 @@ const Registration = () => {
 
   const handleFileChange = (event) => {
     const file = event.target.files?.[0]
-    if (file) {
-      setIdCard(file)
-      setIdCardName(file.name)
-      if (errors.idCard) {
-        setErrors({ ...errors, idCard: '' })
-      }
+    if (!file) {
+      return
+    }
+
+    if (file.size > 500 * 1024) {
+      setIdCard(null)
+      setIdCardName('')
+      event.target.value = ''
+      setErrors({ ...errors, idCard: 'File size must not exceed 500 KB.' })
+      return
+    }
+
+    setIdCard(file)
+    setIdCardName(file.name)
+    if (errors.idCard) {
+      setErrors({ ...errors, idCard: '' })
     }
   }
 
@@ -181,6 +202,8 @@ const Registration = () => {
 
         if (errorCode === 'EMAIL_ALREADY_REGISTERED') {
           setApiError('This email is already registered.')
+        } else if (errorCode === 'FILE_TOO_LARGE') {
+          setErrors({ ...errors, idCard: errorMessage || 'File size must not exceed 500 KB.' })
         } else {
           setApiError(errorMessage || 'Registration failed. Please try again.')
         }
@@ -445,7 +468,7 @@ const Registration = () => {
               </label>
 
               <label>
-                ID card (upload image or PDF) *
+                ID card (upload image or PDF) — Max 500 KB *
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
@@ -479,16 +502,21 @@ const Registration = () => {
                     {idCardName || 'Choose ID card file'}
                   </label>
                 </div>
+                <span style={{ display: 'block', color: '#5a5d6b', fontSize: '0.8rem', marginTop: '0.3rem' }}>Maximum file size: 500 KB.</span>
                 {errors.idCard && <span style={{ color: '#c2348a', fontSize: '0.85rem', marginTop: '0.3rem' }}>{errors.idCard}</span>}
               </label>
 
               <button
                 type="submit"
                 className="button button--primary"
-                disabled={isLoading}
+                disabled={isLoading || !isFormValid}
                 style={{
-                  opacity: isLoading ? 0.6 : 1,
-                  cursor: isLoading ? 'not-allowed' : 'pointer',
+                  opacity: isLoading || !isFormValid ? 0.65 : 1,
+                  cursor: isLoading || !isFormValid ? 'not-allowed' : 'pointer',
+                  background: isLoading || !isFormValid ? '#b8b8be' : undefined,
+                  color: isLoading || !isFormValid ? '#f5f5f6' : undefined,
+                  boxShadow: isLoading || !isFormValid ? 'none' : undefined,
+                  filter: isLoading || !isFormValid ? 'grayscale(1)' : undefined,
                 }}
               >
                 {isLoading ? 'Submitting...' : 'Complete registration'}

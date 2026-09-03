@@ -2402,15 +2402,22 @@ a:focus-visible {
 }
 
 .hero__meta {
-  margin: 1.2rem auto 0;
+  margin: 0 auto;
+  position: relative;
+  top: -8rem;
   width: 100%;
   max-width: none;
   color: rgba(49, 42, 74, 0.82);
-  font-size: clamp(0.7rem, 2.2vw, 1.4rem);
-  font-family: var(--font-sans);
+  font-size: clamp(0.95rem, 2.4vw, 2rem);
+  font-family: 'Times New Roman', Times, serif;
   font-weight: 400;
-  white-space: nowrap;
   text-align: center;
+}
+
+.hero__meta span {
+  display: block;
+  font-size: clamp(0.75rem, 3.2vw, 2.75rem);
+  white-space: nowrap;
 }
 
 .hero__supporting-copy {
@@ -4413,7 +4420,7 @@ a:focus-visible {
   }
 
   .hero__meta {
-    font-size: 0.7rem;
+    font-size: 1rem;
     line-height: 1.6;
     max-width: 100%;
   }
@@ -4564,7 +4571,7 @@ a:focus-visible {
   }
 
   .hero__meta {
-    font-size: 0.7rem;
+    font-size: 0.95rem;
   }
 
   .hero__supporting-copy {
