@@ -320,7 +320,7 @@ const Registration = () => {
         <div className="container detail-page__panel">
           <div className="detail-page__panel-copy">
             <p className="page-shell__eyebrow">Registration form</p>
-            <h2>Secure your spot today.</h2>
+            <h2 id="registration-anchor-heading">Secure your spot today.</h2>
             <p>
               Complete the form to register for Qiskit Fall Fest 2026. We'll send you all the details you need to participate.
             </p>

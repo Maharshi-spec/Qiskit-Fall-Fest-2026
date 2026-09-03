@@ -1,6 +1,6 @@
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
-import { NavLink } from 'react-router-dom'
-import { useState } from 'react'
+import { NavLink, useLocation } from 'react-router-dom'
+import { useEffect, useRef, useState } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import qiskitBadge from '../../assets/qiskit/badge-pink.png.png'
 
@@ -21,6 +21,9 @@ const primaryNavItems = navItems.filter((item) => !item.isDay)
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false)
   const prefersReducedMotion = useReducedMotion()
+  const location = useLocation()
+  const logoRef = useRef(null)
+  const animatedLogoRef = useRef(null)
   const { isLoggedIn, openLoginModal, logout } = useAuth()
 
   const authActions = (
@@ -79,6 +82,94 @@ const Navbar = () => {
     </motion.nav>
   )
 
+  useEffect(() => {
+    const logo = logoRef.current
+    const animatedLogo = animatedLogoRef.current
+    const target = document.getElementById('registration-anchor-heading')
+    if (!logo || !animatedLogo || !target || prefersReducedMotion) {
+      if (logo) logo.style.opacity = '1'
+      if (animatedLogo) animatedLogo.style.opacity = '0'
+      return undefined
+    }
+
+    let frame = 0
+    const updateLogoPosition = () => {
+      frame = 0
+      const logoRect = logo.getBoundingClientRect()
+      const targetRect = target.getBoundingClientRect()
+      const headingText = target.firstChild
+      const getTextPoint = (characterIndex) => {
+        if (!headingText || headingText.nodeType !== Node.TEXT_NODE) return { x: targetRect.left, y: targetRect.top }
+        const range = document.createRange()
+        range.setStart(headingText, characterIndex)
+        range.setEnd(headingText, characterIndex + 1)
+        const rect = range.getBoundingClientRect()
+        return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 }
+      }
+      const secureStart = target.textContent.indexOf('Secure')
+      const spotStart = target.textContent.indexOf('spot')
+      const uPoint = getTextPoint(secureStart >= 0 ? secureStart + 4 : 0)
+      const tPoint = getTextPoint(spotStart >= 0 ? spotStart : 0)
+      const targetFocusY = window.innerHeight * 0.68
+      const targetPassed = targetRect.bottom < 0
+      const targetReached = targetRect.top <= targetFocusY && !targetPassed
+      const startY = Math.max(0, targetRect.top + window.scrollY - window.innerHeight * 0.86)
+      const endY = Math.max(startY + 1, targetRect.top + window.scrollY - window.innerHeight * 0.32)
+      const progress = Math.min(1, Math.max(0, (window.scrollY - startY) / (endY - startY)))
+      const startX = logoRect.left + logoRect.width / 2
+      const startViewportY = logoRect.top + logoRect.height / 2
+      const targetX = (uPoint.x + tPoint.x) / 2
+      const targetViewportY = (uPoint.y + tPoint.y) / 2
+      const travelProgress = Math.min(progress, 1)
+      const radiusX = Math.max(42, Math.abs(tPoint.x - uPoint.x) * 0.68)
+      const radiusY = Math.max(28, targetRect.height * 0.9)
+      animatedLogo.style.setProperty('--orbit-radius-x', `${radiusX}px`)
+      animatedLogo.style.setProperty('--orbit-radius-y', `${radiusY}px`)
+      if (targetReached) {
+        animatedLogo.style.left = `${targetX}px`
+        animatedLogo.style.top = `${targetViewportY}px`
+        animatedLogo.classList.add('is-orbiting')
+        animatedLogo.style.opacity = '1'
+        logo.style.opacity = '0.2'
+        return
+      }
+
+      animatedLogo.classList.remove('is-orbiting')
+      if (targetPassed) {
+        const returnProgress = Math.min(1, Math.max(0, -targetRect.bottom / (window.innerHeight * 0.5)))
+        const returnX = targetX + (startX - targetX) * returnProgress
+        const returnY = targetViewportY + (startViewportY - targetViewportY) * returnProgress
+        animatedLogo.style.left = '0px'
+        animatedLogo.style.top = '0px'
+        animatedLogo.style.transform = `translate3d(${returnX}px, ${returnY}px, 0) translate(-50%, -50%) scale(${1 - returnProgress * 0.05})`
+        animatedLogo.style.opacity = returnProgress < 1 ? '1' : '0'
+        logo.style.opacity = returnProgress < 1 ? '0.2' : '1'
+        return
+      }
+
+      const x = startX + (targetX - startX) * travelProgress
+      const y = startViewportY + (targetViewportY - startViewportY) * travelProgress
+      animatedLogo.style.left = '0px'
+      animatedLogo.style.top = '0px'
+      animatedLogo.style.transform = `translate3d(${x}px, ${y}px, 0) translate(-50%, -50%) scale(${1 - progress * 0.08})`
+      animatedLogo.style.opacity = progress > 0.02 ? '1' : '0'
+      logo.style.opacity = progress > 0.03 ? '0.2' : '1'
+    }
+
+    const requestUpdate = () => {
+      if (!frame) frame = window.requestAnimationFrame(updateLogoPosition)
+    }
+    window.addEventListener('scroll', requestUpdate, { passive: true })
+    window.addEventListener('resize', requestUpdate)
+    requestUpdate()
+
+    return () => {
+      window.removeEventListener('scroll', requestUpdate)
+      window.removeEventListener('resize', requestUpdate)
+      if (frame) window.cancelAnimationFrame(frame)
+    }
+  }, [location.pathname, prefersReducedMotion])
+
   return (
     <header className="topbar">
       <div className="topbar__inner">
@@ -96,7 +187,7 @@ const Navbar = () => {
           </button>
 
           <NavLink to="/" className="brand" aria-label="Qiskit Fall Fest home">
-            <img src={qiskitBadge} alt="Qiskit Fall Fest 2026 badge" className="brand__logo" />
+            <img ref={logoRef} src={qiskitBadge} alt="Qiskit Fall Fest 2026 badge" className="brand__logo" />
             <span className="brand__text">Qiskit Fall Fest 2026</span>
           </NavLink>
         </div>
@@ -107,6 +198,10 @@ const Navbar = () => {
           {authActions}
         </div>
       </div>
+
+      <span ref={animatedLogoRef} aria-hidden="true" className="scroll-orbit-logo">
+        <img src={qiskitBadge} alt="" />
+      </span>
 
       <AnimatePresence initial={false}>
         {isOpen && (
