@@ -29,8 +29,8 @@ const Navbar = () => {
       >
         {isLoggedIn ? 'Logout' : 'Login'}
       </button>
-      <NavLink to="/register" className="topbar__action topbar__action--register">
-        Register
+      <NavLink to={isLoggedIn ? '/profile' : '/register'} className="topbar__action topbar__action--register">
+        {isLoggedIn ? 'Profile' : 'Register'}
       </NavLink>
     </div>
   )
