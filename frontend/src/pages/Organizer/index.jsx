@@ -6,6 +6,14 @@ import { api } from '../../services/api'
 
 const ORGANIZER_EMAIL = 'admin@qiskitfallfest.com'
 const ORGANIZER_PASSWORD = 'Admin@123'
+const EVENT_DISPLAY_NAMES = {
+  'day-1': 'Day 1: Workshop',
+  'day-2': 'Day 2: Bootcamp',
+  'day-3': 'Day 3: Hackathon',
+  'qff-2026': 'Qiskit Fall Fest 2026 (Main Festival)',
+}
+
+const getEventDisplayName = (event) => EVENT_DISPLAY_NAMES[event.eventId || event.event_id] || event.name
 
 const getOrganizerToken = () => api.getOrganizerToken()
 
@@ -554,7 +562,7 @@ const OrganizerAttendancePage = () => {
               >
                 <div>
                   <p className="detail-card__eyebrow" style={{ color: '#ff4fa3' }}>{evt.date}</p>
-                  <h3 style={{ fontSize: '1.15rem', margin: '0.4rem 0', color: '#2d253f' }}>{evt.name}</h3>
+                  <h3 style={{ fontSize: '1.15rem', margin: '0.4rem 0', color: '#2d253f' }}>{getEventDisplayName(evt)}</h3>
                   <p style={{ fontSize: '0.9rem', color: '#5f5773', marginBottom: '0.8rem' }}>{evt.description}</p>
                   <span style={{ fontSize: '0.82rem', color: '#88809e' }}>📍 {evt.venue}</span>
                 </div>
@@ -579,7 +587,7 @@ const OrganizerAttendancePage = () => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
         <div>
           <p className="page-shell__eyebrow" style={{ color: '#ff4fa3' }}>Event Attendance Board</p>
-          <h2 style={{ margin: 0 }}>{selectedEvent.name}</h2>
+          <h2 style={{ margin: 0 }}>{getEventDisplayName(selectedEvent)}</h2>
           <p style={{ margin: '0.2rem 0 0 0', color: '#5f5773', fontSize: '0.9rem' }}>📍 {selectedEvent.venue} ({selectedEvent.date})</p>
         </div>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
