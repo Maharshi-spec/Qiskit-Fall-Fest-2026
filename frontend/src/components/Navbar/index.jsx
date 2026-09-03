@@ -7,6 +7,7 @@ import qiskitBadge from '../../assets/qiskit/badge-pink.png.png'
 const navItems = [
   { label: 'Home', to: '/' },
   { label: 'Register', to: '/register' },
+  { label: 'Attendance', to: '/attendance' },
   { label: 'Hackathon', to: '/hackathon' },
   { label: 'Workshops', to: '/workshops' },
   { label: 'Day 1', to: '/day-1' },
