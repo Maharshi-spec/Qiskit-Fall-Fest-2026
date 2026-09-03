@@ -313,15 +313,23 @@ const OrganizerLogin = () => {
   )
 }
 
+const OrganizerPageHeading = ({ eyebrow, title, description, action }) => (
+  <div className="organizer-page-heading">
+    <div className="organizer-page-heading__copy">
+      <p className="page-shell__eyebrow">{eyebrow}</p>
+      <h2>{title}</h2>
+      {description && <p>{description}</p>}
+    </div>
+    {action && <div className="organizer-page-heading__action">{action}</div>}
+  </div>
+)
+
 const OrganizerDashboardHome = () => {
   return (
-    <div className="detail-page__panel organizer-dashboard-home">
-      <div className="detail-page__panel-copy">
-        <p className="page-shell__eyebrow">Overview</p>
-        <h2>Organizer dashboard</h2>
-        <p>Use the left sidebar navigation to manage email communication, attendance sessions, participant records, reward certificates, and events.</p>
-      </div>
-      <div className="detail-page__info-stack">
+    <div className="organizer-page-view organizer-dashboard-home">
+      <OrganizerPageHeading eyebrow="Overview" title="Organizer dashboard" description="Use the left sidebar navigation to manage email communication, attendance sessions, participant records, reward certificates, and events." />
+      <div className="organizer-page-content-panel">
+        <div className="detail-page__info-stack">
         <div className="detail-info-item">
           <span>Operations</span>
           <strong>5 sections</strong>
@@ -330,9 +338,9 @@ const OrganizerDashboardHome = () => {
           <span>Access</span>
           <strong>Restricted to organizers</strong>
         </div>
-      </div>
+        </div>
 
-      <div className="organizer-dashboard-home__cards">
+        <div className="organizer-dashboard-home__cards">
         <Link to="/organizer/events" className="detail-card organizer-dashboard-home__card">
           <span className="organizer-dashboard-home__card-icon" aria-hidden="true">📅</span>
           <h3>Events</h3>
@@ -363,6 +371,7 @@ const OrganizerDashboardHome = () => {
           <p>Dispatch official updates and notices to event participants.</p>
           <span className="organizer-dashboard-home__card-arrow">Open Email →</span>
         </Link>
+        </div>
       </div>
     </div>
   )
@@ -405,15 +414,11 @@ const OrganizerEmailPage = () => {
   }
 
   return (
-    <div className="detail-page__panel">
-      <div className="detail-page__panel-copy">
-        <p className="page-shell__eyebrow">Send Email</p>
-        <h2>Email participants</h2>
-        <p>Send organizer messages using the real backend email service.</p>
-      </div>
+    <div className="organizer-page-view organizer-email-page">
+      <OrganizerPageHeading eyebrow="Send Email" title="Email participants" description="Send organizer messages using the real backend email service." action={<Button type="submit" form="organizer-email-form" kind="primary" disabled={isLoading}>{isLoading ? 'Sending…' : 'Send Email'}</Button>} />
 
-      <div className="detail-page__form-shell" style={{ maxWidth: '760px' }}>
-        <form className="detail-form" onSubmit={handleSubmit}>
+      <div className="organizer-page-content-panel">
+        <form id="organizer-email-form" className="detail-form organizer-email-page__form" onSubmit={handleSubmit}>
           {error && (
             <div style={{ padding: '0.8rem 0.9rem', borderRadius: '12px', background: 'rgba(255,79,163,0.08)', color: '#c2348a', border: '1px solid rgba(255,79,163,0.14)' }}>
               {error}
@@ -446,9 +451,6 @@ const OrganizerEmailPage = () => {
             <textarea name="message" rows="8" value={form.message} onChange={handleChange} placeholder="Write your message here..." required style={{ width: '100%', borderRadius: '12px', border: '1px solid rgba(255,79,163,0.18)', padding: '0.8rem 0.9rem' }} />
           </label>
 
-          <Button type="submit" kind="primary" disabled={isLoading}>
-            {isLoading ? 'Sending…' : 'Send Email'}
-          </Button>
         </form>
       </div>
     </div>
@@ -535,17 +537,13 @@ const OrganizerAttendancePage = () => {
 
   if (!selectedEvent) {
     return (
-      <div className="detail-page__panel" style={{ display: 'grid', gap: '1.25rem' }}>
-        <div className="detail-page__panel-copy">
-          <p className="page-shell__eyebrow">Attendance Management</p>
-          <h2>Select an Event for Attendance</h2>
-          <p>Select an event below to open its Event Attendance Board and launch dynamic QR code check-in.</p>
-        </div>
+      <div className="organizer-page-view organizer-attendance-page">
+        <OrganizerPageHeading eyebrow="Attendance Management" title="Select an Event for Attendance" description="Select an event below to open its Event Attendance Board and launch dynamic QR code check-in." />
 
         {isLoading ? (
           <div className="detail-info-item"><span>Loading</span><strong>Fetching events list…</strong></div>
         ) : (
-          <div style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
+          <div className="organizer-attendance-page__grid">
             {events.map((evt) => (
               <div
                 key={evt.eventId}
@@ -587,7 +585,7 @@ const OrganizerAttendancePage = () => {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.75rem' }}>
         <div>
           <p className="page-shell__eyebrow" style={{ color: '#ff4fa3' }}>Event Attendance Board</p>
-          <h2 style={{ margin: 0 }}>{getEventDisplayName(selectedEvent)}</h2>
+          <h2 style={{ margin: 0 }}>{selectedEvent.name}</h2>
           <p style={{ margin: '0.2rem 0 0 0', color: '#5f5773', fontSize: '0.9rem' }}>📍 {selectedEvent.venue} ({selectedEvent.date})</p>
         </div>
         <div style={{ display: 'flex', gap: '0.5rem' }}>
@@ -608,9 +606,9 @@ const OrganizerAttendancePage = () => {
           >
             ← Back to Events List
           </button>
-        </div>
-      </div>
+        </div>} />
 
+      <div className="organizer-page-content-panel organizer-attendance-page__board">
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem', marginTop: '0.5rem' }}>
         {/* Dynamic QR Board */}
         <div style={{
@@ -742,6 +740,7 @@ const OrganizerAttendancePage = () => {
           )}
         </div>
       </div>
+      </div>
     </div>
   )
 }
@@ -786,11 +785,8 @@ const OrganizerParticipantsPage = () => {
   const hasFilters = Boolean(normalizedSearchTerm) || selectedRole !== 'ALL'
 
   return (
-    <div className="detail-page__panel organizer-participants" style={{ display: 'grid' }}>
-      <div className="detail-page__panel-copy">
-        <p className="page-shell__eyebrow">Participants</p>
-        <h2>Registered participant records</h2>
-      </div>
+    <div className="organizer-page-view organizer-participants-page">
+      <OrganizerPageHeading eyebrow="Participants" title="Registered participant records" />
 
       {isLoading ? (
         <div className="detail-info-item"><span>Loading</span><strong>Fetching participant records…</strong></div>
@@ -799,7 +795,7 @@ const OrganizerParticipantsPage = () => {
       ) : participants.length === 0 ? (
         <div className="detail-info-item"><span>Empty state</span><strong>No participants registered yet.</strong></div>
       ) : (
-        <div className="organizer-participants__body">
+        <div className="organizer-page-content-panel organizer-participants organizer-participants__body">
           <div className="organizer-participants__filters">
             <label className="organizer-participants__search" htmlFor="participant-search">
               <span>Search participants</span>
@@ -880,19 +876,15 @@ const OrganizerRewardsPage = () => {
   const eligibleParticipants = certificates.filter((certificate) => certificate.certificate_type === selectedCategory)
 
   return (
-    <div className="organizer-rewards">
-      <div className="detail-page__panel-copy">
-        <p className="page-shell__eyebrow">Rewards</p>
-        <h2>Certificates and reward records</h2>
-        <p>Choose a certificate category to review its reward workflow.</p>
-      </div>
+    <div className="organizer-page-view organizer-rewards">
+      <OrganizerPageHeading eyebrow="Rewards" title="Certificates and reward records" description="Choose a certificate category to review its reward workflow." />
 
       {isLoading ? (
         <div className="detail-info-item"><span>Loading</span><strong>Loading events...</strong></div>
       ) : error ? (
         <div style={{ padding: '0.9rem', borderRadius: '12px', background: 'rgba(255,79,163,0.06)', color: '#c2348a', border: '1px solid rgba(255,79,163,0.14)' }}>{error}</div>
       ) : (
-        <div className="organizer-rewards__content">
+        <div className="organizer-page-content-panel organizer-rewards__content">
           <section className="organizer-rewards__selector" aria-label="Reward category selector">
             <label htmlFor="reward-category">Select event</label>
             <select id="reward-category" value={selectedCategory} onChange={(eventChange) => { setSelectedCategory(eventChange.target.value); setError('') }}>
@@ -1041,14 +1033,8 @@ const OrganizerEventsPage = () => {
   }
 
   return (
-    <div className="detail-page__panel organizer-events-page">
-      <div className="organizer-events__header">
-        <div className="detail-page__panel-copy">
-          <p className="page-shell__eyebrow">Events Management</p>
-          <h2>Events</h2>
-          <p>Monitor all scheduled sessions and manage events stored in the database.</p>
-        </div>
-        <button
+    <div className="organizer-page-view organizer-events-page">
+      <OrganizerPageHeading eyebrow="Events Management" title="Events" description="Monitor all scheduled sessions and manage events stored in the database." action={<button
           type="button"
           className="button button--primary organizer-events__add-btn"
           onClick={() => {
@@ -1059,9 +1045,9 @@ const OrganizerEventsPage = () => {
         >
           <span aria-hidden="true" style={{ fontSize: '1.1rem', marginRight: '0.35rem' }}>＋</span>
           Add Event
-        </button>
-      </div>
+        </button>} />
 
+      <div className="organizer-page-content-panel">
       {isLoading ? (
         <div className="detail-info-item">
           <span>Loading</span>
@@ -1124,6 +1110,7 @@ const OrganizerEventsPage = () => {
           })}
         </div>
       )}
+      </div>
 
       {/* ADD EVENT MODAL */}
       {modalOpen && (

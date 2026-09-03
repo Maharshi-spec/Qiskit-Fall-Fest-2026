@@ -32,8 +32,8 @@ const errorMiddleware = (err, req, res, next) => {
     return res.status(400).json({
       success: false,
       error: {
-        code: 'INVALID_FILE_SIZE',
-        message: 'idCard file exceeds the allowed size limit.',
+        code: 'FILE_TOO_LARGE',
+        message: 'ID card file size must not exceed 500 KB.',
       },
     })
   }
