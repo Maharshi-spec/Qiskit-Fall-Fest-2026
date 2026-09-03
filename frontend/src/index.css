@@ -1044,6 +1044,133 @@ a:focus-visible {
   gap: 0.5rem;
 }
 
+.organizer-participants__body {
+  display: grid;
+  gap: 0.9rem;
+  min-width: 0;
+}
+
+.organizer-participants__filters {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(10rem, 0.35fr);
+  gap: 0.8rem;
+}
+
+.organizer-participants__filters label {
+  display: grid;
+  gap: 0.45rem;
+  color: var(--color-primary-strong);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.organizer-participants__search-control {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  min-width: 0;
+  padding: 0 0.75rem;
+  border: 1px solid rgba(255, 79, 163, 0.18);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.organizer-participants__search-control > span {
+  color: var(--color-primary-strong);
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.organizer-participants__search-control input,
+.organizer-participants__filters select {
+  width: 100%;
+  min-height: 2.75rem;
+  border: 0;
+  outline: 0;
+  color: #3d2f59;
+  background: transparent;
+  font: inherit;
+}
+
+.organizer-participants__search-control input::placeholder {
+  color: #8d8299;
+}
+
+.organizer-participants__search-control button,
+.organizer-participants__summary button {
+  flex: 0 0 auto;
+  border: 0;
+  color: var(--color-primary-strong);
+  background: transparent;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.organizer-participants__role select {
+  padding: 0.65rem 0.75rem;
+  border: 1px solid rgba(255, 79, 163, 0.18);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.organizer-participants__summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+}
+
+.organizer-participants__table-wrap {
+  overflow-x: auto;
+}
+
+.organizer-participants__table {
+  min-width: 0;
+  table-layout: fixed;
+}
+
+.organizer-participants__table th:first-child,
+.organizer-participants__table td:first-child {
+  width: 30%;
+}
+
+.organizer-participants__table th:nth-child(2),
+.organizer-participants__table td:nth-child(2) {
+  width: 55%;
+  overflow-wrap: anywhere;
+}
+
+.organizer-participants__table th:last-child,
+.organizer-participants__table td:last-child {
+  width: 15%;
+}
+
+.organizer-participants__empty-row td {
+  padding: 1.4rem 1rem;
+  text-align: center;
+}
+
+.organizer-participants__empty-row strong,
+.organizer-participants__empty-row span {
+  display: block;
+}
+
+.organizer-participants__empty-row strong {
+  color: #3d2f59;
+}
+
+.organizer-participants__empty-row span {
+  margin-top: 0.35rem;
+  color: var(--color-text-muted);
+  font-size: 0.84rem;
+}
+
 .organizer-rewards {
   display: grid;
   gap: 1.35rem;
@@ -1353,6 +1480,18 @@ a:focus-visible {
 
   .organizer-page__attendance-actions .button {
     width: 100%;
+  }
+
+  .organizer-participants__filters {
+    grid-template-columns: 1fr;
+  }
+
+  .organizer-participants__table {
+    min-width: 560px;
+  }
+
+  .organizer-participants__table-wrap {
+    max-width: 100%;
   }
 
   .organizer-rewards__awards {

@@ -611,9 +611,17 @@ const OrganizerAttendancePage = () => {
 }
 
 const OrganizerParticipantsPage = () => {
+  const participantRoleOptions = [
+    { value: 'STUDENT', label: 'Student' },
+    { value: 'FACULTY', label: 'Faculty' },
+    { value: 'PROFESSIONAL', label: 'Professional' },
+    { value: 'OTHER', label: 'Other' },
+  ]
   const [participants, setParticipants] = useState([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState('')
+  const [searchTerm, setSearchTerm] = useState('')
+  const [selectedRole, setSelectedRole] = useState('ALL')
 
   useEffect(() => {
     const load = async () => {
@@ -633,8 +641,16 @@ const OrganizerParticipantsPage = () => {
     load()
   }, [])
 
+  const normalizedSearchTerm = searchTerm.trim().toLowerCase()
+  const filteredParticipants = participants.filter((participant) => {
+    const matchesSearch = !normalizedSearchTerm || `${participant.fullName || ''} ${participant.email || ''}`.toLowerCase().includes(normalizedSearchTerm)
+    const matchesRole = selectedRole === 'ALL' || String(participant.role || '').toUpperCase() === selectedRole
+    return matchesSearch && matchesRole
+  })
+  const hasFilters = Boolean(normalizedSearchTerm) || selectedRole !== 'ALL'
+
   return (
-    <div className="detail-page__panel" style={{ display: 'grid' }}>
+    <div className="detail-page__panel organizer-participants" style={{ display: 'grid' }}>
       <div className="detail-page__panel-copy">
         <p className="page-shell__eyebrow">Participants</p>
         <h2>Registered participant records</h2>
@@ -647,27 +663,50 @@ const OrganizerParticipantsPage = () => {
       ) : participants.length === 0 ? (
         <div className="detail-info-item"><span>Empty state</span><strong>No participants registered yet.</strong></div>
       ) : (
-        <div className="organizer-page__table-wrap">
-          <table className="organizer-page__table">
+        <div className="organizer-participants__body">
+          <div className="organizer-participants__filters">
+            <label className="organizer-participants__search" htmlFor="participant-search">
+              <span>Search participants</span>
+              <div className="organizer-participants__search-control">
+                <span aria-hidden="true">⌕</span>
+                <input id="participant-search" type="search" value={searchTerm} onChange={(event) => setSearchTerm(event.target.value)} placeholder="Search by name or email..." />
+                {searchTerm && <button type="button" onClick={() => setSearchTerm('')}>Clear</button>}
+              </div>
+            </label>
+            <label className="organizer-participants__role" htmlFor="participant-role">
+              <span>Role</span>
+              <select id="participant-role" value={selectedRole} onChange={(event) => setSelectedRole(event.target.value)}>
+                <option value="ALL">All Roles</option>
+                {participantRoleOptions.map((role) => <option key={role.value} value={role.value}>{role.label}</option>)}
+              </select>
+            </label>
+          </div>
+
+          <div className="organizer-participants__summary" aria-live="polite">
+            <span>{hasFilters ? `Showing ${filteredParticipants.length} of ${participants.length} participants` : `Showing ${participants.length} participants`}</span>
+            {hasFilters && <button type="button" onClick={() => { setSearchTerm(''); setSelectedRole('ALL') }}>Clear filters</button>}
+          </div>
+
+          <div className="organizer-page__table-wrap organizer-participants__table-wrap">
+          <table className="organizer-page__table organizer-participants__table">
             <thead>
               <tr style={{ background: 'rgba(255,79,163,0.06)' }}>
                 <th>Name</th>
                 <th>Email</th>
                 <th>Role</th>
-                <th>Institute</th>
               </tr>
             </thead>
             <tbody>
-              {participants.map((participant) => (
+              {filteredParticipants.length > 0 ? filteredParticipants.map((participant) => (
                 <tr key={participant.registrationId || participant.email} style={{ borderTop: '1px solid rgba(255,79,163,0.08)' }}>
                   <td data-label="Name">{participant.fullName}</td>
                   <td data-label="Email">{participant.email}</td>
-                  <td data-label="Role">{participant.role}</td>
-                  <td data-label="Institute">{participant.instituteName || 'N/A'}</td>
+                  <td data-label="Role">{participantRoleOptions.find((role) => role.value === String(participant.role || '').toUpperCase())?.label || participant.role}</td>
                 </tr>
-              ))}
+              )) : <tr className="organizer-participants__empty-row"><td colSpan="3"><strong>No registered participants found.</strong><span>Try searching with a different name or email.</span></td></tr>}
             </tbody>
           </table>
+          </div>
         </div>
       )}
     </div>
