@@ -5,7 +5,6 @@ const {
   buildCertificateMeta,
   ensureTemplatePath,
   getCertificateTypeConfig,
-  normalizeIssueDate,
   resolveTemplateSettings,
 } = require('./certificate.utils')
 
@@ -44,7 +43,7 @@ const preparePdfForDynamicText = async ({
 
   const page = pdfDocument.getPages()[0]
   const { width, height } = page.getSize()
-  const font = await pdfDocument.embedFont(StandardFonts.Helvetica)
+  const font = await pdfDocument.embedFont(StandardFonts.HelveticaBold)
 
   return {
     page,
@@ -85,39 +84,23 @@ const generateCertificate = async ({
 
   const { page, width, height, font, settings, metadata } = preparedDocument
 
-  const safeParticipantX = width * 0.12
-  const safeTopY = height * 0.74
-  const detailY = height * 0.58
+  const nameAreaLeft = width * 0.236
+  const nameAreaRight = width * 0.783
+  const nameAreaWidth = nameAreaRight - nameAreaLeft
+  const renderedParticipantName = metadata.participantName.toUpperCase()
+  const participantTextWidthAtUnitSize = font.widthOfTextAtSize(renderedParticipantName, 1)
+  const participantFontSize = metadata.certificateType === CERTIFICATE_TYPES.HACKATHON_PARTICIPATION
+    ? 24
+    : settings.fontSize
+  const nameFontSize = Math.min(participantFontSize, (nameAreaWidth * 0.92) / participantTextWidthAtUnitSize)
+  const participantTextWidth = font.widthOfTextAtSize(renderedParticipantName, nameFontSize)
+  const participantX = nameAreaLeft + Math.max(0, (nameAreaWidth - participantTextWidth) / 2)
+  const participantY = height * 0.539
 
-  page.drawText(metadata.participantName, {
-    x: safeParticipantX,
-    y: safeTopY,
-    size: settings.fontSize,
-    font,
-    color: rgb(...settings.textColor),
-    maxWidth: width * 0.76,
-  })
-
-  page.drawText(`Certificate ID: ${metadata.certificateId}`, {
-    x: safeParticipantX,
-    y: detailY,
-    size: settings.mutedFontSize,
-    font,
-    color: rgb(...settings.textColor),
-  })
-
-  page.drawText(`Registration ID: ${metadata.registrationId}`, {
-    x: safeParticipantX,
-    y: detailY - 18,
-    size: settings.mutedFontSize,
-    font,
-    color: rgb(...settings.textColor),
-  })
-
-  page.drawText(`Issued: ${normalizeIssueDate(metadata.issueDate)}`, {
-    x: safeParticipantX,
-    y: detailY - 36,
-    size: settings.mutedFontSize,
+  page.drawText(renderedParticipantName, {
+    x: participantX,
+    y: participantY,
+    size: nameFontSize,
     font,
     color: rgb(...settings.textColor),
   })
