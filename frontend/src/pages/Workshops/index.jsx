@@ -1,10 +1,13 @@
 import { motion } from 'framer-motion'
 import Button from '../../components/Button'
+import { useAuth } from '../../context/AuthContext'
 import { workshops } from '../../data/workshops'
 import sticker05 from '../../assets/qiskit/Sticker 05.svg'
 import sticker06 from '../../assets/qiskit/Sticker 06.svg'
 
 const Workshops = () => {
+  const { isLoggedIn } = useAuth()
+
   return (
     <motion.section className="detail-page" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35 }}>
       <div className="container detail-page__header">
@@ -51,7 +54,7 @@ const Workshops = () => {
       </div>
 
       <div className="container detail-page__cta-row">
-        <Button to="/register" kind="primary">Register your interest</Button>
+        {!isLoggedIn && <Button to="/register" kind="primary">Register your interest</Button>}
         <Button to="/day-1" kind="secondary">See day 1 program</Button>
       </div>
     </motion.section>

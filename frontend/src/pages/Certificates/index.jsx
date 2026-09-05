@@ -199,7 +199,7 @@ const Certificates = () => {
 
       <div className="container detail-page__cta-row">
         <Button to="/" kind="secondary">Back to home</Button>
-        <Button to="/register" kind="primary">Register for the event</Button>
+        {!isLoggedIn && <Button to="/register" kind="primary">Register for the event</Button>}
       </div>
     </motion.section>
   )

@@ -725,7 +725,7 @@ const Hackathon = () => {
       </div>
 
       <div className="container detail-page__cta-row">
-        <Button to="/register" kind="primary">Register your interest</Button>
+        {!isLoggedIn && <Button to="/register" kind="primary">Register your interest</Button>}
         <Button to="/workshops" kind="secondary">Browse workshops</Button>
       </div>
     </motion.section>
