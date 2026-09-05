@@ -5837,3 +5837,170 @@ a:focus-visible {
     width: 45px;
   }
 }
+/* =========================================================
+   ORGANIZER / TECH TEAM CARD REFINEMENT
+   ========================================================= */
+
+.organizer-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 560px;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid rgba(40, 35, 70, 0.08);
+  box-shadow: 0 8px 24px rgba(40, 35, 70, 0.06);
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.organizer-card:hover {
+  box-shadow: 0 16px 34px rgba(40, 35, 70, 0.11);
+  border-color: rgba(235, 32, 130, 0.22);
+}
+
+/* Image area */
+.organizer-card__media {
+  width: 100%;
+  height: 250px;
+  flex-shrink: 0;
+  overflow: hidden;
+  background: linear-gradient(
+    135deg,
+    #fce8f4,
+    #eee5f8
+  );
+}
+
+.organizer-card__image {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+/* Placeholder */
+.organizer-card__mark {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(
+    135deg,
+    #fce8f4,
+    #eee5f8
+  );
+}
+
+.organizer-card__mark span {
+  font-size: 48px;
+  font-weight: 700;
+  color: #d41467;
+}
+
+/* Content */
+.organizer-card__content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 24px 28px 22px;
+}
+
+/* Name */
+.organizer-card__content h3 {
+  margin: 0 0 10px;
+  font-size: 18px;
+  line-height: 1.3;
+  font-weight: 700;
+  color: #202033;
+}
+
+/* Role */
+.organizer-card__role {
+  margin: 0 0 14px;
+  font-size: 14px;
+  line-height: 1.45;
+  font-weight: 600;
+  color: #ed2d88;
+}
+
+/* Department + year */
+.organizer-card__details {
+  margin: 0 0 18px;
+  font-size: 14px;
+  line-height: 1.4;
+  font-weight: 500;
+  color: #686879;
+}
+
+/* College */
+.organizer-card__organization {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.55;
+  font-weight: 500;
+  color: #707080;
+}
+
+/* LinkedIn */
+.organizer-card__linkedin {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  margin-top: auto;
+  padding-top: 24px;
+
+  font-size: 13px;
+  font-weight: 600;
+  color: #0969c7;
+  text-decoration: none;
+}
+
+.organizer-card__linkedin:hover {
+  text-decoration: underline;
+}
+
+.organizer-card__linkedin svg {
+  flex-shrink: 0;
+}
+
+
+/* =========================================================
+   CAROUSEL SPACING
+   ========================================================= */
+
+.team-carousel-item {
+  height: auto;
+}
+
+.team-carousel-scroll {
+  align-items: stretch;
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media (max-width: 768px) {
+  .organizer-card {
+    min-height: 520px;
+  }
+
+  .organizer-card__media {
+    height: 220px;
+  }
+
+  .organizer-card__content {
+    padding: 20px 22px 20px;
+  }
+
+  .organizer-card__content h3 {
+    font-size: 17px;
+  }
+}

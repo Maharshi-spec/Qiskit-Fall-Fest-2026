@@ -111,6 +111,8 @@ const HorizontalTeamCarousel = ({ title, members = [], category }) => {
               <OrganizerCard
                 name={member.name}
                 role={member.role}
+                department={member.department}
+                year={member.year}
                 college={member.college}
                 image={member.photo}
                 linkedin={member.linkedin}

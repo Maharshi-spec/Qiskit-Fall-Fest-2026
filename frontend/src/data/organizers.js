@@ -2,77 +2,91 @@ import balaji from '../assets/tech-team/Balaji.jpeg'
 import kesava from '../assets/tech-team/Kesava.jpeg'
 import maharshi from '../assets/tech-team/Maharshi.jpeg'
 import saiTej from '../assets/tech-team/Sai_Tej.jpeg'
-
-
-
-
-
-
+import noahSam from '../assets/tech-team/Noah_Sam.jpeg'
+import minhazuddin from '../assets/organizers/Minhazuddin.jpeg'
 
 
 export const organizers = [
   {
-    name: "Organizer 01",
-    role: "Event Lead",
-    college: "College Name",
+    name: "Kappala Bhuvana Kruthi",
+    role: "Lead Organizer",
+    department: "CSE Biosciences",
+    year: "2nd Year",
+    college: "Centurion University of Technology and Management, Vizianagaram",
     photo: "",
-    linkedin: "https://www.linkedin.com/in/REAL-PROFILE-01/"
+    linkedin: "https://www.linkedin.com/in/kappala-bhuvanakruthi-403ab6384/"
   },
   {
-    name: "Organizer 02",
-    role: "Core Team",
-    college: "College Name",
+  name: "Shaik Minhazuddin",
+  role: "Co-Organizer",
+  department: "CSE AI & ML",
+  year: "2nd Year",
+  college: "Centurion University of Technology and Management",
+  photo: minhazuddin,
+  linkedin: "https://www.linkedin.com/in/shaik-minhazuddin-97b786315/"
+},
+  {
+    name: "Mukunda Kamisetty",
+    role: "Co-Organizer",
+    department: "CSE Biosciences",
+    year: "2nd Year",
+    college: "Centurion University of Technology and Management, Vizianagaram",
     photo: "",
-    linkedin: "https://www.linkedin.com/in/REAL-PROFILE-02/"
+    linkedin: "https://www.linkedin.com/in/mukunda-kamisetty-aa9519384/"
   },
   {
-    name: "Organizer 03",
-    role: "Core Team",
-    college: "College Name",
+    name: "Vajrapu Dinesh Kartheek",
+    role: "Co-Organizer",
+    department: "CSE AIML",
+    year: "2nd Year",
+    college: "Centurion University of Technology and Management, Vizianagaram",
     photo: "",
-    linkedin: "https://www.linkedin.com/in/REAL-PROFILE-03/"
+    linkedin: "https://www.linkedin.com/in/vajrapu-dinesh-kartheek-77b204384/"
   },
   {
-    name: "Organizer 04",
-    role: "Core Team",
-    college: "College Name",
+    name: "Rishika Saraf",
+    role: "Co-Organizer",
+    department: "CSE AIML",
+    year: "2nd Year",
+    college: "Centurion University of Technology and Management, Vizianagaram",
     photo: "",
-    linkedin: "https://www.linkedin.com/in/REAL-PROFILE-04/"
+    linkedin: "https://www.linkedin.com/in/rishika-saraf-a3b45a385/"
   },
   {
-    name: "Organizer 05",
-    role: "Core Team",
-    college: "College Name",
+    name: "Dhanush Prataparao",
+    role: "Co-Organizer",
+    department: "CSE Cybersecurity",
+    year: "2nd Year",
+    college: "Centurion University of Technology and Management, Vizianagaram",
     photo: "",
-    linkedin: "https://www.linkedin.com/in/REAL-PROFILE-05/"
+    linkedin: "https://in.linkedin.com/in/dhanush-prataparao-69b170406"
   },
   {
-    name: "Organizer 06",
-    role: "Core Team",
-    college: "College Name",
+    name: "Kokkerapalli Pallavi",
+    role: "Co-Organizer",
+    department: "CSE AIML",
+    year: "2nd Year",
+    college: "Centurion University of Technology and Management, Vizianagaram",
     photo: "",
-    linkedin: "https://www.linkedin.com/in/REAL-PROFILE-06/"
+    linkedin: "https://www.linkedin.com/in/pallavi-kokkera-697965421/"
   },
   {
-    name: "Organizer 07",
-    role: "Core Team",
-    college: "College Name",
+    name: "Vanjith Kumar",
+    role: "Co-Organizer",
+    department: "CSE Cyber Security",
+    year: "2nd Year",
+    college: "Centurion University of Technology and Management, Vizianagaram",
     photo: "",
-    linkedin: "https://www.linkedin.com/in/REAL-PROFILE-07/"
+    linkedin: "https://www.linkedin.com/in/vanjith-kumar"
   },
   {
-    name: "Organizer 08",
-    role: "Core Team",
-    college: "College Name",
+    name: "Uthsav Pinnaka",
+    role: "Co-Organizer",
+    department: "CSE Cybersecurity",
+    year: "2nd Year",
+    college: "Centurion University of Technology and Management, Vizianagaram",
     photo: "",
-    linkedin: "https://www.linkedin.com/in/REAL-PROFILE-08/"
-  },
-  {
-    name: "Organizer 09",
-    role: "Core Team",
-    college: "College Name",
-    photo: "",
-    linkedin: "https://www.linkedin.com/in/REAL-PROFILE-09/"
+    linkedin: "https://www.linkedin.com/in/uthsav-pinnaka-22321538a/"
   }
 ]
 
@@ -80,20 +94,26 @@ export const techTeam = [
   {
     name: "Nadupuru Maharshi",
     role: "Team Lead, Backend Lead Developer",
+    department: "CSE-SE",
+    year: "2nd Year",
     college: "Centurion University of Technology and Management, Vizianagaram",
     photo: maharshi,
-    linkedin: "https://www.linkedin.com/in/maharshi-nadupuru-5b8929368?utm_source=share_via&utm_content=profile&utm_medium=member_android"
+    linkedin: "https://www.linkedin.com/in/maharshi-nadupuru-5b8929368/"
   },
   {
-    name: "Watkins Noah Sam",
-    role: "Frontend Lead Developer",
-    college: "Centurion University of Technology and Management, Vizianagaram",
-    photo: "",
-    linkedin: "https://www.linkedin.com/in/noah-watkins-6ba545365/"
-  },
+  name: "Watkins Noah Sam",
+  role: "Frontend Lead Developer",
+  department: "CSE-SE",
+  year: "2nd Year",
+  college: "Centurion University of Technology and Management, Vizianagaram",
+  photo: noahSam,
+  linkedin: "https://www.linkedin.com/in/noah-watkins-6ba545365/"
+},
   {
     name: "Tekupudi Balaji",
     role: "Backend Developer & Frontend Developer",
+    department: "CSE-SE",
+    year: "2nd Year",
     college: "Centurion University of Technology and Management, Vizianagaram",
     photo: balaji,
     linkedin: "https://www.linkedin.com/in/tekupudibalaji/"
@@ -101,6 +121,8 @@ export const techTeam = [
   {
     name: "Goruputi Kesava Sai Kumar",
     role: "Frontend Developer",
+    department: "CSE-SE",
+    year: "2nd Year",
     college: "Centurion University of Technology and Management, Vizianagaram",
     photo: kesava,
     linkedin: "https://www.linkedin.com/in/kesava-sai-853779360/"
@@ -108,6 +130,8 @@ export const techTeam = [
   {
     name: "G Harsha Vardhan",
     role: "Frontend Developer",
+    department: "CSE-AIML",
+    year: "2nd Year",
     college: "Centurion University of Technology and Management, Vizianagaram",
     photo: "",
     linkedin: "https://www.linkedin.com/in/REAL-PROFILE-05/"
@@ -115,6 +139,8 @@ export const techTeam = [
   {
     name: "V Sai Tej",
     role: "Backend Developer",
+    department: "CSE-AIML",
+    year: "2nd Year",
     college: "Centurion University of Technology and Management, Vizianagaram",
     photo: saiTej,
     linkedin: "https://www.linkedin.com/in/nadiminti-venkata-sai-tej-23884237b/"
