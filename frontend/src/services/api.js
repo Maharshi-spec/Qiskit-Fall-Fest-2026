@@ -468,6 +468,60 @@ export const api = {
     }
   },
 
+  async fetchMyTeam(token) {
+    try {
+      const response = await fetch(resolveApiUrl('/api/v1/hackathon/team/me'), {
+        headers: { Authorization: `Bearer ${token}` },
+        credentials: 'include',
+      })
+      const data = await parseApiResponse(response)
+      if (response.ok) {
+        return { success: true, data: data?.data || null }
+      }
+      if (response.status === 404 || data?.error?.code === 'REGISTRATION_NOT_FOUND' || data?.error?.code === 'TEAM_NOT_FOUND') {
+        return { success: true, data: null }
+      }
+      return { success: false, error: data?.error || { message: 'Unable to load team details.' } }
+    } catch (err) {
+      return { success: false, error: { code: 'NETWORK_ERROR', message: 'Unable to load team details.' } }
+    }
+  },
+
+  async createTeam(token, payload) {
+    try {
+      const response = await fetch(resolveApiUrl('/api/v1/hackathon/team'), {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          ...buildJsonHeaders(),
+        },
+        body: JSON.stringify(payload),
+        credentials: 'include',
+      })
+      const data = await parseApiResponse(response)
+      return response.ok
+        ? { success: true, data: data?.data || null }
+        : { success: false, error: data?.error || { message: 'Unable to create team.' } }
+    } catch (err) {
+      return { success: false, error: { code: 'NETWORK_ERROR', message: 'Unable to create team.' } }
+    }
+  },
+
+  async verifyHackathonParticipant(token, email) {
+    try {
+      const response = await fetch(resolveApiUrl(`/api/v1/hackathon/verify-participant?email=${encodeURIComponent(email)}`), {
+        headers: { Authorization: `Bearer ${token}` },
+        credentials: 'include',
+      })
+      const data = await parseApiResponse(response)
+      return response.ok
+        ? { success: true, data: data?.data || {} }
+        : { success: false, error: data?.error || { message: 'Participant not found. All team members must be registered.' } }
+    } catch (err) {
+      return { success: false, error: { code: 'NETWORK_ERROR', message: 'Unable to verify participant email.' } }
+    }
+  },
+
   async organizerFetchEvents() {
     try {
       const response = await fetch(resolveApiUrl('/api/v1/organizer/events'), {
