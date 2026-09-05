@@ -134,7 +134,7 @@ export const techTeam = [
     year: "2nd Year",
     college: "Centurion University of Technology and Management, Vizianagaram",
     photo: "",
-    linkedin: "https://www.linkedin.com/in/REAL-PROFILE-05/"
+    linkedin: "https://www.linkedin.com/in/harsha-vardhan-b84b453b0/"
   },
   {
     name: "V Sai Tej",
