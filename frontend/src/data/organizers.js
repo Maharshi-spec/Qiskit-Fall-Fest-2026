@@ -1,3 +1,15 @@
+import balaji from '../assets/tech-team/Balaji.jpeg'
+import kesava from '../assets/tech-team/Kesava.jpeg'
+import maharshi from '../assets/tech-team/Maharshi.jpeg'
+import saiTej from '../assets/tech-team/Sai_Tej.jpeg'
+
+
+
+
+
+
+
+
 export const organizers = [
   {
     name: "Organizer 01",
@@ -66,45 +78,45 @@ export const organizers = [
 
 export const techTeam = [
   {
-    name: "Tech Member 01",
-    role: "Lead Developer",
-    college: "College Name",
-    photo: "",
-    linkedin: "https://www.linkedin.com/in/REAL-PROFILE-01/"
+    name: "Nadupuru Maharshi",
+    role: "Team Lead, Backend Lead Developer",
+    college: "Centurion University of Technology and Management, Vizianagaram",
+    photo: maharshi,
+    linkedin: "https://www.linkedin.com/in/maharshi-nadupuru-5b8929368?utm_source=share_via&utm_content=profile&utm_medium=member_android"
   },
   {
-    name: "Tech Member 02",
+    name: "Watkins Noah Sam",
+    role: "Frontend Lead Developer",
+    college: "Centurion University of Technology and Management, Vizianagaram",
+    photo: "",
+    linkedin: "https://www.linkedin.com/in/noah-watkins-6ba545365/"
+  },
+  {
+    name: "Tekupudi Balaji",
+    role: "Backend Developer & Frontend Developer",
+    college: "Centurion University of Technology and Management, Vizianagaram",
+    photo: balaji,
+    linkedin: "https://www.linkedin.com/in/tekupudibalaji/"
+  },
+  {
+    name: "Goruputi Kesava Sai Kumar",
     role: "Frontend Developer",
-    college: "College Name",
-    photo: "",
-    linkedin: "https://www.linkedin.com/in/REAL-PROFILE-02/"
+    college: "Centurion University of Technology and Management, Vizianagaram",
+    photo: kesava,
+    linkedin: "https://www.linkedin.com/in/kesava-sai-853779360/"
   },
   {
-    name: "Tech Member 03",
-    role: "Backend Developer",
-    college: "College Name",
-    photo: "",
-    linkedin: "https://www.linkedin.com/in/REAL-PROFILE-03/"
-  },
-  {
-    name: "Tech Member 04",
-    role: "UI/UX Designer",
-    college: "College Name",
-    photo: "",
-    linkedin: "https://www.linkedin.com/in/REAL-PROFILE-04/"
-  },
-  {
-    name: "Tech Member 05",
-    role: "DevOps Engineer",
-    college: "College Name",
+    name: "G Harsha Vardhan",
+    role: "Frontend Developer",
+    college: "Centurion University of Technology and Management, Vizianagaram",
     photo: "",
     linkedin: "https://www.linkedin.com/in/REAL-PROFILE-05/"
   },
   {
-    name: "Tech Member 06",
-    role: "QA Engineer",
-    college: "College Name",
-    photo: "",
-    linkedin: "https://www.linkedin.com/in/REAL-PROFILE-06/"
+    name: "V Sai Tej",
+    role: "Backend Developer",
+    college: "Centurion University of Technology and Management, Vizianagaram",
+    photo: saiTej,
+    linkedin: "https://www.linkedin.com/in/nadiminti-venkata-sai-tej-23884237b/"
   }
 ]
