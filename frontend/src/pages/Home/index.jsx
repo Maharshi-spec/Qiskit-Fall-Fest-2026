@@ -8,10 +8,11 @@ import EventCard from '../../components/EventCard'
 import Button from '../../components/Button'
 import SpeakerCard from '../../components/SpeakerCard'
 import OrganizerCard from '../../components/OrganizerCard'
+import HorizontalTeamCarousel from '../../components/HorizontalTeamCarousel'
 import { event } from '../../data/event'
 import { workshops } from '../../data/workshops'
 import { speakers } from '../../data/speakers'
-import { organizers } from '../../data/organizers'
+import { organizers, techTeam } from '../../data/organizers'
 import { hackathon } from '../../data/hackathon'
 import { programDays } from '../../data/program'
 import { venue } from '../../data/venue'
@@ -201,10 +202,7 @@ const Home = () => {
     ]
   }, [])
 
-  const organizerCards = useMemo(() => {
-    if (organizers.length) return organizers
-    return [{ name: 'Organizer details coming soon', role: 'TBD' }]
-  }, [])
+
 
   const activeProgramDay = useMemo(
     () => programDays.find((day) => day.id === selectedDay) || programDays[0],
@@ -661,31 +659,37 @@ const Home = () => {
         </motion.section>
 
         <motion.section className="section section--organizers" {...sectionMotion}>
-          <div className="container section__with-sticker">
-            <div className="section__header-row">
-              <SectionHeader
-                label="Organizers"
-                title="Built by a community of curious minds."
-                description="The event is organized through collaboration between the university and the people helping bring a welcoming quantum learning experience to participants."
-              />
-              <StickerAccent src={sticker07} alt="" className="sticker--organizers" rotate={-12} delay={0.16} />
-            </div>
+  <div className="container section__with-sticker">
+    <div className="section__header-row">
+      <SectionHeader
+        label="Our Team"
+        title="The people behind Qiskit Fall Fest."
+        description="Meet the organizers and technology team working together to make Qiskit Fall Fest 2026 happen."
+      />
+      <StickerAccent
+        src={sticker07}
+        alt=""
+        className="sticker--organizers"
+        rotate={-12}
+        delay={0.16}
+      />
+    </div>
 
-            <div className="organizer-grid">
-              {organizerCards.map((item) => (
-                <OrganizerCard
-                  key={`${item.name}-${item.role || 'organizer'}`}
-                  name={item.name}
-                  role={item.role}
-                  organization={item.organization}
-                  description={item.description}
-                  image={item.image}
-                  alt={item.alt}
-                />
-              ))}
-            </div>
-          </div>
-        </motion.section>
+    {/* Organizers — 9 members */}
+    <HorizontalTeamCarousel
+      title="Organizers"
+      members={organizers}
+      category="organizers"
+    />
+
+    {/* Technology Team — 6 members */}
+    <HorizontalTeamCarousel
+      title="Technology Team"
+      members={techTeam}
+      category="tech-team"
+    />
+  </div>
+</motion.section>
 
         <motion.section className="section section--venue" {...sectionMotion}>
           <div className="container venue-shell">
