@@ -370,7 +370,7 @@ const OrganizerDashboardHome = () => {
 }
 
 const OrganizerEmailPage = () => {
-  const [form, setForm] = useState({ recipients: ORGANIZER_EMAIL, subject: '', message: '' })
+  const [form, setForm] = useState({ role: '', subject: '', message: '' })
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -389,7 +389,7 @@ const OrganizerEmailPage = () => {
     setSuccess('')
 
     const result = await api.organizerSendEmail({
-      recipients: form.recipients.split(',').map((item) => item.trim()).filter(Boolean),
+      role: form.role,
       subject: form.subject,
       message: form.message,
     })
@@ -401,7 +401,9 @@ const OrganizerEmailPage = () => {
       return
     }
 
-    setSuccess(`Email sent successfully to ${result.data?.sentTo?.join(', ') || 'recipients'}.`)
+    setSuccess(result.data?.participantCount
+      ? `Email sent successfully to ${result.data.participantCount} participants.`
+      : 'No participants found for the selected role.')
     setForm((prev) => ({ ...prev, subject: '', message: '' }))
   }
 

@@ -552,15 +552,16 @@ const setAttendanceRecord = async (registrationId, status, participant = {}) => 
 }
 
 const sendOrganizerEmail = async (payload = {}) => {
-  const recipients = Array.isArray(payload.recipients)
-    ? payload.recipients
-    : String(payload.recipients || '').split(',').map((item) => item.trim()).filter(Boolean)
-
+  const role = String(payload.role || '').trim().toUpperCase()
   const subject = String(payload.subject || '').trim()
   const message = String(payload.message || '').trim()
 
-  if (!recipients.length) {
-    throw new AppError(400, 'VALIDATION_ERROR', 'At least one recipient is required.')
+  if (!role) {
+    throw new AppError(400, 'VALIDATION_ERROR', 'Participant role is required.')
+  }
+
+  if (!VALID_ROLES.has(role)) {
+    throw new AppError(400, 'VALIDATION_ERROR', 'role must be one of Student, Faculty, Professional, Other.')
   }
 
   if (!subject) {
@@ -571,7 +572,21 @@ const sendOrganizerEmail = async (payload = {}) => {
     throw new AppError(400, 'VALIDATION_ERROR', 'Email message is required.')
   }
 
-  const uniqueRecipients = [...new Set(recipients)]
+  const result = await pool.query(
+    'SELECT email FROM registrations WHERE role = $1 ORDER BY id',
+    [role],
+  )
+  const uniqueRecipients = [...new Set(result.rows.map((row) => String(row.email || '').trim()).filter(Boolean))]
+
+  if (!uniqueRecipients.length) {
+    return {
+      success: true,
+      data: {
+        participantCount: 0,
+      },
+    }
+  }
+
   const preparedMessage = message.replace(/\n/g, '<br />')
 
   try {
@@ -588,7 +603,7 @@ const sendOrganizerEmail = async (payload = {}) => {
   return {
     success: true,
     data: {
-      sentTo: uniqueRecipients,
+      participantCount: uniqueRecipients.length,
       subject,
       sentAt: new Date().toISOString(),
     },
