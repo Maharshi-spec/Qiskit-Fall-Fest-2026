@@ -2273,6 +2273,263 @@ a:focus-visible {
   margin-top: 1.5rem;
 }
 
+.day4-page {
+  padding-bottom: 5rem;
+}
+
+.day4-hero {
+  min-height: 29rem;
+}
+
+.day4-hero__visual {
+  justify-self: center;
+}
+
+.day4-section {
+  margin-top: 4.5rem;
+}
+
+.day4-section__heading {
+  max-width: 700px;
+  margin-bottom: 1.6rem;
+}
+
+.day4-section__heading h2 {
+  margin-bottom: 0.65rem;
+  font-size: clamp(1.8rem, 3vw, 2.7rem);
+  line-height: 1.08;
+}
+
+.day4-section__heading p:last-child {
+  margin-bottom: 0;
+}
+
+.day4-schedule {
+  display: grid;
+  gap: 1rem;
+}
+
+.day4-showcase-grid,
+.day4-awards-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.day4-showcase-card,
+.day4-feature-card,
+.day4-award-card {
+  border: 1px solid rgba(255, 79, 163, 0.14);
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.88);
+  box-shadow: var(--shadow-soft);
+}
+
+.day4-showcase-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 260px;
+  padding: 1.2rem;
+}
+
+.day4-showcase-card__topline {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  color: var(--color-primary-strong);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.day4-showcase-card__topline img {
+  width: 2.8rem;
+  height: 2.8rem;
+  object-fit: contain;
+}
+
+.day4-showcase-card h3,
+.day4-award-card h3 {
+  margin: 1rem 0 0.55rem;
+  font-size: clamp(1.25rem, 1.8vw, 1.65rem);
+  line-height: 1.15;
+}
+
+.day4-showcase-card p {
+  margin-bottom: 1rem;
+  font-size: 0.96rem;
+  line-height: 1.55;
+}
+
+.day4-card-action {
+  align-self: flex-start;
+  margin-top: auto;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--color-primary-strong);
+  font-weight: 800;
+}
+
+.day4-card-action span {
+  margin-left: 0.3rem;
+}
+
+.day4-band {
+  margin-top: 4.5rem;
+  border-top: 1px solid rgba(255, 79, 163, 0.12);
+  border-bottom: 1px solid rgba(255, 79, 163, 0.12);
+  background: linear-gradient(180deg, rgba(255, 244, 248, 0.72), rgba(245, 239, 255, 0.55));
+}
+
+.day4-community {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  align-items: center;
+  gap: 2rem;
+  margin-top: 0;
+}
+
+.day4-community__sticker {
+  width: 4.5rem;
+  height: 4.5rem;
+  margin: 0.2rem 0 0.35rem;
+  object-fit: contain;
+}
+
+.day4-feature-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.day4-feature-card {
+  min-height: 150px;
+  padding: 1.1rem;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.day4-feature-card span {
+  color: var(--color-primary-strong);
+  font-size: 0.75rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.day4-feature-card p {
+  margin: 1.5rem 0 0;
+  font-size: 0.94rem;
+  line-height: 1.45;
+}
+
+.day4-award-card {
+  position: relative;
+  min-height: 190px;
+  padding: 1.2rem;
+  overflow: hidden;
+}
+
+.day4-award-card img {
+  position: absolute;
+  top: 0.8rem;
+  right: 0.8rem;
+  width: 3.3rem;
+  height: 3.3rem;
+  object-fit: contain;
+  opacity: 0.78;
+}
+
+.day4-award-card > span {
+  color: var(--color-primary-strong);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.day4-final-cta {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1.5rem;
+  margin-top: 4.5rem;
+  padding: clamp(1.5rem, 4vw, 2.5rem);
+  border: 1px solid rgba(255, 79, 163, 0.18);
+  border-radius: 26px;
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: var(--shadow-soft);
+}
+
+.day4-final-cta > img {
+  width: 5rem;
+  height: 5rem;
+  object-fit: contain;
+}
+
+.day4-final-cta h2 {
+  margin-bottom: 0.4rem;
+  font-size: clamp(1.7rem, 3vw, 2.5rem);
+}
+
+.day4-final-cta p:last-child {
+  margin-bottom: 0;
+}
+
+.day4-final-cta__actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.7rem;
+}
+
+@media (max-width: 1024px) {
+  .day4-showcase-grid,
+  .day4-awards-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .day4-community {
+    grid-template-columns: 1fr;
+  }
+
+  .day4-final-cta {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .day4-final-cta__actions {
+    grid-column: 1 / -1;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 720px) {
+  .day4-hero {
+    min-height: 0;
+  }
+
+  .day4-showcase-grid,
+  .day4-awards-grid,
+  .day4-feature-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .day4-final-cta {
+    grid-template-columns: 1fr;
+  }
+
+  .day4-final-cta > img {
+    width: 4rem;
+    height: 4rem;
+  }
+
+  .day4-final-cta__actions {
+    grid-column: auto;
+    display: grid;
+    justify-content: stretch;
+  }
+}
+
 @media (max-width: 1024px) {
   .detail-page__grid--four {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -2965,7 +3222,8 @@ a:focus-visible {
   appearance: none;
   border: 1px solid transparent;
   border-radius: 999px;
-  padding: 0.85rem 1rem;
+  min-height: 3.5rem;
+  padding: 1rem 1.25rem;
   background: transparent;
   color: #5c3d7f;
   font-size: 0.96rem;
@@ -2987,14 +3245,186 @@ a:focus-visible {
 }
 
 .bit-visual {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: block;
   min-height: 180px;
   border: 1px solid rgba(110, 84, 166, 0.12);
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.9);
   overflow: hidden;
+}
+
+.bit-visual__title {
+  margin: 0;
+  color: #3b2f59;
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.03em;
+  text-align: center;
+}
+
+.bit-visual--classical {
+  padding: 1.25rem;
+}
+
+.classical-bit-experience {
+  display: grid;
+  justify-items: center;
+  gap: 1.15rem;
+  width: 100%;
+}
+
+.classical-bit-display {
+  display: grid;
+  place-items: center;
+  width: min(100%, 360px);
+  min-height: 190px;
+  padding: 1.25rem;
+  border: 2px solid rgba(255, 79, 163, 0.25);
+  border-radius: 24px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(245, 239, 255, 0.9));
+  box-shadow: 0 16px 32px rgba(119, 82, 154, 0.1);
+  transition: border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.classical-bit-display__value {
+  color: var(--color-primary-strong);
+  font-size: clamp(4.5rem, 8vw, 6rem);
+  font-weight: 800;
+  line-height: 0.9;
+}
+
+.classical-bit-display__label {
+  color: #4d2f74;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.classical-bit-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 1rem 1.5rem;
+  width: 100%;
+}
+
+.classical-bit-toggle {
+  border: 1px solid rgba(255, 79, 163, 0.2);
+  border-radius: 999px;
+  padding: 0.75rem 1.25rem;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-strong) 100%);
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 800;
+  box-shadow: 0 10px 22px rgba(255, 79, 163, 0.18);
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.classical-bit-toggle:hover,
+.classical-bit-toggle:focus-visible {
+  transform: translateY(-1px);
+  box-shadow: 0 13px 26px rgba(255, 79, 163, 0.24);
+}
+
+.classical-bit-current {
+  display: grid;
+  gap: 0.1rem;
+  color: #4d2f74;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.classical-bit-current strong {
+  color: #3b2f59;
+  font-size: 1.1rem;
+}
+
+.classical-bit-probabilities {
+  display: grid;
+  gap: 0.7rem;
+  width: min(100%, 460px);
+  padding: 1rem 1.15rem;
+  border: 1px solid rgba(255, 79, 163, 0.12);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.classical-bit-probabilities p {
+  margin-bottom: 0.1rem;
+  color: #4d2f74;
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.classical-bit-probability-row {
+  display: grid;
+  grid-template-columns: 2rem minmax(0, 1fr) 3.5rem;
+  align-items: center;
+  gap: 0.65rem;
+  color: #4d2f74;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.classical-bit-probability-row strong {
+  text-align: right;
+}
+
+.classical-bit-bar-track {
+  height: 13px;
+  border-radius: 999px;
+  background: rgba(120, 89, 202, 0.1);
+  overflow: hidden;
+}
+
+.classical-bit-bar {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  transition: width 220ms ease;
+}
+
+.classical-bit-bar--zero {
+  background: linear-gradient(90deg, #ff4fa3, #f6a4d2);
+}
+
+.classical-bit-bar--one {
+  background: linear-gradient(90deg, #7b5ad8, #b59bef);
+}
+
+.classical-bit-comparison {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+  width: min(100%, 460px);
+}
+
+.classical-bit-comparison > div {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0.8rem;
+  border: 1px solid rgba(120, 89, 202, 0.13);
+  border-radius: 14px;
+  background: rgba(245, 239, 255, 0.48);
+  color: #4d2f74;
+  font-size: 0.76rem;
+}
+
+.classical-bit-comparison strong {
+  color: var(--color-primary-strong);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+}
+
+.classical-bit-comparison b {
+  color: #3b2f59;
+  font-size: 0.86rem;
 }
 
 .bit-visual__classical,
@@ -3011,7 +3441,9 @@ a:focus-visible {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  width: min(100%, 290px);
+  width: min(100%, 380px);
+  min-height: 220px;
+  padding: 1.5rem;
 }
 
 .bit-state {
@@ -3059,21 +3491,21 @@ a:focus-visible {
 .classical-bit-track::after { right: 16%; }
 
 .bit-visual__qubit {
-  display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(160px, 0.6fr);
-  align-items: center;
-  gap: 1rem;
+  display: block;
   width: 100%;
   padding: 0.5rem;
 }
 
+.bit-visual--qubit {
+  padding: 1rem;
+}
+
 .bloch-sphere {
   display: grid;
-  grid-template-columns: minmax(0, 1.4fr) minmax(150px, 0.6fr);
-  align-items: center;
-  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.25rem;
   width: 100%;
-  min-height: 220px;
+  min-height: 0;
 }
 
 .bloch-sphere__canvas-shell {
@@ -3081,7 +3513,9 @@ a:focus-visible {
   align-items: center;
   justify-content: center;
   width: 100%;
-  min-height: 220px;
+  max-width: 520px;
+  margin: 0 auto;
+  min-height: clamp(360px, 34vw, 500px);
   border: 1px solid rgba(120, 89, 202, 0.12);
   border-radius: 22px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, rgba(244, 239, 255, 0.8) 100%);
@@ -3091,7 +3525,7 @@ a:focus-visible {
 .bloch-sphere__canvas {
   display: block;
   width: 100%;
-  height: 220px;
+  height: clamp(360px, 34vw, 500px);
   max-width: 100%;
   cursor: grab;
   touch-action: none;
@@ -3103,8 +3537,9 @@ a:focus-visible {
 
 .bloch-sphere__readout {
   display: grid;
-  gap: 0.7rem;
-  padding: 0.9rem 0.8rem;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.9rem 1.25rem;
+  padding: 1.25rem;
   border: 1px solid rgba(255, 79, 163, 0.12);
   border-radius: 20px;
   background: rgba(255, 255, 255, 0.72);
@@ -3116,7 +3551,8 @@ a:focus-visible {
   justify-content: space-between;
   gap: 0.75rem;
   color: #4d2f74;
-  font-size: 0.83rem;
+  min-height: 2.3rem;
+  font-size: 0.94rem;
   font-weight: 700;
 }
 
@@ -3127,16 +3563,20 @@ a:focus-visible {
   background: rgba(255, 79, 163, 0.08);
   color: var(--color-primary-strong);
   font: inherit;
-  font-size: 0.75rem;
+  min-width: 4.4rem;
+  font-size: 0.82rem;
   font-weight: 800;
-  padding: 0.38rem 0.72rem;
+  padding: 0.55rem 0.9rem;
   cursor: pointer;
 }
 
 .bloch-sphere__probabilities {
+  grid-column: 1 / -1;
   display: grid;
-  gap: 0.7rem;
-  margin-top: 0.2rem;
+  gap: 0.8rem;
+  margin-top: 0.35rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid rgba(255, 79, 163, 0.12);
 }
 
 .bloch-sphere__probability-row {
@@ -3145,14 +3585,14 @@ a:focus-visible {
   align-items: center;
   gap: 0.55rem;
   color: #4d2f74;
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   font-weight: 700;
 }
 
 .bloch-sphere__bar-track {
   position: relative;
   width: 100%;
-  height: 10px;
+  height: 14px;
   border-radius: 999px;
   background: rgba(120, 89, 202, 0.08);
   overflow: hidden;
@@ -3172,132 +3612,6 @@ a:focus-visible {
   background: linear-gradient(90deg, #7b5ad8 0%, #b59bef 100%);
 }
 
-.qubit-orbit {
-  position: relative;
-  display: grid;
-  place-items: center;
-  width: min(100%, 230px);
-  height: 120px;
-}
-
-.qubit-orbit__ring {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  border: 2px solid rgba(120, 89, 202, 0.45);
-  border-radius: 50%;
-}
-
-.qubit-orbit__ring--one {
-  transform: scale(0.95);
-  border-color: rgba(120, 89, 202, 0.32);
-}
-
-.qubit-orbit__ring--two {
-  width: 64%;
-  height: 64%;
-  border-color: rgba(255, 79, 163, 0.4);
-}
-
-.qubit-core {
-  position: relative;
-  width: 1.05rem;
-  height: 1.05rem;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #ff4fa3 0%, #7b5ad8 100%);
-  box-shadow: 0 0 0 6px rgba(255, 79, 163, 0.1);
-  z-index: 1;
-}
-
-.qubit-label {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: #3a2d5d;
-}
-
-.qubit-label--left { left: 0.3rem; }
-.qubit-label--right { right: 0.3rem; }
-
-.qubit-expression {
-  font-size: clamp(1.1rem, 2vw, 1.55rem);
-  font-weight: 700;
-  letter-spacing: -0.03em;
-  color: #3b2f59;
-  text-align: center;
-}
-
-.quantum-circuit-panel {
-  display: grid;
-  gap: 0.85rem;
-  padding: 1rem;
-  border: 1px solid rgba(110, 84, 166, 0.12);
-  border-radius: 18px;
-  background: rgba(255, 255, 255, 0.8);
-}
-
-.quantum-circuit {
-  width: min(100%, 420px);
-  height: auto;
-  max-height: 220px;
-  margin: 0 auto;
-  display: block;
-  overflow: visible;
-}
-
-.quantum-circuit .wire {
-  stroke: rgba(120, 89, 202, 0.85);
-  stroke-width: 2.5;
-  fill: none;
-  stroke-linecap: round;
-}
-
-.quantum-circuit .wire--control {
-  stroke: rgba(255, 79, 163, 0.7);
-}
-
-.quantum-circuit .gate {
-  stroke: rgba(110, 84, 166, 0.35);
-  stroke-width: 1.5;
-}
-
-.quantum-circuit .gate--pink {
-  fill: rgba(255, 79, 163, 0.12);
-}
-
-.quantum-circuit .gate--lavender {
-  fill: rgba(120, 89, 202, 0.09);
-}
-
-.quantum-circuit .gate-text,
-.quantum-circuit .state-label,
-.quantum-circuit .readout-label {
-  fill: #3a2d5d;
-  font-size: 14px;
-  font-weight: 700;
-}
-
-.quantum-circuit .gate-text--dark {
-  fill: #3a2d5d;
-}
-
-.quantum-circuit .measurement-dot {
-  fill: rgba(255, 255, 255, 0.9);
-  stroke: rgba(255, 79, 163, 0.6);
-  stroke-width: 2;
-}
-
-.quantum-circuit__legend {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem 0.85rem;
-  justify-content: center;
-  font-size: 0.84rem;
-  color: var(--color-text-muted);
-}
-
 .quantum-grid {
   margin-top: 0;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -3315,7 +3629,8 @@ a:focus-visible {
 
 .info-card h3 {
   margin-bottom: 0;
-  font-size: clamp(1.5rem, 2vw, 2rem);
+  font-size: clamp(1.45rem, 2vw, 1.75rem);
+  font-weight: 700;
   line-height: 1.15;
 }
 
@@ -4698,8 +5013,24 @@ a:focus-visible {
     min-height: 150px;
   }
 
-  .quantum-circuit-panel {
-    padding: 0.85rem;
+  .bloch-sphere {
+    grid-template-columns: 1fr;
+  }
+
+  .bloch-sphere__canvas-shell,
+  .bloch-sphere__canvas {
+    min-height: min(82vw, 360px);
+    height: min(82vw, 360px);
+  }
+
+  .bloch-sphere__readout {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    padding: 1rem;
+  }
+
+  .bloch-sphere__probabilities {
+    grid-column: auto;
   }
 
   .journey-steps {

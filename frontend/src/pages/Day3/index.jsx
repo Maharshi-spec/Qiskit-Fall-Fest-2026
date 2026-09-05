@@ -27,7 +27,7 @@ const Day3 = () => {
 
       <div className="container detail-page__meta-bar">
         <Link to="/day-2" className="page-inline-link">← Previous day</Link>
-        <Link to="/certificates" className="page-inline-link">Certificates →</Link>
+        <Link to="/day-4" className="page-inline-link">Next day →</Link>
       </div>
 
       <div className="container detail-page__session-shell">

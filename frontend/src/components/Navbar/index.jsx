@@ -13,6 +13,7 @@ const navItems = [
   { label: 'Day 1', to: '/day-1', isDay: true },
   { label: 'Day 2', to: '/day-2', isDay: true },
   { label: 'Day 3', to: '/day-3', isDay: true },
+  { label: 'Day 4', to: '/day-4', isDay: true },
   { label: 'Certificates', to: '/certificates' },
 ]
 

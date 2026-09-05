@@ -179,6 +179,7 @@ const StickerAccent = ({ src, alt = '', className = '', rotate = 0, delay = 0 })
 const Home = () => {
   const shouldReduceMotion = typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
   const [bitMode, setBitMode] = useState('classical')
+  const [classicalBit, setClassicalBit] = useState(0)
   const [selectedQuantumStep, setSelectedQuantumStep] = useState(quantumSteps[0].id)
   const [selectedDay, setSelectedDay] = useState(programDays[0]?.id || 'day-1')
   const [expandedWorkshop, setExpandedWorkshop] = useState(workshops[0]?.id || null)
@@ -310,49 +311,65 @@ const Home = () => {
                   </button>
                 </div>
 
-                <div className="bit-visual" aria-live="polite">
+                <div className={`bit-visual bit-visual--${bitMode}`} aria-live="polite">
                   {bitMode === 'classical' ? (
-                    <div className="bit-visual__classical" aria-label="Classical bit representation">
-                      <span className="bit-state bit-state--inactive">0</span>
-                      <div className="classical-bit-track" aria-hidden="true" />
-                      <span className="bit-state bit-state--active">1</span>
+                    <div className="classical-bit-experience" aria-label="Classical bit representation">
+                      <h3 className="bit-visual__title">Classical Bit</h3>
+
+                      <div className="classical-bit-display" aria-live="polite">
+                        <span className="classical-bit-display__value">{classicalBit}</span>
+                        <span className="classical-bit-display__label">CLASSICAL<br />BIT</span>
+                      </div>
+
+                      <div className="classical-bit-controls">
+                        <button
+                          type="button"
+                          className="classical-bit-toggle"
+                          onClick={() => setClassicalBit((value) => (value === 0 ? 1 : 0))}
+                        >
+                          Toggle Bit
+                        </button>
+                        <div className="classical-bit-current">
+                          <span>Current State</span>
+                          <strong>|{classicalBit}⟩</strong>
+                        </div>
+                      </div>
+
+                      <div className="classical-bit-probabilities" aria-label="Deterministic measurement probabilities">
+                        <p>Measurement Probabilities</p>
+                        <div className="classical-bit-probability-row">
+                          <span>|0⟩</span>
+                          <div className="classical-bit-bar-track"><span className={`classical-bit-bar ${classicalBit === 0 ? 'classical-bit-bar--zero' : ''}`} style={{ width: `${classicalBit === 0 ? 100 : 0}%` }} /></div>
+                          <strong>{classicalBit === 0 ? '100%' : '0%'}</strong>
+                        </div>
+                        <div className="classical-bit-probability-row">
+                          <span>|1⟩</span>
+                          <div className="classical-bit-bar-track"><span className={`classical-bit-bar ${classicalBit === 1 ? 'classical-bit-bar--one' : ''}`} style={{ width: `${classicalBit === 1 ? 100 : 0}%` }} /></div>
+                          <strong>{classicalBit === 1 ? '100%' : '0%'}</strong>
+                        </div>
+                      </div>
+
+                      <div className="classical-bit-comparison" aria-label="Classical and quantum bit comparison">
+                        <div>
+                          <strong>CLASSICAL BIT</strong>
+                          <span>Definite state</span>
+                          <b>0 OR 1</b>
+                        </div>
+                        <div>
+                          <strong>QUANTUM BIT</strong>
+                          <span>Can exist in superposition</span>
+                          <b>α|0⟩ + β|1⟩</b>
+                        </div>
+                      </div>
                     </div>
                   ) : (
                     <div className="bit-visual__qubit" aria-label="Qubit representation">
+                      <h3 className="bit-visual__title">Qubit</h3>
                       <BlochSphere reducedMotion={shouldReduceMotion} />
                     </div>
                   )}
                 </div>
 
-                <div className="quantum-circuit-panel">
-                  <svg viewBox="0 0 420 180" className="quantum-circuit" role="img" aria-label="Quantum circuit illustration showing Hadamard, X, and measurement gates">
-                    <g>
-                      <line x1="30" y1="38" x2="88" y2="38" className="wire" />
-                      <line x1="30" y1="122" x2="88" y2="122" className="wire" />
-                      <rect x="92" y="20" width="52" height="36" rx="10" className="gate gate--pink" />
-                      <text x="118" y="43" textAnchor="middle" className="gate-text">H</text>
-                      <line x1="144" y1="38" x2="214" y2="38" className="wire" />
-                      <line x1="144" y1="122" x2="214" y2="122" className="wire" />
-                      <line x1="214" y1="38" x2="214" y2="122" className="wire wire--control" />
-                      <circle cx="214" cy="122" r="12" className="measurement-dot" />
-                      <rect x="214" y="90" width="54" height="32" rx="8" className="gate gate--lavender" />
-                      <text x="241" y="110" textAnchor="middle" className="gate-text gate-text--dark">X</text>
-                      <line x1="268" y1="38" x2="340" y2="38" className="wire" />
-                      <line x1="268" y1="122" x2="340" y2="122" className="wire" />
-                      <circle cx="340" cy="38" r="12" className="measurement-dot" />
-                      <circle cx="340" cy="122" r="12" className="measurement-dot" />
-                      <text x="36" y="24" className="state-label">|0⟩</text>
-                      <text x="36" y="142" className="state-label">|0⟩</text>
-                      <text x="364" y="44" className="readout-label">M</text>
-                      <text x="364" y="128" className="readout-label">M</text>
-                    </g>
-                  </svg>
-                  <div className="quantum-circuit__legend">
-                    <span>H = Hadamard gate</span>
-                    <span>X = Pauli-X gate</span>
-                    <span>M = Measurement</span>
-                  </div>
-                </div>
               </div>
 
               <div className="feature-grid feature-grid--four quantum-grid">

@@ -12,6 +12,7 @@ import Workshops from './pages/Workshops'
 import Day1 from './pages/Day1'
 import Day2 from './pages/Day2'
 import Day3 from './pages/Day3'
+import Day4 from './pages/Day4'
 import Certificates from './pages/Certificates'
 import OrganizerPage from './pages/Organizer'
 import Profile from './pages/Profile'
@@ -55,6 +56,7 @@ function App() {
           <Route path="/day-1" element={<AnimatedPage><MainLayout><Day1 /></MainLayout></AnimatedPage>} />
           <Route path="/day-2" element={<AnimatedPage><MainLayout><Day2 /></MainLayout></AnimatedPage>} />
           <Route path="/day-3" element={<AnimatedPage><MainLayout><Day3 /></MainLayout></AnimatedPage>} />
+          <Route path="/day-4" element={<AnimatedPage><MainLayout><Day4 /></MainLayout></AnimatedPage>} />
           <Route path="/certificates" element={<AnimatedPage><MainLayout><Certificates /></MainLayout></AnimatedPage>} />
           <Route path="/profile" element={<AnimatedPage><MainLayout><Profile /></MainLayout></AnimatedPage>} />
           <Route path="/organizer/*" element={<AnimatedPage><OrganizerPage /></AnimatedPage>} />
