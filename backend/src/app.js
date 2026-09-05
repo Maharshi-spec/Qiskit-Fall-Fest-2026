@@ -28,7 +28,7 @@ app.use('/api/v1', authRoutes)
 app.use('/api/v1', adminRoutes)
 app.use('/api/v1', certificateRoutes)
 app.use('/api/v1', workshopRoutes)
-app.use('/api/v1', hackathonRoutes)
+app.use('/api/v1/hackathon', hackathonRoutes)
 app.use('/api/v1', attendanceRoutes)
 
 app.use(errorMiddleware)
