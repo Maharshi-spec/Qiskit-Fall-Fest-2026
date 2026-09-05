@@ -9,6 +9,7 @@ const navItems = [
   { label: 'Register', to: '/register' },
   { label: 'Hackathon', to: '/hackathon' },
   { label: 'Workshops', to: '/workshops' },
+  { label: 'Attendance', to: '/attendance' },
   { label: 'Day 1', to: '/day-1', isDay: true },
   { label: 'Day 2', to: '/day-2', isDay: true },
   { label: 'Day 3', to: '/day-3', isDay: true },
