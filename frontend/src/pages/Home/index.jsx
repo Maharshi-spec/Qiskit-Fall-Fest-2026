@@ -684,7 +684,7 @@ const Home = () => {
 
     {/* Technology Team — 6 members */}
     <HorizontalTeamCarousel
-      title="Technology Team"
+      title="Tech Team"
       members={techTeam}
       category="tech-team"
     />
